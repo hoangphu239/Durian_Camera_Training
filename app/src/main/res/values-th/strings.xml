@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Durian Camera Training</string>
+    <string name="short_app_name">DCT</string>
+    <string name="select_language">เลือกภาษา:</string>
+    <string name="english">English</string>
+    <string name="thailand">ไทย</string>
+    <string name="vietnamese">Tiếng Việt</string>
+    <string name="press_back_again_to_exit">กด back อีกครั้งเพื่อออก</string>
+    <string name="continue_capture">บันทึกภาพต่อ</string>
+</resources>
