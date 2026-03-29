@@ -5,6 +5,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.os.Build
 import android.provider.MediaStore
+import android.widget.Toast
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
@@ -87,5 +88,9 @@ fun ByteArray.toMultipart(
     val fileName = "frame_${System.currentTimeMillis()}.jpeg"
     val requestBody = this.toRequestBody(mimeType)
     return MultipartBody.Part.createFormData(partName, fileName, requestBody)
+}
+
+fun Context.showToast(message: String) {
+    Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
 }
 

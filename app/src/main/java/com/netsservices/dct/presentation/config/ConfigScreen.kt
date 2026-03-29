@@ -19,6 +19,7 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.netsservices.dct.presentation.config.components.LanguageSection
+import com.netsservices.dct.presentation.config.components.LocationSection
 import java.util.Locale
 
 
@@ -26,6 +27,7 @@ import java.util.Locale
 fun ConfigScreen(
     activity: Activity,
     viewModel: ConfigViewModel = hiltViewModel(),
+    onOpenLocation: () -> Unit
 ) {
     val language by viewModel.language.collectAsState()
 
@@ -39,7 +41,8 @@ fun ConfigScreen(
             language = language,
             onLanguageChange = { lang ->
                 viewModel.onLanguageSelected(activity, lang)
-            }
+            },
+            onOpenLocation = { onOpenLocation() }
         )
     }
 }
@@ -49,13 +52,14 @@ fun ConfigScreen(
 fun ConfigScreenContent(
     language: String,
     onLanguageChange: (String) -> Unit,
+    onOpenLocation: () -> Unit
 ) {
     val scrollState = rememberScrollState()
 
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .padding(bottom = 20.dp)
+            .padding(vertical = 20.dp)
     ) {
         Column(
             modifier = Modifier
@@ -66,6 +70,9 @@ fun ConfigScreenContent(
             LanguageSection(
                 language = language,
                 onLanguageChange = onLanguageChange
+            )
+            LocationSection(
+                onOpenLocation = onOpenLocation
             )
         }
     }

@@ -7,4 +7,15 @@
     <string name="vietnamese">Tiếng Việt</string>
     <string name="press_back_again_to_exit">Press back again to exit</string>
     <string name="continue_capture">Continue Capture</string>
+    <string name="selected_location">Selected Location: </string>
+    <string name="location">Location</string>
+    <string name="welcome_back">Welcome,\nGlad to see you!</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="login">Login</string>
+    <string name="email_required">Email required</string>
+    <string name="invalid_email_format">Invalid email format</string>
+    <string name="password_required">Password required</string>
+    <string name="password_too_short">Password too short</string>
+    <string name="password_must_contain_at_least_1_number">Password must contain at least 1 number</string>
 </resources>

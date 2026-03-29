@@ -1,197 +1,159 @@
 package com.netsservices.dct.presentation.home
 
+import android.util.Log
+import android.view.ViewGroup
+import androidx.camera.core.AspectRatio
+import androidx.camera.core.CameraSelector
+import androidx.camera.core.ImageAnalysis
+import androidx.camera.core.ImageCapture
+import androidx.camera.core.Preview
+import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.camera.view.PreviewView
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.ExposedDropdownMenuDefaults
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.netsservices.dct.presentation.common.SearchMode
-import com.netsservices.dct.presentation.common.SearchStep
+import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
+import com.netsservices.dct.R
+import com.netsservices.dct.presentation.components.AppText
+import com.netsservices.dct.presentation.helper.camera.FrameProcessor
+import com.netsservices.dct.presentation.home.components.ScanCameraView
+import com.netsservices.dct.presentation.main.MainViewModel
+import java.util.concurrent.Executors
 
 
 @Composable
-fun HomeScreen(viewModel: HomeViewModel) {
+fun HomeScreen(
+    mainViewModel: MainViewModel,
+    viewModel: HomeViewModel
+) {
+    val context = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
     val uiState = viewModel.uiState.collectAsState().value
-    var query by remember { mutableStateOf("") }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    ) {
-        SearchModeDropdown(
-            uiState = uiState,
-            onSelect = {
-                viewModel.setSearchMode(it)
-                query = ""
-            }
-        )
+    val processor = remember { FrameProcessor() }
+    val executor = remember { Executors.newSingleThreadExecutor() }
+    val captureExecutor = remember { Executors.newSingleThreadExecutor() }
+    val isReady = remember { mutableStateOf(false) }
 
-        Spacer(modifier = Modifier.height(12.dp))
-
-        OutlinedTextField(
-            value = query,
-            onValueChange = {
-                query = it
-                viewModel.searchRouter(it)
-            },
-            label = { Text("Search...") },
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        LazyColumn(
-            modifier = Modifier.weight(1f)
-        ) {
-
-            when (uiState.currentStep) {
-
-                // ================= PLANTATION =================
-                SearchStep.PLANTATION -> {
-                    items(uiState.plantations) { plantation ->
-                        ItemRow(
-                            title = plantation.name,
-                            subtitle = plantation.code
-                        ) {
-                            viewModel.selectPlantation(plantation)
-                        }
-                    }
-                }
-
-                // ================= ORCHARD =================
-                SearchStep.ORCHARD -> {
-                    items(uiState.orchards) { orchard ->
-                        ItemRow(
-                            title = orchard.name,
-                            subtitle = orchard.plantation.name
-                        ) {
-                            viewModel.selectOrchard(orchard)
-                        }
-                    }
-                }
-
-                // ================= SITE =================
-                SearchStep.SITE -> {
-                    items(uiState.sites) { site ->
-                        ItemRow(
-                            title = site.name,
-                            subtitle = "${site.orchard.name} • ${site.orchard.plantation.name}"
-                        ) {
-                            viewModel.selectSite(site)
-                        }
-                    }
-                }
-            }
+    val previewView = remember {
+        PreviewView(context).apply {
+            layoutParams = ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT
+            )
+            scaleType = PreviewView.ScaleType.FIT_CENTER
         }
+    }
+    Log.d("CameraPreview", "PreviewView: ${previewView.width} x ${previewView.height}")
 
-        if (uiState.siteId.isNotEmpty()) {
-            SelectedLocation(uiState)
+    DisposableEffect(Unit) {
+        onDispose {
+            executor.shutdown()
+            captureExecutor.shutdown()
+        }
+    }
+
+    LaunchedEffect(lifecycleOwner) {
+        val cameraProviderFuture = ProcessCameraProvider.getInstance(context)
+
+        cameraProviderFuture.addListener({
+            val provider = cameraProviderFuture.get()
+
+            val preview = Preview.Builder()
+                .setTargetAspectRatio(AspectRatio.RATIO_4_3)
+                .build()
+                .apply {
+                    setSurfaceProvider(previewView.surfaceProvider)
+                }
+
+            val capture = ImageCapture.Builder()
+                .setTargetAspectRatio(AspectRatio.RATIO_4_3)
+                .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
+                .build()
+
+            val analysis = ImageAnalysis.Builder()
+                .setTargetAspectRatio(AspectRatio.RATIO_4_3)
+                .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+                .build()
+
+            analysis.setAnalyzer(executor) { image ->
+                try {
+                    if (isReady.value) {
+                        val raw = processor.imageProxyToJpeg(image)
+                        raw?.let {
+                            viewModel.checkFrame(raw)
+                        }
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                } finally {
+                    image.close()
+                }
+            }
+
+            provider.unbindAll()
+
+            provider.bindToLifecycle(
+                lifecycleOwner,
+                CameraSelector.DEFAULT_BACK_CAMERA,
+                preview,
+                analysis,
+                capture
+            )
+
+        }, ContextCompat.getMainExecutor(context))
+    }
+
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column(modifier = Modifier.fillMaxSize()) {
+            val guidance = uiState.dataFrame?.guidance ?: ""
+            val isDetected = uiState.dataFrame?.durianDetected == true && uiState.dataFrame.ready
+
+            AppText(
+                modifier = Modifier.padding(start = 10.dp, bottom = 10.dp),
+                text = guidance,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Medium,
+                color = R.color.red
+            )
+
+            ScanCameraView(
+                modifier = Modifier.weight(1f),
+                previewView = previewView,
+                isDetected = isDetected,
+            )
         }
 
         if (uiState.isLoading) {
-            CircularProgressIndicator(
-                modifier = Modifier.align(Alignment.CenterHorizontally)
-            )
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun SearchModeDropdown(
-    uiState: HomeViewModel.UiState,
-    onSelect: (SearchMode) -> Unit
-) {
-    var expanded by remember { mutableStateOf(false) }
-
-    ExposedDropdownMenuBox(
-        expanded = expanded,
-        onExpandedChange = { expanded = !expanded }
-    ) {
-
-        OutlinedTextField(
-            value = uiState.searchMode.name,
-            onValueChange = {},
-            readOnly = true,
-            label = { Text("Search by") },
-            trailingIcon = {
-                ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
-            },
-            modifier = Modifier
-                .menuAnchor()
-                .fillMaxWidth()
-        )
-
-        ExposedDropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false }
-        ) {
-            SearchMode.entries.forEach { mode ->
-                DropdownMenuItem(
-                    text = { Text(mode.name) },
-                    onClick = {
-                        expanded = false
-                        onSelect(mode)
-                    }
-                )
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.4f)),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator()
             }
         }
     }
-}
 
-@Composable
-fun ItemRow(
-    title: String,
-    subtitle: String,
-    onClick: () -> Unit
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onClick() }
-            .padding(12.dp)
-    ) {
-        Text(title, fontWeight = FontWeight.Bold)
-        Text(subtitle, style = MaterialTheme.typography.bodySmall)
-    }
-}
-
-@Composable
-fun SelectedLocation(uiState: HomeViewModel.UiState) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(12.dp)
-            .background(Color(0xFFE8F5E9))
-    ) {
-        Text("Selected Location", fontWeight = FontWeight.Bold)
-        Text("Plantation: ${uiState.plantationId}")
-        Text("Orchard: ${uiState.orchardId}")
-        Text("Site: ${uiState.siteId}")
+    LaunchedEffect(mainViewModel.isAllGranted) {
+        isReady.value = mainViewModel.isAllGranted
     }
 }

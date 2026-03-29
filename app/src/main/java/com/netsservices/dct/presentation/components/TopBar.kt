@@ -20,7 +20,7 @@ fun TopBar(
 ) {
     CenterAlignedTopAppBar(
         modifier = modifier,
-        title = { Text(title, fontWeight = FontWeight.Bold, fontSize = 18.sp) },
+        title = { Text(title, fontWeight = FontWeight.Bold, fontSize = 20.sp) },
         navigationIcon = {
             if (navigationIcon != null) {
                 navigationIcon()

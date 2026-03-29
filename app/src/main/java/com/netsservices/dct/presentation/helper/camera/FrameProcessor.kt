@@ -11,28 +11,35 @@ import java.io.ByteArrayOutputStream
 
 class FrameProcessor {
 
-    private var lastSentTime = 0L
-    private val frameIntervalMs = 100L // ~10 FPS
-
-    fun shouldProcess(): Boolean {
-        val now = System.currentTimeMillis()
-        return if (now - lastSentTime >= frameIntervalMs) {
-            lastSentTime = now
-            true
-        } else false
-    }
-
-    fun process(imageProxy: ImageProxy): ByteArray? {
+    fun imageProxyToJpeg(
+        image: ImageProxy,
+        quality: Int = 90
+    ): ByteArray? {
         return try {
-            val nv21 = yuv420888ToNv21(imageProxy)
+            val nv21 = yuv420888ToNv21(image)
 
-            val jpeg = nv21ToJpeg(
+            val out = ByteArrayOutputStream()
+            val yuvImage = YuvImage(
                 nv21,
-                imageProxy.width,
-                imageProxy.height
+                ImageFormat.NV21,
+                image.width,
+                image.height,
+                null
             )
 
-            rotateJpeg(jpeg, imageProxy.imageInfo.rotationDegrees)
+            yuvImage.compressToJpeg(
+                Rect(0, 0, image.width, image.height),
+                quality,
+                out
+            )
+
+            val jpegBytes = out.toByteArray()
+
+            if (image.imageInfo.rotationDegrees != 0) {
+                rotateJpeg(jpegBytes, image.imageInfo.rotationDegrees)
+            } else {
+                jpegBytes
+            }
 
         } catch (e: Exception) {
             e.printStackTrace()
@@ -40,8 +47,8 @@ class FrameProcessor {
         }
     }
 
-    // 🔥 YUV → NV21
-    private fun yuv420888ToNv21(image: ImageProxy): ByteArray {
+    fun yuv420888ToNv21(image: ImageProxy): ByteArray {
+
         val width = image.width
         val height = image.height
 
@@ -54,49 +61,39 @@ class FrameProcessor {
         val vBuffer = vPlane.buffer
 
         val ySize = yBuffer.remaining()
-        val nv21 = ByteArray(width * height * 3 / 2)
+        val nv21 = ByteArray(ySize + width * height / 2)
 
+        // Y
         yBuffer.get(nv21, 0, ySize)
 
-        val pixelStride = uPlane.pixelStride
-        val rowStride = uPlane.rowStride
-
-        val uArray = ByteArray(uBuffer.remaining())
-        val vArray = ByteArray(vBuffer.remaining())
-        uBuffer.get(uArray)
-        vBuffer.get(vArray)
+        val chromaRowStride = uPlane.rowStride
+        val chromaPixelStride = uPlane.pixelStride
 
         var offset = ySize
-        val uvWidth = width / 2
-        val uvHeight = height / 2
 
-        for (row in 0 until uvHeight) {
-            for (col in 0 until uvWidth) {
-                val index = row * rowStride + col * pixelStride
-                nv21[offset++] = vArray[index]
-                nv21[offset++] = uArray[index]
+        val uBufferPos = uBuffer.position()
+        val vBufferPos = vBuffer.position()
+
+        for (row in 0 until height / 2) {
+            for (col in 0 until width / 2) {
+
+                val index = row * chromaRowStride + col * chromaPixelStride
+
+                // NV21 = VU
+                nv21[offset++] = vBuffer.get(vBufferPos + index)
+                nv21[offset++] = uBuffer.get(uBufferPos + index)
             }
         }
 
         return nv21
     }
 
-    // NV21 → JPEG
-    private fun nv21ToJpeg(nv21: ByteArray, width: Int, height: Int): ByteArray {
-        val yuvImage = YuvImage(nv21, ImageFormat.NV21, width, height, null)
-        val out = ByteArrayOutputStream()
-        yuvImage.compressToJpeg(Rect(0, 0, width, height), 80, out)
-        return out.toByteArray()
-    }
+    fun rotateJpeg(bytes: ByteArray, rotation: Int): ByteArray {
 
-    // FIX ROTATION
-    private fun rotateJpeg(jpeg: ByteArray, rotationDegrees: Int): ByteArray {
-        if (rotationDegrees == 0) return jpeg
-
-        val bitmap = BitmapFactory.decodeByteArray(jpeg, 0, jpeg.size)
+        val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
 
         val matrix = Matrix().apply {
-            postRotate(rotationDegrees.toFloat())
+            postRotate(rotation.toFloat())
         }
 
         val rotated = Bitmap.createBitmap(
@@ -110,7 +107,10 @@ class FrameProcessor {
         )
 
         val out = ByteArrayOutputStream()
-        rotated.compress(Bitmap.CompressFormat.JPEG, 80, out)
+        rotated.compress(Bitmap.CompressFormat.JPEG, 90, out)
+
+        bitmap.recycle()
+        rotated.recycle()
 
         return out.toByteArray()
     }

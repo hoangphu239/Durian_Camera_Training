@@ -14,9 +14,3 @@ enum class SearchMode {
     ORCHARD,
     PLANTATION
 }
-
-enum class SearchStep {
-    PLANTATION,
-    ORCHARD,
-    SITE
-}

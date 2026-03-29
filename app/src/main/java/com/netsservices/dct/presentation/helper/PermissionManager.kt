@@ -14,15 +14,6 @@ class PermissionManager(
     private var onComplete: ((Boolean) -> Unit)? = null
     private var allGranted = true
 
-    private val launcherStorage =
-        activity.registerForActivityResult(
-            ActivityResultContracts.RequestMultiplePermissions()
-        ) { result ->
-            val granted = result.values.all { it }
-            allGranted = allGranted && granted
-            requestCamera()
-        }
-
     private val launcherCamera =
         activity.registerForActivityResult(
             ActivityResultContracts.RequestPermission()

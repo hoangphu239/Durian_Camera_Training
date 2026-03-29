@@ -70,36 +70,44 @@ class MainActivity : ComponentActivity() {
             val navBackStackEntry by navController.currentBackStackEntryFlow
                 .collectAsState(initial = navController.currentBackStackEntry)
             val currentRoute = navBackStackEntry?.destination?.route
+            val showTopBar = currentRoute == Screen.Home.route ||
+                    currentRoute == Screen.Config.route || currentRoute == Screen.Location.route
+
 
             DurianCameraTrainingTheme() {
                 Scaffold(
                     topBar = {
-                        TopBar(
-                            title = stringResource(R.string.app_name),
-                            navigationIcon = if (currentRoute == Screen.ConfigScreen.route) {
-                                {
-                                    IconButton(onClick = { navController.navigateUp() }) {
-                                        Icon(
-                                            Icons.Default.ArrowBackIosNew,
-                                            contentDescription = "Back",
-                                            tint = colorResource(R.color.black)
-                                        )
+                        if (showTopBar) {
+                            TopBar(
+                                title = stringResource(R.string.app_name),
+                                navigationIcon = if (
+                                    currentRoute == Screen.Config.route ||
+                                    currentRoute == Screen.Location.route
+                                ) {
+                                    {
+                                        IconButton(onClick = { navController.navigateUp() }) {
+                                            Icon(
+                                                Icons.Default.ArrowBackIosNew,
+                                                contentDescription = "Back",
+                                                tint = colorResource(R.color.black)
+                                            )
+                                        }
                                     }
-                                }
-                            } else null,
-                            actions = if (currentRoute == Screen.HomeScreen.route) {
-                                {
-                                    IconButton(onClick = { navController.navigate(Screen.ConfigScreen.route) }) {
-                                        Icon(
-                                            Icons.Default.Settings,
-                                            contentDescription = "Settings",
-                                            modifier = Modifier.size(28.dp),
-                                            tint = colorResource(R.color.black)
-                                        )
+                                } else null,
+                                actions = if (currentRoute == Screen.Home.route) {
+                                    {
+                                        IconButton(onClick = { navController.navigate(Screen.Config.route) }) {
+                                            Icon(
+                                                Icons.Default.Settings,
+                                                contentDescription = "Settings",
+                                                modifier = Modifier.size(28.dp),
+                                                tint = colorResource(R.color.black)
+                                            )
+                                        }
                                     }
-                                }
-                            } else null
-                        )
+                                } else null
+                            )
+                        }
                     },
                     snackbarHost = { SnackbarHost(hostState = snackBarHostState) },
                     content = { padding ->
@@ -124,7 +132,7 @@ private fun DoubleBackPressHandler(navController: NavHostController) {
     val currentScreen = navController.currentBackStackEntry?.destination?.route
 
     when (currentScreen) {
-        Screen.HomeScreen.route -> {
+        Screen.Home.route -> {
             if (showToast) {
                 Toast.makeText(
                     context,

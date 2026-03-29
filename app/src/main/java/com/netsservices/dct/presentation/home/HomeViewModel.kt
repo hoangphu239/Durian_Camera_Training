@@ -1,39 +1,22 @@
 package com.netsservices.dct.presentation.home
 
 import android.content.Context
-import android.widget.Toast
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.netsservices.dct.BuildConfig
+import com.netsservices.dct.data.remote.ApiResult
 import com.netsservices.dct.data.remote.response.CheckFrameResponse
-import com.netsservices.dct.data.remote.response.Orchard
-import com.netsservices.dct.data.remote.response.Plantation
-import com.netsservices.dct.data.remote.response.Site
 import com.netsservices.dct.data.remote.response.StatusFile
-import com.netsservices.dct.data.remote.resquest.AuthRequest
 import com.netsservices.dct.data.remote.resquest.CreateSessionRequest
 import com.netsservices.dct.data.remote.resquest.FingerPrintRequest
 import com.netsservices.dct.data.remote.resquest.InitFileRequest
 import com.netsservices.dct.data.remote.resquest.QualityChecks
-import com.netsservices.dct.data.remote.utils.PreferenceManager
 import com.netsservices.dct.domain.repository.Repository
-import com.netsservices.dct.presentation.common.SearchMode
-import com.netsservices.dct.presentation.common.SearchStep
+import com.netsservices.dct.presentation.common.showToast
 import com.netsservices.dct.presentation.common.toRequestBody
-import com.netsservices.dct.presentation.helper.connection.NetworkService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import okhttp3.RequestBody
@@ -43,35 +26,12 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
-    networkService: NetworkService,
     private val repo: Repository
 ) : ViewModel() {
-
-    val networkStatus: StateFlow<NetworkService.Status> =
-        networkService.networkStatus.stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = if (networkService.isInternetAvailable())
-                NetworkService.Status.Available
-            else
-                NetworkService.Status.Lost
-        )
 
     data class UiState(
         val isLoading: Boolean = false,
         val isSuccess: Boolean = false,
-
-        val searchMode: SearchMode = SearchMode.SITE,
-        val currentStep: SearchStep = SearchStep.SITE,
-
-        val sites: List<Site> = emptyList(),
-        val plantations: List<Plantation> = emptyList(),
-        val orchards: List<Orchard> = emptyList(),
-
-        val siteId: String = "",
-        val plantationId: String = "",
-        val orchardId: String = "",
-
         val dataFrame: CheckFrameResponse? = null,
         val sessionId: String = "",
         val fileId: String = ""
@@ -80,155 +40,41 @@ class HomeViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(UiState())
     val uiState = _uiState.asStateFlow()
 
-    private var _isLoggedIn by mutableStateOf(false)
-    val isLoggedIn: Boolean get() = _isLoggedIn
-
     private var isGeneratedFringer = false
     private var isChecking = false
     private var lastSentTime = 0L
     private var image: RequestBody? = null
-    private var job: Job? = null
 
-
-    init {
-        if (PreferenceManager.getAuthToken(context).isEmpty()) {
-            viewModelScope.launch { login() }
-        }
-    }
-
-    private suspend fun login() {
-        val status = networkStatus.first()
-        if (status != NetworkService.Status.Available) return
-
-        val response = repo.login(AuthRequest(BuildConfig.AUTH_EMAIL, BuildConfig.AUTH_PASSWORD))
-        if (response.token.isNotEmpty()) {
-            _isLoggedIn = true
-            PreferenceManager.saveAuthToken(context, response.token)
-            PreferenceManager.saveUserId(context, response.user.id)
-        }
-    }
-
-    fun setSearchMode(mode: SearchMode) {
-        val step = when (mode) {
-            SearchMode.SITE -> SearchStep.SITE
-            SearchMode.ORCHARD -> SearchStep.ORCHARD
-            SearchMode.PLANTATION -> SearchStep.PLANTATION
-        }
-
-        _uiState.update {
-            it.copy(
-                searchMode = mode,
-                currentStep = step,
-                sites = emptyList(),
-                orchards = emptyList(),
-                plantations = emptyList(),
-                siteId = "",
-                orchardId = "",
-                plantationId = ""
-            )
-        }
-    }
-
-    fun searchRouter(query: String) {
-        job?.cancel()
-        job = viewModelScope.launch {
-            delay(100)
-            if (query.length >= 2) {
-                when (_uiState.value.searchMode) {
-                    SearchMode.SITE -> quickSearch(query)
-                    SearchMode.ORCHARD -> searchOrchards(query)
-                    SearchMode.PLANTATION -> searchPlantations(query)
-                }
-            }
-        }
-    }
-
-    fun quickSearch(query: String) {
-        viewModelScope.launch {
-            delay(100)
-            if (query.length >= 2) {
-                val response = repo.quickSearch(query)
-                _uiState.update { it.copy(sites = response.items) }
-            }
-        }
-    }
-
-    fun searchPlantations(keyword: String) {
-        viewModelScope.launch {
-            val response = repo.searchPlantations(query = keyword)
-            _uiState.update { it.copy(plantations = response.items) }
-        }
-    }
-
-    fun searchOrchards(keyword: String = "", plantationId: String = "") {
-        viewModelScope.launch {
-            val response = repo.searchOrchards(query = keyword, plantationId = plantationId)
-            _uiState.update { it.copy(orchards = response.items) }
-        }
-    }
-
-    fun searchSite(keyword: String = "", orchardId: String = "") {
-        viewModelScope.launch {
-            val response = repo.searchSites(query = keyword, orchardId = orchardId)
-            _uiState.update { it.copy(sites = response.items) }
-        }
-    }
-
-    fun selectPlantation(plantation: Plantation) {
-        _uiState.update {
-            it.copy(
-                plantationId = plantation.id,
-                currentStep = SearchStep.ORCHARD,
-                orchards = emptyList(),
-                sites = emptyList()
-            )
-        }
-        searchOrchards(keyword = "", plantationId = plantation.id)
-    }
-
-    fun selectOrchard(orchard: Orchard) {
-        _uiState.update {
-            it.copy(
-                orchardId = orchard.id,
-                currentStep = SearchStep.SITE,
-                sites = emptyList()
-            )
-        }
-        searchSite(keyword = "", orchardId = orchard.id)
-    }
-
-    fun selectSite(site: Site) {
-        _uiState.update {
-            it.copy(
-                siteId = site.id,
-                orchardId = site.orchard.id,
-                plantationId = site.orchard.plantation.id
-            )
-        }
-    }
 
     fun shouldSendFrame(): Boolean {
         val now = System.currentTimeMillis()
-        return !isChecking &&
-                !isGeneratedFringer &&
-                (now - lastSentTime >= 1000)
+        return !isChecking && (now - lastSentTime >= 200)
     }
 
     fun checkFrame(raw: ByteArray) {
         if (!shouldSendFrame()) return
 
-        _uiState.update { it.copy(isLoading = true) }
         viewModelScope.launch {
             isChecking = true
             lastSentTime = System.currentTimeMillis()
+
             try {
-                image = raw.toRequestBody()
-                image?.let {
-                    val response = repo.checkFrame(image!!)
-//                  if (!response.durianDetected || !response.ready) {
-//                      _uiState.update { state -> state.copy(dataFrame = response) }
-//                  } else {
-                    createSession()
+                val body = raw.toRequestBody()
+                when (val result = repo.checkFrame(body)) {
+                    is ApiResult.Success -> {
+                        _uiState.update { state -> state.copy(dataFrame = result.data) }
+                        if (result.data.ready && result.data.durianDetected) {
+                            createSession()
+                        }
+                    }
+
+                    is ApiResult.Error -> {
+                        context.showToast(result.message ?: "Unknown error")
+                    }
+
+                    is ApiResult.Exception -> {
+                        context.showToast("Network error: ${result.exception.localizedMessage}")
+                    }
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -259,13 +105,23 @@ class HomeViewModel @Inject constructor(
                 fruitTag = fruitTag,
                 notes = notes
             )
-            val response = repo.createSessions(request)
-            if (response.sessionId.isNotEmpty()) {
-                _uiState.update { it.copy(sessionId = response.sessionId) }
-                initFile()
-            } else {
-                clearData()
-                Toast.makeText(context, "Create session failure!", Toast.LENGTH_SHORT).show()
+            when (val result = repo.createSessions(request)) {
+                is ApiResult.Success -> {
+                    if (result.data.sessionId.isNotEmpty()) {
+                        _uiState.update { it.copy(sessionId = result.data.sessionId) }
+                        initFile()
+                    }
+                }
+
+                is ApiResult.Error -> {
+                    context.showToast(result.message ?: "Unknown error")
+                    clearData()
+                }
+
+                is ApiResult.Exception -> {
+                    context.showToast("Network error: ${result.exception.localizedMessage}")
+                    clearData()
+                }
             }
         }
     }
@@ -285,13 +141,23 @@ class HomeViewModel @Inject constructor(
                 sizeBytes = sizeBytes,
                 sha256 = sha256
             )
-            val response = repo.initFile(request)
-            if (response.fileId.isNotEmpty()) {
-                _uiState.update { it.copy(fileId = response.fileId) }
-                uploadFile()
-            } else {
-                clearData()
-                Toast.makeText(context, "Init file failure!", Toast.LENGTH_SHORT).show()
+            when (val result = repo.initFile(request)) {
+                is ApiResult.Success -> {
+                    if (result.data.fileId.isNotEmpty()) {
+                        _uiState.update { it.copy(fileId = result.data.fileId) }
+                        uploadFile()
+                    }
+                }
+
+                is ApiResult.Error -> {
+                    context.showToast(result.message ?: "Unknown error")
+                    clearData()
+                }
+
+                is ApiResult.Exception -> {
+                    context.showToast("Network error: ${result.exception.localizedMessage}")
+                    clearData()
+                }
             }
         }
     }
@@ -299,12 +165,22 @@ class HomeViewModel @Inject constructor(
     private fun uploadFile() {
         viewModelScope.launch {
             val fileId = _uiState.value.fileId
-            val response = repo.uploadFile(fileId, image!!)
-            if (response.status == StatusFile.READY.name) {
-                completeFile()
-            } else {
-                clearData()
-                Toast.makeText(context, "Upload file failure!", Toast.LENGTH_SHORT).show()
+            when (val result = repo.uploadFile(fileId, image!!)) {
+                is ApiResult.Success -> {
+                    if (result.data.status == StatusFile.READY.name) {
+                        completeFile()
+                    }
+                }
+
+                is ApiResult.Error -> {
+                    context.showToast(result.message ?: "Unknown error")
+                    clearData()
+                }
+
+                is ApiResult.Exception -> {
+                    context.showToast("Network error: ${result.exception.localizedMessage}")
+                    clearData()
+                }
             }
         }
     }
@@ -312,12 +188,23 @@ class HomeViewModel @Inject constructor(
     private fun completeFile() {
         viewModelScope.launch {
             val fileId = _uiState.value.fileId
-            val response = repo.completeFile(fileId)
-            if (response.fileId.isNotEmpty()) {
-                createFringerPrint()
-            } else {
-                clearData()
-                Toast.makeText(context, "Complete file failure!", Toast.LENGTH_SHORT).show()
+
+            when (val result = repo.completeFile(fileId)) {
+                is ApiResult.Success -> {
+                    if (result.data.fileId.isNotEmpty()) {
+                        createFringerPrint()
+                    }
+                }
+
+                is ApiResult.Error -> {
+                    context.showToast(result.message ?: "Unknown error")
+                    clearData()
+                }
+
+                is ApiResult.Exception -> {
+                    context.showToast("Network error: ${result.exception.localizedMessage}")
+                    clearData()
+                }
             }
         }
     }
@@ -348,13 +235,24 @@ class HomeViewModel @Inject constructor(
                 qualityChecks = QualityChecks(),
                 notes = ""
             )
-            val response = repo.createFingerPrint(sessionId, request)
-            if (response.success) {
-                _uiState.update { it.copy(isLoading = false) }
-                isGeneratedFringer = true
-            } else {
-                clearData()
-                Toast.makeText(context, "Create fringer-print failure!", Toast.LENGTH_SHORT).show()
+
+            when (val result = repo.createFingerPrint(sessionId, request)) {
+                is ApiResult.Success -> {
+                    if (result.data.success) {
+                        _uiState.update { it.copy(isLoading = false) }
+                        isGeneratedFringer = true
+                    }
+                }
+
+                is ApiResult.Error -> {
+                    context.showToast(result.message ?: "Unknown error")
+                    clearData()
+                }
+
+                is ApiResult.Exception -> {
+                    context.showToast("Network error: ${result.exception.localizedMessage}")
+                    clearData()
+                }
             }
         }
     }

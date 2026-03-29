@@ -8,4 +8,15 @@
     <string name="vietnamese">Tiếng Việt</string>
     <string name="press_back_again_to_exit">กด back อีกครั้งเพื่อออก</string>
     <string name="continue_capture">บันทึกภาพต่อ</string>
+    <string name="selected_location">ตำแหน่งที่เลือก: </string>
+    <string name="location">ที่ตั้ง</string>
+    <string name="welcome_back">ยินดีต้อนรับ,\nดีใจที่ได้พบคุณ!</string>
+    <string name="email">อีเมล</string>
+    <string name="password">รหัสผ่าน</string>
+    <string name="login">เข้าสู่ระบบ</string>
+    <string name="email_required">ต้องระบุอีเมล</string>
+    <string name="invalid_email_format">รูปแบบอีเมลไม่ถูกต้อง</string>
+    <string name="password_required">ต้องใส่รหัสผ่าน</string>
+    <string name="password_too_short">รหัสผ่านสั้นเกินไป</string>
+    <string name="password_must_contain_at_least_1_number">รหัสผ่านต้องมีตัวเลขอย่างน้อย 1 ตัว</string>
 </resources>
