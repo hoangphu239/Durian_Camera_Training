@@ -1,7 +1,7 @@
 package com.netsservices.dct.presentation.common
 
 object Constants {
-    const val BASE_URL = "https://duriancareapi.netsservices.dk/"
+    const val BASE_URL = "https://mt.duriancare.com/"
 
     // KEY LANGUAGE
     const val ENGLISH = "en"
@@ -9,8 +9,9 @@ object Constants {
     const val VIETNAMESE = "vi"
 }
 
-enum class SearchMode {
-    SITE,
-    ORCHARD,
-    PLANTATION
+enum class PurposeType {
+    Prediction,
+    ProfileVerification,
+    ImageCollection,
+    DryMatterCollection
 }

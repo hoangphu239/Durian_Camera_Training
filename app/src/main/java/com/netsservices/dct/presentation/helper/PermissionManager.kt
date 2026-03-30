@@ -8,11 +8,24 @@ class PermissionManager(
     activity: ComponentActivity
 ) {
     companion object {
+        val PERMISSION_LOCATION = arrayOf(
+            Manifest.permission.ACCESS_COARSE_LOCATION,
+            Manifest.permission.ACCESS_FINE_LOCATION
+        )
         const val PERMISSION_CAMERA = Manifest.permission.CAMERA
     }
 
     private var onComplete: ((Boolean) -> Unit)? = null
     private var allGranted = true
+
+    private val launcherLocation =
+        activity.registerForActivityResult(
+            ActivityResultContracts.RequestMultiplePermissions()
+        ) { result ->
+            val granted = result.values.all { it }
+            allGranted = allGranted && granted
+            requestCamera()
+        }
 
     private val launcherCamera =
         activity.registerForActivityResult(
@@ -25,7 +38,11 @@ class PermissionManager(
     fun requestAll(onComplete: (Boolean) -> Unit) {
         this.onComplete = onComplete
         allGranted = true
-        requestCamera()
+        requestLocation()
+    }
+
+    private fun requestLocation() {
+        launcherLocation.launch(PERMISSION_LOCATION)
     }
 
     private fun requestCamera() {

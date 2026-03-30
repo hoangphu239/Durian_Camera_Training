@@ -1,16 +1,15 @@
-package com.netsservices.dct.presentation.location
+package com.netsservices.dct.presentation.variety
 
 import android.annotation.SuppressLint
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.netsservices.dct.data.remote.handle
-import com.netsservices.dct.data.remote.response.Site
+import com.netsservices.dct.data.remote.response.DurianItem
 import com.netsservices.dct.data.remote.utils.PreferenceManager
 import com.netsservices.dct.domain.repository.Repository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -19,48 +18,39 @@ import javax.inject.Inject
 
 
 @HiltViewModel
-class LocationViewModel @Inject constructor(
+class DurianVarietyViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
     private val repo: Repository
 ) : ViewModel() {
 
     data class UiState(
-        val sites: List<Site> = emptyList(),
-        val selectSite: Site? = null,
+        val durianVarieties: List<DurianItem> = emptyList(),
+        val selectDurianVariety: DurianItem? = null,
     )
 
     private val _uiState = MutableStateFlow(UiState())
     val uiState = _uiState.asStateFlow()
 
-    private var job: Job? = null
-
     init {
-        val savedSite = PreferenceManager.getSite(context)
-        if (savedSite != null) {
-            _uiState.update { it.copy(selectSite = savedSite) }
+        val savedVariety = PreferenceManager.getDurianVariety(context)
+        if (savedVariety != null) {
+            _uiState.update { it.copy(selectDurianVariety = savedVariety) }
         }
     }
 
     @SuppressLint("LogNotTimber")
-    fun quickSearch(query: String) {
-        job?.cancel()
-        job = viewModelScope.launch {
-            repo.quickSearch(query).handle(
+    fun getDurianVarieties(countryCode: String) {
+        viewModelScope.launch {
+            repo.getDurianVarieties(countryCode).handle(
                 onSuccess = { data ->
-                    _uiState.update { it.copy(sites = data.items) }
+                    _uiState.update { it.copy(durianVarieties = data.items) }
                 }
             )
         }
     }
 
-    fun selectSite(site: Site) {
-        _uiState.update { it.copy(selectSite = site) }
-        PreferenceManager.saveSite(context, site)
-    }
-
-
-    override fun onCleared() {
-        super.onCleared()
-        job?.cancel()
+    fun selectDurianVariety(durianVariety: DurianItem) {
+        _uiState.update { it.copy(selectDurianVariety = durianVariety) }
+        PreferenceManager.saveDurianVariety(context, durianVariety)
     }
 }

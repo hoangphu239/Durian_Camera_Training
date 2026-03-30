@@ -32,9 +32,14 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.netsservices.dct.R
+import com.netsservices.dct.data.remote.AppEvent
+import com.netsservices.dct.data.remote.AppEventBus
 import com.netsservices.dct.presentation.common.LanguagePrefs
 import com.netsservices.dct.presentation.common.setAppLocale
 import com.netsservices.dct.presentation.components.TopBar
@@ -43,6 +48,7 @@ import com.netsservices.dct.presentation.theme.DurianCameraTrainingTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
 @AndroidEntryPoint
@@ -50,10 +56,13 @@ class MainActivity : ComponentActivity() {
 
     private val viewModel: MainViewModel by viewModels()
     private val permissionManager = PermissionManager(this)
+    lateinit var navController: NavHostController
+    lateinit var snackBarHostState: SnackbarHostState
 
     override fun onStart() {
         super.onStart()
         permissionManager.requestAll {
+            viewModel.getCoordinate()
             viewModel.isAllGranted = true
         }
     }
@@ -65,14 +74,15 @@ class MainActivity : ComponentActivity() {
         setAppLocale(lang)
         enableEdgeToEdge()
         setContent {
-            val navController: NavHostController = rememberNavController()
-            val snackBarHostState = remember { SnackbarHostState() }
+            navController = rememberNavController()
+            snackBarHostState = remember { SnackbarHostState() }
             val navBackStackEntry by navController.currentBackStackEntryFlow
                 .collectAsState(initial = navController.currentBackStackEntry)
             val currentRoute = navBackStackEntry?.destination?.route
             val showTopBar = currentRoute == Screen.Home.route ||
-                    currentRoute == Screen.Config.route || currentRoute == Screen.Location.route
-
+                        currentRoute == Screen.Config.route ||
+                        currentRoute == Screen.Location.route ||
+                        currentRoute == Screen.DurianVariety.route
 
             DurianCameraTrainingTheme() {
                 Scaffold(
@@ -82,7 +92,8 @@ class MainActivity : ComponentActivity() {
                                 title = stringResource(R.string.app_name),
                                 navigationIcon = if (
                                     currentRoute == Screen.Config.route ||
-                                    currentRoute == Screen.Location.route
+                                    currentRoute == Screen.Location.route ||
+                                    currentRoute == Screen.DurianVariety.route
                                 ) {
                                     {
                                         IconButton(onClick = { navController.navigateUp() }) {
@@ -117,6 +128,27 @@ class MainActivity : ComponentActivity() {
                         }
                     }
                 )
+            }
+        }
+        observeAppEvents()
+    }
+
+    private fun observeAppEvents() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                AppEventBus.events.collect { event ->
+                    when (event) {
+                        is AppEvent.ShowToast -> {
+                            snackBarHostState.showSnackbar(event.message)
+                        }
+                        AppEvent.Logout -> {
+                            navController.navigate(Screen.Login.route) {
+                                popUpTo(0) { inclusive = true }
+                                launchSingleTop = true
+                            }
+                        }
+                    }
+                }
             }
         }
     }

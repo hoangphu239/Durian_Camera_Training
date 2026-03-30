@@ -6,8 +6,6 @@ import com.netsservices.dct.data.remote.response.FileResponse
 import com.netsservices.dct.data.remote.response.FringerPrintResponse
 import com.netsservices.dct.data.remote.response.InitFileResponse
 import com.netsservices.dct.data.remote.response.LoginResponse
-import com.netsservices.dct.data.remote.response.OrchardResponse
-import com.netsservices.dct.data.remote.response.PlantationResponse
 import com.netsservices.dct.data.remote.response.SessionResponse
 import com.netsservices.dct.data.remote.response.SiteResponse
 import com.netsservices.dct.data.remote.resquest.CreateSessionRequest
@@ -23,11 +21,9 @@ import retrofit2.http.PUT
 import retrofit2.http.Path
 import retrofit2.http.Query
 
+
 const val LOGIN = "/v1/auth/login"
 const val QUICK_SEARCH = "/v1/search/sites"
-const val SEARCH_PLANTATIONS = "/v1/search/plantations"
-const val SEARCH_ORCHARDS = "/v1/search/orchards"
-const val SEARCH_SITES = "/v1/search/sites"
 const val DURIAN_TYPES = "/v1/durian-types"
 const val CHECK_FRAME = "/v1/capture/check-frame"
 const val CREATE_SESSIONS = "/v1/session/sessions"
@@ -48,29 +44,15 @@ interface ApiServer {
         @Query("q") query: String
     ): Response<SiteResponse>
 
-    @GET(SEARCH_PLANTATIONS)
-    suspend fun searchPlantations(
-        @Query("q") query: String
-    ): Response<PlantationResponse>
-
-    @GET(SEARCH_ORCHARDS)
-    suspend fun searchOrchards(
-        @Query("q") query: String,
-    ): Response<OrchardResponse>
-
-    @GET(SEARCH_SITES)
-    suspend fun searchSites(
-        @Query("q") query: String,
-    ): Response<SiteResponse>
-
     @GET(DURIAN_TYPES)
-    suspend fun getDurianTypes(
+    suspend fun getDurianVarieties(
         @Query("countryCode") countryCode: String,
     ): Response<DurianTypeResponse>
 
     @POST(CHECK_FRAME)
     suspend fun checkFrame(
-        @Body image: RequestBody
+        @Body image: RequestBody,
+        @Query("skipMarkDetection") skipMarkDetection: Boolean
     ): Response<CheckFrameResponse>
 
     @POST(CREATE_SESSIONS)
@@ -93,10 +75,4 @@ interface ApiServer {
     suspend fun completeFile(
         @Path("fileId") fileId: String
     ): Response<FileResponse>
-
-    @POST(CREATE_FINGERPRINT)
-    suspend fun createFingerPrint(
-        @Path("sessionId") sessionId: String,
-        @Body request: FingerPrintRequest
-    ): Response<FringerPrintResponse>
 }

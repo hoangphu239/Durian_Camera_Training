@@ -12,7 +12,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowForwardIos
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -24,13 +23,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.netsservices.dct.R
-import com.netsservices.dct.data.remote.response.Site
+import com.netsservices.dct.data.remote.response.DurianItem
 import com.netsservices.dct.presentation.components.AppText
 
 @Composable
-fun LocationSection(
-    selectedSite: Site?,
-    onOpenLocation: () -> Unit
+fun DurianVarietySection(
+    selectedDurianVariety: DurianItem?,
+    onOpenDurianVariety: () -> Unit
 ) {
     Row(
         modifier = Modifier
@@ -45,15 +44,15 @@ fun LocationSection(
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Text(
-            text = stringResource(R.string.site_title),
+            text = stringResource(R.string.durian_variety),
             style = MaterialTheme.typography.titleMedium
         )
 
         Row(
-            modifier = Modifier.clickable { onOpenLocation() },
+            modifier = Modifier.clickable { onOpenDurianVariety() },
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            selectedSite?.let {
+            selectedDurianVariety?.let {
                 AppText(
                     modifier = Modifier.padding(end = 5.dp),
                     text = it.name,

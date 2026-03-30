@@ -5,11 +5,10 @@ import com.netsservices.dct.data.remote.ApiResult
 import com.netsservices.dct.data.remote.ApiServer
 import com.netsservices.dct.data.remote.response.LoginResponse
 import com.netsservices.dct.data.remote.response.CheckFrameResponse
+import com.netsservices.dct.data.remote.response.DurianTypeResponse
 import com.netsservices.dct.data.remote.response.FileResponse
 import com.netsservices.dct.data.remote.response.FringerPrintResponse
 import com.netsservices.dct.data.remote.response.InitFileResponse
-import com.netsservices.dct.data.remote.response.OrchardResponse
-import com.netsservices.dct.data.remote.response.PlantationResponse
 import com.netsservices.dct.data.remote.response.SessionResponse
 import com.netsservices.dct.data.remote.response.SiteResponse
 import com.netsservices.dct.data.remote.resquest.LoginRequest
@@ -36,20 +35,12 @@ class RepositoryImpl @Inject constructor(
         return safeApiCall { api.quickSearch(query) }
     }
 
-    override suspend fun searchPlantations(query: String): ApiResult<PlantationResponse> {
-        return safeApiCall { api.searchPlantations(query) }
+    override suspend fun getDurianVarieties(countryCode: String): ApiResult<DurianTypeResponse> {
+        return safeApiCall { api.getDurianVarieties(countryCode) }
     }
 
-    override suspend fun searchOrchards(query: String): ApiResult<OrchardResponse> {
-        return safeApiCall { api.searchOrchards(query) }
-    }
-
-    override suspend fun searchSites(query: String): ApiResult<SiteResponse> {
-        return safeApiCall { api.searchSites(query) }
-    }
-
-    override suspend fun checkFrame(image: RequestBody): ApiResult<CheckFrameResponse> {
-        return safeApiCall { api.checkFrame(image) }
+    override suspend fun checkFrame(image: RequestBody, skipMarkDetection: Boolean): ApiResult<CheckFrameResponse> {
+        return safeApiCall { api.checkFrame(image, skipMarkDetection) }
     }
 
     override suspend fun createSessions(request: CreateSessionRequest): ApiResult<SessionResponse> {
@@ -69,13 +60,6 @@ class RepositoryImpl @Inject constructor(
 
     override suspend fun completeFile(fileId: String): ApiResult<FileResponse> {
         return safeApiCall { api.completeFile(fileId) }
-    }
-
-    override suspend fun createFingerPrint(
-        sessionId: String,
-        request: FingerPrintRequest
-    ): ApiResult<FringerPrintResponse> {
-        return safeApiCall { api.createFingerPrint(sessionId, request) }
     }
 }
 

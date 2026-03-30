@@ -1,6 +1,5 @@
 package com.netsservices.dct.presentation.home
 
-import android.util.Log
 import android.view.ViewGroup
 import androidx.camera.core.AspectRatio
 import androidx.camera.core.CameraSelector
@@ -14,7 +13,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -26,11 +28,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import com.netsservices.dct.R
+import com.netsservices.dct.data.remote.utils.PreferenceManager
 import com.netsservices.dct.presentation.components.AppText
 import com.netsservices.dct.presentation.helper.camera.FrameProcessor
 import com.netsservices.dct.presentation.home.components.ScanCameraView
@@ -41,7 +45,8 @@ import java.util.concurrent.Executors
 @Composable
 fun HomeScreen(
     mainViewModel: MainViewModel,
-    viewModel: HomeViewModel
+    viewModel: HomeViewModel,
+    navigateConfig: () -> Unit
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -51,6 +56,8 @@ fun HomeScreen(
     val executor = remember { Executors.newSingleThreadExecutor() }
     val captureExecutor = remember { Executors.newSingleThreadExecutor() }
     val isReady = remember { mutableStateOf(false) }
+    val showConfigDialog = remember { mutableStateOf(false) }
+
 
     val previewView = remember {
         PreviewView(context).apply {
@@ -61,7 +68,6 @@ fun HomeScreen(
             scaleType = PreviewView.ScaleType.FIT_CENTER
         }
     }
-    Log.d("CameraPreview", "PreviewView: ${previewView.width} x ${previewView.height}")
 
     DisposableEffect(Unit) {
         onDispose {
@@ -153,7 +159,33 @@ fun HomeScreen(
         }
     }
 
+    if (showConfigDialog.value) {
+        AlertDialog(
+            onDismissRequest = {},
+            title = { Text(stringResource(R.string.configuration_required)) },
+            text = { Text(stringResource(R.string.select_site_and_durian_type)) },
+            confirmButton = {
+                TextButton(onClick = {
+                    showConfigDialog.value = false
+                    navigateConfig()
+                }) {
+                    Text(stringResource(R.string.accept))
+                }
+            }
+        )
+    }
+
     LaunchedEffect(mainViewModel.isAllGranted) {
-        isReady.value = mainViewModel.isAllGranted
+        val site = PreferenceManager.getSite(context)
+        val durianType = PreferenceManager.getDurianVariety(context)
+
+        if (mainViewModel.isAllGranted) {
+            if (site == null || durianType == null) {
+                showConfigDialog.value = true
+                isReady.value = false
+            } else {
+                isReady.value = true
+            }
+        }
     }
 }

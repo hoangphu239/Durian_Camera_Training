@@ -7,8 +7,7 @@
     <string name="vietnamese">Tiếng Việt</string>
     <string name="press_back_again_to_exit">Press back again to exit</string>
     <string name="continue_capture">Continue Capture</string>
-    <string name="selected_location">Selected Location: </string>
-    <string name="location">Location</string>
+    <string name="country">Country</string>
     <string name="welcome_back">Welcome,\nGlad to see you!</string>
     <string name="email">Email</string>
     <string name="password">Password</string>
@@ -18,4 +17,15 @@
     <string name="password_required">Password required</string>
     <string name="password_too_short">Password too short</string>
     <string name="password_must_contain_at_least_1_number">Password must contain at least 1 number</string>
+    <string name="durian_variety">Durian Variety</string>
+    <string name="select_durian_variety">Select durian variety</string>
+    <string name="fringerprint">Fringerprint</string>
+    <string name="collection_mode_is_now_enabled">Collection mode is now enabled</string>
+    <string name="site">Site: %1$s</string>
+    <string name="site_title">Site</string>
+    <string name="orchard">Orchard: %1$s</string>
+    <string name="plantation">Plantation: %1$s</string>
+    <string name="configuration_required">Configuration Required</string>
+    <string name="select_site_and_durian_type">Please select site and durian type before using camera</string>
+    <string name="accept">Accept</string>
 </resources>

@@ -2,35 +2,31 @@ package com.netsservices.dct.presentation.config.components
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowForwardIos
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.netsservices.dct.R
-import com.netsservices.dct.data.remote.response.Site
 import com.netsservices.dct.presentation.components.AppText
 
 @Composable
-fun LocationSection(
-    selectedSite: Site?,
-    onOpenLocation: () -> Unit
+fun PurposeSection(
+    isEnabled: Boolean,
+    onToggle: (Boolean) -> Unit
 ) {
     Row(
         modifier = Modifier
@@ -44,30 +40,24 @@ fun LocationSection(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Text(
-            text = stringResource(R.string.site_title),
-            style = MaterialTheme.typography.titleMedium
-        )
-
-        Row(
-            modifier = Modifier.clickable { onOpenLocation() },
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            selectedSite?.let {
+        Column(verticalArrangement = Arrangement.Center) {
+            Text(
+                text = stringResource(R.string.fringerprint),
+                style = MaterialTheme.typography.titleMedium
+            )
+            Spacer(Modifier.height(3.dp))
+            if(!isEnabled) {
                 AppText(
-                    modifier = Modifier.padding(end = 5.dp),
-                    text = it.name,
-                    color = R.color.gray,
-                    fontSize = 14.sp,
+                    text = stringResource(R.string.collection_mode_is_now_enabled),
+                    fontSize = 12.sp,
+                    color = R.color.blue
                 )
             }
-
-            Icon(
-                Icons.Default.ArrowForwardIos,
-                contentDescription = "Location",
-                modifier = Modifier.size(22.dp),
-                tint = colorResource(R.color.black)
-            )
         }
+
+        Switch(
+            checked = isEnabled,
+            onCheckedChange = { onToggle(it) }
+        )
     }
 }

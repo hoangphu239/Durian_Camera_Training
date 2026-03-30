@@ -1,5 +1,6 @@
 package com.netsservices.dct.presentation.login
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.util.Patterns
 import androidx.compose.runtime.getValue
@@ -8,12 +9,11 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.netsservices.dct.R
-import com.netsservices.dct.data.remote.ApiResult
+import com.netsservices.dct.data.remote.handle
 import com.netsservices.dct.data.remote.response.LoginResponse
 import com.netsservices.dct.data.remote.resquest.LoginRequest
 import com.netsservices.dct.data.remote.utils.PreferenceManager
 import com.netsservices.dct.domain.repository.Repository
-import com.netsservices.dct.presentation.common.showToast
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -62,25 +62,18 @@ class LoginViewModel @Inject constructor(
         return emailError == null && passwordError == null
     }
 
+    @SuppressLint("LogNotTimber")
     fun login(email: String, password: String) {
         viewModelScope.launch {
             if (!validateCredentials(email, password)) return@launch
 
             _uiState.update { state -> state.copy(isLoading = true) }
-            when (val result = repo.login(LoginRequest(email, password))) {
-                is ApiResult.Success -> {
-                    saveDataToLocal(result.data.token, result.data.user.id)
-                    _uiState.update { state -> state.copy(isSuccess = true) }
+            repo.login(LoginRequest(email, password)).handle(
+                onSuccess = { data ->
+                    saveDataToLocal(data.token, data.user.id)
+                    _uiState.update { it.copy(isSuccess = true) }
                 }
-
-                is ApiResult.Error -> {
-                    context.showToast(result.message ?: "Unknown error")
-                }
-
-                is ApiResult.Exception -> {
-                    context.showToast("Network error: ${result.exception.localizedMessage}")
-                }
-            }
+            )
             _uiState.update { state -> state.copy(isLoading = false) }
         }
     }

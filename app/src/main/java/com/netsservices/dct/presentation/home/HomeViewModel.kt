@@ -1,17 +1,18 @@
 package com.netsservices.dct.presentation.home
 
+import android.annotation.SuppressLint
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.netsservices.dct.data.remote.ApiResult
+import com.netsservices.dct.data.remote.handle
 import com.netsservices.dct.data.remote.response.CheckFrameResponse
 import com.netsservices.dct.data.remote.response.StatusFile
 import com.netsservices.dct.data.remote.resquest.CreateSessionRequest
-import com.netsservices.dct.data.remote.resquest.FingerPrintRequest
 import com.netsservices.dct.data.remote.resquest.InitFileRequest
-import com.netsservices.dct.data.remote.resquest.QualityChecks
+import com.netsservices.dct.data.remote.utils.PreferenceManager
 import com.netsservices.dct.domain.repository.Repository
-import com.netsservices.dct.presentation.common.showToast
+import com.netsservices.dct.presentation.common.PurposeType
 import com.netsservices.dct.presentation.common.toRequestBody
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -19,7 +20,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import okhttp3.RequestBody
 import javax.inject.Inject
 
 
@@ -39,220 +39,116 @@ class HomeViewModel @Inject constructor(
 
     private val _uiState = MutableStateFlow(UiState())
     val uiState = _uiState.asStateFlow()
-
-    private var isGeneratedFringer = false
-    private var isChecking = false
     private var lastSentTime = 0L
-    private var image: RequestBody? = null
 
+    private var isFlowRunning = false
+    private var rawData: ByteArray? = null
+
+    private fun <T> launchApi(
+        block: suspend () -> ApiResult<T>,
+        onSuccess: (T) -> Unit
+    ) {
+        viewModelScope.launch {
+            if(!_uiState.value.isLoading) {
+                _uiState.update { it.copy(isLoading = true) }
+            }
+            try {
+                val result = block()
+                result.handle(
+                    onSuccess = onSuccess,
+                    onError = { _, _ -> clearData() }
+                )
+            } finally {
+                _uiState.update { it.copy(isLoading = false) }
+            }
+        }
+    }
 
     fun shouldSendFrame(): Boolean {
         val now = System.currentTimeMillis()
-        return !isChecking && (now - lastSentTime >= 200)
+        return !isFlowRunning && (now - lastSentTime >= 200)
     }
 
+    @SuppressLint("LogNotTimber")
     fun checkFrame(raw: ByteArray) {
         if (!shouldSendFrame()) return
 
-        viewModelScope.launch {
-            isChecking = true
-            lastSentTime = System.currentTimeMillis()
+        rawData = raw
+        lastSentTime = System.currentTimeMillis()
+        isFlowRunning = true
 
+        viewModelScope.launch {
             try {
                 val body = raw.toRequestBody()
-                when (val result = repo.checkFrame(body)) {
-                    is ApiResult.Success -> {
-                        _uiState.update { state -> state.copy(dataFrame = result.data) }
-                        if (result.data.ready && result.data.durianDetected) {
+                val skipMarkDetection = !PreferenceManager.getFingerprintStatus(context)
+                repo.checkFrame(image = body, skipMarkDetection = skipMarkDetection).handle(
+                    onSuccess = { data ->
+                        _uiState.update { state -> state.copy(dataFrame = data) }
+                        if (data.ready && data.durianDetected) {
                             createSession()
+                        } else {
+                            isFlowRunning = false
                         }
                     }
-
-                    is ApiResult.Error -> {
-                        context.showToast(result.message ?: "Unknown error")
-                    }
-
-                    is ApiResult.Exception -> {
-                        context.showToast("Network error: ${result.exception.localizedMessage}")
-                    }
-                }
+                )
             } catch (e: Exception) {
                 e.printStackTrace()
-            } finally {
-                isChecking = false
             }
         }
     }
 
-    private fun createSession(
-        purpose: String = "Prediction",
-        specimenId: String = "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-        plantationId: String = "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-        orchardId: String = "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-        siteId: String = "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-        profileId: String = "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-        fruitTag: String = "",
-        notes: String = ""
-    ) {
-        viewModelScope.launch {
-            val request = CreateSessionRequest(
-                purpose = purpose,
-                specimenId = specimenId,
-                plantationId = plantationId,
-                orchardId = orchardId,
-                siteId = siteId,
-                profileId = profileId,
-                fruitTag = fruitTag,
-                notes = notes
-            )
-            when (val result = repo.createSessions(request)) {
-                is ApiResult.Success -> {
-                    if (result.data.sessionId.isNotEmpty()) {
-                        _uiState.update { it.copy(sessionId = result.data.sessionId) }
-                        initFile()
-                    }
-                }
+    private fun createSession() {
+        val site = PreferenceManager.getSite(context)
+        val durianId = PreferenceManager.getDurianVariety(context)?.id ?: 0
 
-                is ApiResult.Error -> {
-                    context.showToast(result.message ?: "Unknown error")
-                    clearData()
-                }
+        val request = CreateSessionRequest(
+            purpose = PurposeType.ProfileVerification.name,
+            durianTypeId = durianId,
+            plantationId = site?.orchard?.plantation?.id ?: "",
+            orchardId = site?.orchard?.id ?: "",
+            siteId = site?.id ?: ""
+        )
 
-                is ApiResult.Exception -> {
-                    context.showToast("Network error: ${result.exception.localizedMessage}")
-                    clearData()
-                }
+        launchApi({ repo.createSessions(request) }) { data ->
+            if (data.sessionId.isNotEmpty()) {
+                _uiState.update { it.copy(sessionId = data.sessionId) }
+                initFile()
             }
         }
     }
 
-    private fun initFile(
-        purpose: String = "IMAGE",
-        filename: String = "durian-${System.currentTimeMillis()}.jpg",
-        contentType: String = "image/jpeg",
-        sizeBytes: Int = 1,
-        sha256: String = ""
-    ) {
-        viewModelScope.launch {
-            val request = InitFileRequest(
-                purpose = purpose,
-                filename = filename,
-                contentType = contentType,
-                sizeBytes = sizeBytes,
-                sha256 = sha256
-            )
-            when (val result = repo.initFile(request)) {
-                is ApiResult.Success -> {
-                    if (result.data.fileId.isNotEmpty()) {
-                        _uiState.update { it.copy(fileId = result.data.fileId) }
-                        uploadFile()
-                    }
-                }
+    private fun initFile() {
+        val sizeBytes = rawData?.size ?: 0
+        val request = InitFileRequest(
+            purpose = "IMAGE",
+            filename = "durian-${System.currentTimeMillis()}.jpg",
+            contentType = "image/jpeg",
+            sizeBytes = sizeBytes
+        )
 
-                is ApiResult.Error -> {
-                    context.showToast(result.message ?: "Unknown error")
-                    clearData()
-                }
-
-                is ApiResult.Exception -> {
-                    context.showToast("Network error: ${result.exception.localizedMessage}")
-                    clearData()
-                }
+        launchApi({ repo.initFile(request) }) { data ->
+            if (data.fileId.isNotEmpty()) {
+                _uiState.update { it.copy(fileId = data.fileId) }
+                uploadFile()
             }
         }
     }
 
     private fun uploadFile() {
-        viewModelScope.launch {
-            val fileId = _uiState.value.fileId
-            when (val result = repo.uploadFile(fileId, image!!)) {
-                is ApiResult.Success -> {
-                    if (result.data.status == StatusFile.READY.name) {
-                        completeFile()
-                    }
-                }
-
-                is ApiResult.Error -> {
-                    context.showToast(result.message ?: "Unknown error")
-                    clearData()
-                }
-
-                is ApiResult.Exception -> {
-                    context.showToast("Network error: ${result.exception.localizedMessage}")
-                    clearData()
-                }
+        val fileId = _uiState.value.fileId
+        val body = rawData?.toRequestBody() ?: return
+        launchApi({ repo.uploadFile(fileId, body) }) { data ->
+            if (data.fileId.isNotEmpty() && data.status == StatusFile.READY.name) {
+                completeFile()
             }
         }
     }
 
     private fun completeFile() {
-        viewModelScope.launch {
-            val fileId = _uiState.value.fileId
-
-            when (val result = repo.completeFile(fileId)) {
-                is ApiResult.Success -> {
-                    if (result.data.fileId.isNotEmpty()) {
-                        createFringerPrint()
-                    }
-                }
-
-                is ApiResult.Error -> {
-                    context.showToast(result.message ?: "Unknown error")
-                    clearData()
-                }
-
-                is ApiResult.Exception -> {
-                    context.showToast("Network error: ${result.exception.localizedMessage}")
-                    clearData()
-                }
-            }
-        }
-    }
-
-    private fun createFringerPrint() {
-        viewModelScope.launch {
-            val sessionId = _uiState.value.sessionId
-            val request = FingerPrintRequest(
-                mainFileId = "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-                capturedAt = "2026-03-28T04:34:26.886Z",
-                deviceId = "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-                deviceLabel = "",
-                scanPosition = "SPOT_1",
-                measurementTarget = "WHOLE_FRUIT",
-                markerProfileId = "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-                markerProfileCode = "",
-                plantationId = "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-                orchardId = "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-                siteId = "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-                fruitTag = "",
-                operatorUserId = "string",
-                appVersion = "1.0.0",
-                cameraModel = "",
-                imageWidth = 1,
-                imageHeight = 1,
-                distanceMm = 0f,
-                qualityScore = 1f,
-                qualityChecks = QualityChecks(),
-                notes = ""
-            )
-
-            when (val result = repo.createFingerPrint(sessionId, request)) {
-                is ApiResult.Success -> {
-                    if (result.data.success) {
-                        _uiState.update { it.copy(isLoading = false) }
-                        isGeneratedFringer = true
-                    }
-                }
-
-                is ApiResult.Error -> {
-                    context.showToast(result.message ?: "Unknown error")
-                    clearData()
-                }
-
-                is ApiResult.Exception -> {
-                    context.showToast("Network error: ${result.exception.localizedMessage}")
-                    clearData()
-                }
+        val fileId = _uiState.value.fileId
+        launchApi({ repo.completeFile(fileId) }) { data ->
+            if (data.fileId.isNotEmpty() && data.status == StatusFile.READY.name) {
+                _uiState.update { it.copy(isLoading = false) }
             }
         }
     }
@@ -260,13 +156,14 @@ class HomeViewModel @Inject constructor(
     fun clearData() {
         _uiState.update {
             it.copy(
-                dataFrame = null,
                 isLoading = false,
+                isSuccess = false,
+                dataFrame = null,
                 fileId = "",
                 sessionId = ""
             )
         }
-        isGeneratedFringer = false
+        isFlowRunning = false
     }
 }
 

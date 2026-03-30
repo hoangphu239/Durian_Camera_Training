@@ -8,8 +8,7 @@
     <string name="vietnamese">Tiếng Việt</string>
     <string name="press_back_again_to_exit">Nhấn back lần nữa để thoát</string>
     <string name="continue_capture">Tiếp tục chụp</string>
-    <string name="selected_location">Địa điểm đã chọn: </string>
-    <string name="location">Địa điểm</string>
+    <string name="country">Quốc gia</string>
     <string name="welcome_back">Chào mừng,\nRất vui được gặp bạn!</string>
     <string name="email">Email</string>
     <string name="password">Mật khẩu</string>
@@ -19,4 +18,16 @@
     <string name="password_required">Yêu cầu nhập mật khẩu</string>
     <string name="password_too_short">Mật khẩu quá ngắn</string>
     <string name="password_must_contain_at_least_1_number">Mật khẩu phải chứa ít nhất 1 số</string>
+    <string name="durian_variety">Giống</string>
+    <string name="select_durian_variety">Chọn giống sầu riêng</string>
+    <string name="fringerprint">Dấu vân tay</string>
+    <string name="collection_mode_is_now_enabled">Chế độ thu thập hiện đã được bật.</string>
+    <string name="site">Địa điểm: %1$s</string>
+    <string name="orchard">Vườn: %1$s</string>
+    <string name="plantation">Trang trại: %1$s</string>
+    <string name="site_title">Địa điểm</string>
+    <string name="configuration_required">Yêu cầu cấu hình</string>
+    <string name="select_site_and_durian_type">Vui lòng chọn địa điểm và loại sầu riêng trước khi sử dụng máy ảnh</string>
+    <string name="accept">Chấp nhận</string>
+
 </resources>
