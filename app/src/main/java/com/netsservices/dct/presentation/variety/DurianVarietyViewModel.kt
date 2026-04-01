@@ -20,7 +20,7 @@ import javax.inject.Inject
 @HiltViewModel
 class DurianVarietyViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val repo: Repository
+    private val repo: Repository,
 ) : ViewModel() {
 
     data class UiState(

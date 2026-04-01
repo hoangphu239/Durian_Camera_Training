@@ -15,3 +15,20 @@ enum class PurposeType {
     ImageCollection,
     DryMatterCollection
 }
+
+enum class ConfigStep {
+    SITE,
+    MODE,
+    DURIAN_TYPE,
+    DONE
+}
+
+enum class DeviceName(val value: String) {
+    PHONE("Phone"),
+    THERMAL_CAMERA("Thermal Camera"),
+    SOUND_SENSOR("Sound Sensor"),
+    NIR("NIR")
+}
+
+const val IMAGE_WIDTH = 1080
+const val IMAGE_HEIGHT = 1440

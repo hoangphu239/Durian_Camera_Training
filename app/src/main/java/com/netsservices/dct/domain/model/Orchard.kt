@@ -1,8 +1,4 @@
-package com.netsservices.dct.data.remote.response
-
-data class OrchardResponse(
-    val items: List<Orchard>
-)
+package com.netsservices.dct.domain.model
 
 data class Orchard(
     val id: String,

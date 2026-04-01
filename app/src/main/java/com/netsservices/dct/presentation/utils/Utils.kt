@@ -8,6 +8,7 @@ import android.location.Geocoder
 import android.os.Build
 import android.provider.MediaStore
 import android.provider.Settings
+import android.widget.Toast
 import com.netsservices.dct.BuildConfig
 import java.util.Locale
 
@@ -86,5 +87,21 @@ object Utils {
         }
         BitmapFactory.decodeByteArray(bytes, 0, bytes.size, options)
         return Pair(options.outWidth, options.outHeight)
+    }
+
+    fun setAppLocale(context: Context, language: String): Context {
+        val locale = Locale(language)
+        Locale.setDefault(locale)
+
+        val config = context.resources.configuration
+        config.setLocale(locale)
+        config.setLayoutDirection(locale)
+
+        context.resources.updateConfiguration(config, context.resources.displayMetrics)
+        return context.createConfigurationContext(config)
+    }
+
+    fun showToast(context: Context, message: String) {
+        Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
     }
 }

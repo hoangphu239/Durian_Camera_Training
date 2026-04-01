@@ -1,4 +1,4 @@
-package com.netsservices.dct.presentation.login
+package com.netsservices.dct.presentation.register
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -14,11 +14,10 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -34,30 +33,29 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.netsservices.dct.R
 import com.netsservices.dct.presentation.components.AppTextField
 
+
 @Composable
-fun LoginScreen(
-    viewModel: LoginViewModel = hiltViewModel(),
-    onNavigateRegister: () -> Unit,
-    onLoginSuccess: () -> Unit
+fun RegisterScreen(
+    viewModel: RegisterViewModel = hiltViewModel(),
+    onNavigateLogin: () -> Unit
 ) {
+    var email by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
     val uiState = viewModel.uiState.collectAsState().value
     val keyboardController = LocalSoftwareKeyboardController.current
-    var email by rememberSaveable { mutableStateOf("") }
-    var password by rememberSaveable { mutableStateOf("") }
 
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(24.dp),
+                .padding(20.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
 
-            Spacer(modifier = Modifier.height(50.dp))
+            Spacer(Modifier.height(50.dp))
 
             Text(
-                modifier = Modifier.align(Alignment.Start),
-                text = stringResource(R.string.welcome_back),
+                text = stringResource(R.string.create_account_to_get_started_now),
                 fontWeight = FontWeight.Bold,
                 fontSize = 36.sp,
                 lineHeight = 40.sp
@@ -74,7 +72,7 @@ fun LoginScreen(
                 imeAction = ImeAction.Next
             )
 
-            Spacer(Modifier.height(24.dp))
+            Spacer(Modifier.height(16.dp))
 
             AppTextField(
                 value = password,
@@ -92,19 +90,19 @@ fun LoginScreen(
                 modifier = Modifier.fillMaxWidth(),
                 onClick = {
                     keyboardController?.hide()
-                    viewModel.login(email, password)
+                    viewModel.register(email, password)
                 }) {
-                Text(stringResource(R.string.login))
+                Text(stringResource(R.string.sign_up))
             }
 
             Spacer(Modifier.weight(1f))
 
             Row {
-                Text(stringResource(R.string.not_have_account))
+                Text(stringResource(R.string.already_have_an_account))
                 Text(
-                    text = stringResource(R.string.sign_up_now),
+                    text = stringResource(R.string.login_now),
                     color = Color.Blue,
-                    modifier = Modifier.clickable { onNavigateRegister() }
+                    modifier = Modifier.clickable { onNavigateLogin() }
                 )
             }
         }
@@ -119,11 +117,9 @@ fun LoginScreen(
                 CircularProgressIndicator()
             }
         }
-    }
 
-    LaunchedEffect(uiState.isSuccess) {
         if (uiState.isSuccess) {
-            onLoginSuccess()
+            onNavigateLogin()
         }
     }
 }

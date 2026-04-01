@@ -6,26 +6,25 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowForwardIos
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.netsservices.dct.R
-import com.netsservices.dct.presentation.common.ConfigStep
-import com.netsservices.dct.presentation.config.ConfigViewModel
 
 @Composable
-fun PurposeSection(
-    viewModel: ConfigViewModel,
-    currentMode: ScanMode,
-    onSelected: (ScanMode) -> Unit
+fun ChangePasswordSection(
+    onChangePwd: () -> Unit
 ) {
     Row(
         modifier = Modifier
@@ -33,28 +32,23 @@ fun PurposeSection(
             .padding(horizontal = 16.dp)
             .border(
                 BorderStroke(0.8.dp, SolidColor(MaterialTheme.colorScheme.tertiary)),
-                shape = RoundedCornerShape(8.dp)
+                shape = androidx.compose.foundation.shape.RoundedCornerShape(8.dp)
             )
-            .padding(start = 20.dp, end = 10.dp, top = 15.dp, bottom = 15.dp),
+            .padding(start = 20.dp, end = 5.dp, top = 10.dp, bottom = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Text(
-            text = stringResource(R.string.scan_mode),
+            text = stringResource(R.string.change_password),
             style = MaterialTheme.typography.titleMedium
         )
-
-        ModeSelector(
-            modifier = Modifier.width(190.dp),
-            itemPadding = 6.dp,
-            textSize = 13.sp,
-            selectedMode = currentMode,
-            onSelected = { selectedMode ->
-                if(currentMode != selectedMode) {
-                    viewModel.updateAction(ConfigStep.MODE.name)
-                    onSelected(selectedMode)
-                }
-            }
-        )
+        IconButton(onClick = { onChangePwd() }) {
+            Icon(
+                Icons.Default.ArrowForwardIos,
+                contentDescription = "Settings",
+                modifier = Modifier.size(22.dp),
+                tint = colorResource(R.color.black)
+            )
+        }
     }
 }

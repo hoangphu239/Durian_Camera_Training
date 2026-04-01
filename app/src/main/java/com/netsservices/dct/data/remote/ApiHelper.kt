@@ -57,7 +57,7 @@ fun handleError(errorCode: Int, message: String) {
     when (errorCode) {
         ApiErrorCode.UNAUTHORIZED -> {
             CoroutineScope(Dispatchers.Main).launch {
-                AppEventBus.events.emit(AppEvent.Logout)
+                AppEventBus.events.emit(AppEvent.Unauthorized(message))
             }
         }
 
@@ -85,5 +85,5 @@ object AppEventBus {
 
 sealed class AppEvent {
     data class ShowToast(val message: String) : AppEvent()
-    object Logout : AppEvent()
+    data class Unauthorized(val message: String) : AppEvent()
 }

@@ -14,12 +14,8 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.dp
@@ -28,11 +24,12 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.repeatOnLifecycle
 import com.netsservices.dct.data.remote.response.DurianItem
 import com.netsservices.dct.data.remote.response.Site
-import com.netsservices.dct.data.remote.utils.PreferenceManager
+import com.netsservices.dct.presentation.config.components.ChangePasswordSection
 import com.netsservices.dct.presentation.config.components.DurianVarietySection
 import com.netsservices.dct.presentation.config.components.LanguageSection
 import com.netsservices.dct.presentation.config.components.LocationSection
 import com.netsservices.dct.presentation.config.components.PurposeSection
+import com.netsservices.dct.presentation.config.components.ScanMode
 import java.util.Locale
 
 
@@ -41,19 +38,20 @@ fun ConfigScreen(
     activity: Activity,
     viewModel: ConfigViewModel = hiltViewModel(),
     openLocation: () -> Unit,
-    openDurianVariety: () -> Unit
+    openDurianVariety: () -> Unit,
+    onChangePwd: () -> Unit
 ) {
     val language by viewModel.language.collectAsState()
     val lifecycleOwner = LocalLifecycleOwner.current
-    val selectedSite by viewModel.selectedSite.collectAsState()
-    val selectedDurianVariety by viewModel.selectedDurianVariety.collectAsState()
-    val selectFingerprint by viewModel.selectedFringerprint.collectAsState()
+    val selectedSite by viewModel.currentSite.collectAsState()
+    val selectedDurianVariety by viewModel.currentVariety.collectAsState()
+    val currentMode by viewModel.currentMode.collectAsState()
 
     LaunchedEffect(lifecycleOwner) {
         lifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.RESUMED) {
             viewModel.loadSite()
             viewModel.loadDurianVariety()
-            viewModel.loadFringerPrint()
+            viewModel.loadScanMode()
         }
     }
 
@@ -68,12 +66,13 @@ fun ConfigScreen(
             language = language,
             selectedSite = selectedSite,
             selectedDurianVariety = selectedDurianVariety,
-            selectFingerprint = selectFingerprint,
+            currentMode = currentMode ?: ScanMode.FINGERPRINT,
             onLanguageChange = { lang ->
                 viewModel.onLanguageSelected(activity, lang)
             },
             onOpenLocation = { openLocation() },
-            onOpenDurianVariety = { openDurianVariety() }
+            onOpenDurianVariety = { openDurianVariety() },
+            onChangePwd = { onChangePwd() }
         )
     }
 }
@@ -85,18 +84,18 @@ fun ConfigScreenContent(
     language: String,
     selectedSite: Site?,
     selectedDurianVariety: DurianItem?,
-    selectFingerprint: Boolean,
+    currentMode: ScanMode,
     onLanguageChange: (String) -> Unit,
     onOpenLocation: () -> Unit,
-    onOpenDurianVariety: () -> Unit
+    onOpenDurianVariety: () -> Unit,
+    onChangePwd: () -> Unit
 ) {
     val scrollState = rememberScrollState()
-    val context = LocalContext.current
 
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .padding(vertical = 20.dp)
+            .padding(top = 5.dp, bottom = 16.dp)
     ) {
         Column(
             modifier = Modifier
@@ -112,15 +111,19 @@ fun ConfigScreenContent(
                 selectedSite = selectedSite,
                 onOpenLocation = onOpenLocation
             )
+            PurposeSection(
+                viewModel = viewModel,
+                currentMode = currentMode,
+                onSelected = { mode ->
+                    viewModel.saveScanMode(mode)
+                }
+            )
             DurianVarietySection(
                 selectedDurianVariety = selectedDurianVariety,
                 onOpenDurianVariety = onOpenDurianVariety
             )
-            PurposeSection(
-                isEnabled = selectFingerprint,
-                onToggle = { isEnable ->
-                    viewModel.saveFingerprintStatus(context, isEnable)
-                }
+            ChangePasswordSection(
+                onChangePwd = onChangePwd
             )
         }
     }

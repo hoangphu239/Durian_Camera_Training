@@ -6,4 +6,5 @@ data class CreateSessionRequest(
     val plantationId: String,
     val orchardId: String,
     val siteId: String,
+    val fileId: String
 )

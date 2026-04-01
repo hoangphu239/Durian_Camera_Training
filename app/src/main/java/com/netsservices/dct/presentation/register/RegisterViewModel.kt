@@ -1,19 +1,16 @@
-package com.netsservices.dct.presentation.login
+package com.netsservices.dct.presentation.register
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.util.Patterns
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.netsservices.dct.R
 import com.netsservices.dct.data.remote.handle
-import com.netsservices.dct.data.remote.response.LoginResponse
-import com.netsservices.dct.data.remote.resquest.LoginRequest
-import com.netsservices.dct.data.remote.utils.PreferenceManager
+import com.netsservices.dct.data.remote.response.RegisterResponse
+import com.netsservices.dct.data.remote.resquest.RegisterRequest
 import com.netsservices.dct.domain.repository.Repository
 import com.netsservices.dct.presentation.utils.Utils.showToast
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -24,9 +21,8 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-
 @HiltViewModel
-class LoginViewModel @Inject constructor(
+class RegisterViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
     private val repo: Repository
 ) : ViewModel() {
@@ -34,7 +30,7 @@ class LoginViewModel @Inject constructor(
     data class UiState(
         val isLoading: Boolean = false,
         val isSuccess: Boolean = false,
-        val data: LoginResponse? = null
+        val data: RegisterResponse? = null
     )
 
     private val _uiState = MutableStateFlow(UiState())
@@ -53,10 +49,9 @@ class LoginViewModel @Inject constructor(
 
             else -> null
         }
-
         passwordError = when {
             password.isBlank() -> context.getString(R.string.password_required)
-            password.length < 6 -> context.getString(R.string.password_too_short)
+            password.length < 10 -> context.getString(R.string.password_require_least_10_chars)
             !password.any { it.isDigit() } -> context.getString(R.string.password_must_contain_at_least_1_number)
             else -> null
         }
@@ -64,24 +59,16 @@ class LoginViewModel @Inject constructor(
         return emailError == null && passwordError == null
     }
 
-    @SuppressLint("LogNotTimber")
-    fun login(email: String, password: String) {
+    fun register(email: String, password: String) {
         viewModelScope.launch {
             if (!validateCredentials(email, password)) return@launch
-
             _uiState.update { state -> state.copy(isLoading = true) }
-            repo.login(LoginRequest(email, password)).handle(
-                onSuccess = { data ->
-                    saveDataToLocal(data.token, data.user.id)
-                    _uiState.update { it.copy(isSuccess = true) }
+            repo.register(RegisterRequest(email, password)).handle(
+                onSuccess = { _ ->
+                    _uiState.update { state -> state.copy(isSuccess = true) }
                 }
             )
             _uiState.update { state -> state.copy(isLoading = false) }
         }
-    }
-
-    private fun saveDataToLocal(token: String, userId: String) {
-        PreferenceManager.saveAuthToken(context, token)
-        PreferenceManager.saveUserId(context, userId)
     }
 }

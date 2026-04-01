@@ -3,15 +3,19 @@ package com.netsservices.dct.data.remote
 import com.netsservices.dct.data.remote.response.CheckFrameResponse
 import com.netsservices.dct.data.remote.response.DurianTypeResponse
 import com.netsservices.dct.data.remote.response.FileResponse
-import com.netsservices.dct.data.remote.response.FringerPrintResponse
 import com.netsservices.dct.data.remote.response.InitFileResponse
 import com.netsservices.dct.data.remote.response.LoginResponse
+import com.netsservices.dct.data.remote.response.RegisterResponse
 import com.netsservices.dct.data.remote.response.SessionResponse
 import com.netsservices.dct.data.remote.response.SiteResponse
+import com.netsservices.dct.data.remote.resquest.ChangePwdRequest
 import com.netsservices.dct.data.remote.resquest.CreateSessionRequest
-import com.netsservices.dct.data.remote.resquest.FingerPrintRequest
 import com.netsservices.dct.data.remote.resquest.InitFileRequest
 import com.netsservices.dct.data.remote.resquest.LoginRequest
+import com.netsservices.dct.data.remote.response.ChangePwdResponse
+import com.netsservices.dct.data.remote.response.DeviceResponse
+import com.netsservices.dct.data.remote.resquest.RegisterDeviceRequest
+import com.netsservices.dct.data.remote.resquest.RegisterRequest
 import okhttp3.RequestBody
 import retrofit2.Response
 import retrofit2.http.Body
@@ -23,21 +27,36 @@ import retrofit2.http.Query
 
 
 const val LOGIN = "/v1/auth/login"
+const val REGISTER = "/v1/auth/register"
+const val CHANGE_PASSWORD = "/v1/auth/change-password"
+const val REGISTER_DEVICE = "/v1/device/register"
 const val QUICK_SEARCH = "/v1/search/sites"
 const val DURIAN_TYPES = "/v1/durian-types"
 const val CHECK_FRAME = "/v1/capture/check-frame"
 const val CREATE_SESSIONS = "/v1/session/sessions"
 const val INIT_FILE = "/v1/fileroutes/files/init"
 const val UPLOAD_FILE = "/v1/fileroutes/files/{fileId}/upload"
-const val COMPLETE_FILE = "/v1/fileroutes/files/{fileId}/complete"
-const val CREATE_FINGERPRINT = "/v1/session/sessions/{sessionId}/image-fingerprints"
-
 interface ApiServer {
+
+    @POST(REGISTER)
+    suspend fun register(
+        @Body request: RegisterRequest
+    ): Response<RegisterResponse>
 
     @POST(LOGIN)
     suspend fun login(
         @Body request: LoginRequest
     ): Response<LoginResponse>
+
+    @POST(CHANGE_PASSWORD)
+    suspend fun changePassword(
+        @Body request: ChangePwdRequest
+    ): Response<ChangePwdResponse>
+
+    @POST(REGISTER_DEVICE)
+    suspend fun registerDevice(
+        @Body request: RegisterDeviceRequest
+    ): Response<DeviceResponse>
 
     @GET(QUICK_SEARCH)
     suspend fun quickSearch(
@@ -69,10 +88,5 @@ interface ApiServer {
     suspend fun uploadFile(
         @Path("fileId") fileId: String,
         @Body image: RequestBody
-    ): Response<FileResponse>
-
-    @POST(COMPLETE_FILE)
-    suspend fun completeFile(
-        @Path("fileId") fileId: String
     ): Response<FileResponse>
 }

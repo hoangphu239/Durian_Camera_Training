@@ -49,7 +49,9 @@ fun DurianVarietySection(
         )
 
         Row(
-            modifier = Modifier.clickable { onOpenDurianVariety() },
+            modifier = Modifier.clickable {
+                onOpenDurianVariety()
+            },
             verticalAlignment = Alignment.CenterVertically,
         ) {
             selectedDurianVariety?.let {

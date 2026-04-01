@@ -13,7 +13,7 @@ class FrameProcessor {
 
     fun imageProxyToJpeg(
         image: ImageProxy,
-        quality: Int = 90
+        quality: Int = 100
     ): ByteArray? {
         return try {
             val nv21 = yuv420888ToNv21(image)
@@ -107,7 +107,7 @@ class FrameProcessor {
         )
 
         val out = ByteArrayOutputStream()
-        rotated.compress(Bitmap.CompressFormat.JPEG, 90, out)
+        rotated.compress(Bitmap.CompressFormat.JPEG, 100, out)
 
         bitmap.recycle()
         rotated.recycle()

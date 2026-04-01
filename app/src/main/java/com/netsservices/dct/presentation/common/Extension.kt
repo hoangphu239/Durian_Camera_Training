@@ -1,32 +1,12 @@
 package com.netsservices.dct.presentation.common
 
-import android.content.ContentValues
-import android.content.Context
-import android.graphics.Bitmap
-import android.location.Geocoder
-import android.os.Build
-import android.provider.MediaStore
-import android.widget.Toast
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.File
-import java.util.Locale
 
-
-fun Context.setAppLocale(language: String): Context {
-    val locale = Locale(language)
-    Locale.setDefault(locale)
-
-    val config = resources.configuration
-    config.setLocale(locale)
-    config.setLayoutDirection(locale)
-
-    resources.updateConfiguration(config, resources.displayMetrics)
-    return createConfigurationContext(config)
-}
 
 fun String.toRequest() =
     this.toRequestBody("text/plain".toMediaType())
@@ -63,7 +43,11 @@ fun ByteArray.toMultipart(
     return MultipartBody.Part.createFormData(partName, fileName, requestBody)
 }
 
-fun Context.showToast(message: String) {
-    Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+fun String.toMacAddress(): String {
+    return this
+        .take(12)              // chỉ lấy 12 ký tự đầu
+        .uppercase()
+        .chunked(2)
+        .joinToString(":")
 }
 

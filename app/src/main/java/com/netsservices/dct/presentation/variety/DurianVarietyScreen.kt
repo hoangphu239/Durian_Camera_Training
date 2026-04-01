@@ -42,7 +42,7 @@ fun DurianVarietyScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = 16.dp, vertical = 30.dp)
+            .padding(start = 16.dp, end = 16.dp, top = 5.dp, bottom = 16.dp)
     ) {
 
         DurianTypesDropdown(
@@ -123,19 +123,19 @@ fun SelectedDurianVariety(durianVariety: DurianItem) {
         verticalArrangement = Arrangement.Center
     ) {
         Text(
-            "Durian variety" + ": ${durianVariety.name} (${durianVariety.localName})",
+            stringResource(R.string.durian_variety) + ": ${durianVariety.name} (${durianVariety.localName})",
             fontWeight = FontWeight.Medium,
             fontSize = 15.sp
         )
         Spacer(Modifier.height(5.dp))
         Text(
-            "Description: ${durianVariety.description}",
+            stringResource(R.string.description) + ": ${durianVariety.description}",
             fontSize = 15.sp,
             fontWeight = FontWeight.Medium
         )
         Spacer(Modifier.height(5.dp))
         Text(
-            "Country: ${durianVariety.country.name}",
+            stringResource(R.string.country) + ": ${durianVariety.country.name}",
             fontSize = 15.sp,
             fontWeight = FontWeight.Medium
         )

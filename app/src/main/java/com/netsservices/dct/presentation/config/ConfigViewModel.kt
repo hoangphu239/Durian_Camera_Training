@@ -8,6 +8,7 @@ import com.netsservices.dct.data.remote.response.DurianItem
 import com.netsservices.dct.data.remote.response.Site
 import com.netsservices.dct.data.remote.utils.PreferenceManager
 import com.netsservices.dct.presentation.common.LanguagePrefs
+import com.netsservices.dct.presentation.config.components.ScanMode
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -25,14 +26,14 @@ class ConfigViewModel @Inject constructor(
     private val _language = MutableStateFlow("en")
     val language = _language.asStateFlow()
 
-    private val _selectedSite = MutableStateFlow<Site?>(null)
-    val selectedSite: StateFlow<Site?> = _selectedSite
+    private val _currentSite = MutableStateFlow<Site?>(null)
+    val currentSite: StateFlow<Site?> = _currentSite
 
-    private val _selectedDurianVariety = MutableStateFlow<DurianItem?>(null)
-    val selectedDurianVariety: StateFlow<DurianItem?> = _selectedDurianVariety
+    private val _currentVariety = MutableStateFlow<DurianItem?>(null)
+    val currentVariety: StateFlow<DurianItem?> = _currentVariety
 
-    private val _selectedFringerprint = MutableStateFlow(false)
-    val selectedFringerprint: StateFlow<Boolean> = _selectedFringerprint
+    private val _currentMode = MutableStateFlow<ScanMode?>(null)
+    val currentMode: StateFlow<ScanMode?> = _currentMode
 
 
     init {
@@ -55,19 +56,23 @@ class ConfigViewModel @Inject constructor(
     }
 
     fun loadSite() {
-        _selectedSite.value = PreferenceManager.getSite(context)
+        _currentSite.value = PreferenceManager.getSite(context)
     }
 
     fun loadDurianVariety() {
-        _selectedDurianVariety.value = PreferenceManager.getDurianVariety(context)
+        _currentVariety.value = PreferenceManager.getDurianVariety(context)
     }
 
-    fun loadFringerPrint() {
-        _selectedFringerprint.value = PreferenceManager.getFingerprintStatus(context)
+    fun loadScanMode() {
+        _currentMode.value = PreferenceManager.getScanMode(context)
     }
 
-    fun saveFingerprintStatus(context: Context, isEnable: Boolean) {
-        PreferenceManager.saveFingerprintStatus(context, isEnable)
-        _selectedFringerprint.value = isEnable
+    fun saveScanMode(scanMode: ScanMode) {
+        PreferenceManager.saveScanMode(context, scanMode)
+        _currentMode.value = scanMode
+    }
+
+    fun updateAction(action: String) {
+        PreferenceManager.saveAction(context, action)
     }
 }

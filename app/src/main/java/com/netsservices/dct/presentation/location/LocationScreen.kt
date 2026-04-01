@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.netsservices.dct.R
 import com.netsservices.dct.data.remote.response.Site
+import com.netsservices.dct.presentation.common.ConfigStep
 import com.netsservices.dct.presentation.components.AppTextField
 
 
@@ -47,19 +48,18 @@ fun LocationScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
+            .padding(start = 16.dp, end = 16.dp, top = 5.dp, bottom = 16.dp)
     ) {
-        Spacer(modifier = Modifier.height(12.dp))
-
         AppTextField(
             value = query,
             onValueChange = {
                 query = it
                 if (it.isNotEmpty()) {
-                    viewModel.quickSearch(it)
+                    query = it
+                    viewModel.onQueryChanged(it)
                 }
             },
-            hint = "Search site...",
+            hint = stringResource(R.string.search_site),
             imeAction = ImeAction.Done
         )
 
@@ -73,7 +73,10 @@ fun LocationScreen(
                         subtitle = "${site.orchard.name} • ${site.orchard.plantation.name}"
                     ) {
                         keyboardController?.hide()
-                        viewModel.selectSite(site)
+                        if(site != viewModel.getCurrentSite()) {
+                            viewModel.updateAction(ConfigStep.SITE.name)
+                            viewModel.selectSite(site)
+                        }
                     }
                 }
             }

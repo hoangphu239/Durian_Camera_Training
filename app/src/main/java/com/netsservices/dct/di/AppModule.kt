@@ -42,7 +42,9 @@ class AppModule {
             .addInterceptor(logging)
             .addInterceptor { chain ->
                 val request = chain.request()
-                if (request.url.encodedPath.contains("/auth/login")) {
+                if (request.url.encodedPath.contains("/auth/login") ||
+                    request.url.encodedPath.contains("/auth/register"))
+                {
                     return@addInterceptor chain.proceed(request)
                 }
                 val token = PreferenceManager.getAuthToken(application)

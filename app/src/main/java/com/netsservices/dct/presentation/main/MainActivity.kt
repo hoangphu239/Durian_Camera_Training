@@ -40,11 +40,13 @@ import androidx.navigation.compose.rememberNavController
 import com.netsservices.dct.R
 import com.netsservices.dct.data.remote.AppEvent
 import com.netsservices.dct.data.remote.AppEventBus
+import com.netsservices.dct.data.remote.utils.PreferenceManager
 import com.netsservices.dct.presentation.common.LanguagePrefs
-import com.netsservices.dct.presentation.common.setAppLocale
 import com.netsservices.dct.presentation.components.TopBar
 import com.netsservices.dct.presentation.helper.PermissionManager
 import com.netsservices.dct.presentation.theme.DurianCameraTrainingTheme
+import com.netsservices.dct.presentation.utils.Utils.setAppLocale
+import com.netsservices.dct.presentation.utils.Utils.showToast
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
@@ -71,7 +73,12 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val lang = runBlocking { LanguagePrefs.getLanguage(this@MainActivity).first() }
-        setAppLocale(lang)
+        setAppLocale(this, lang)
+
+        val isLoggedIn = runBlocking {
+            PreferenceManager.getAuthToken(this@MainActivity).isNotEmpty()
+        }
+
         enableEdgeToEdge()
         setContent {
             navController = rememberNavController()
@@ -83,13 +90,15 @@ class MainActivity : ComponentActivity() {
                         currentRoute == Screen.Config.route ||
                         currentRoute == Screen.Location.route ||
                         currentRoute == Screen.DurianVariety.route
+            val startDestination = if (isLoggedIn) Routes.MAIN_GRAPH else Routes.AUTH_GRAPH
+            val topBarTitle = remember { mutableStateOf("") }
 
-            DurianCameraTrainingTheme() {
+            DurianCameraTrainingTheme {
                 Scaffold(
                     topBar = {
                         if (showTopBar) {
                             TopBar(
-                                title = stringResource(R.string.app_name),
+                                title = topBarTitle.value.ifEmpty { stringResource(R.string.app_name) },
                                 navigationIcon = if (
                                     currentRoute == Screen.Config.route ||
                                     currentRoute == Screen.Location.route ||
@@ -123,7 +132,13 @@ class MainActivity : ComponentActivity() {
                     snackbarHost = { SnackbarHost(hostState = snackBarHostState) },
                     content = { padding ->
                         Box(modifier = Modifier.padding(padding)) {
-                            MainNavHost(navController, this@MainActivity, viewModel)
+                            MainNavHost(
+                                navController = navController,
+                                activity = this@MainActivity,
+                                mainViewModel = viewModel,
+                                startDestination = startDestination,
+                                onTopBarTitleChange = { title -> topBarTitle.value = title }
+                            )
                             DoubleBackPressHandler(navController)
                         }
                     }
@@ -141,10 +156,17 @@ class MainActivity : ComponentActivity() {
                         is AppEvent.ShowToast -> {
                             snackBarHostState.showSnackbar(event.message)
                         }
-                        AppEvent.Logout -> {
-                            navController.navigate(Screen.Login.route) {
-                                popUpTo(0) { inclusive = true }
-                                launchSingleTop = true
+                        is AppEvent.Unauthorized -> {
+                            snackBarHostState.showSnackbar(event.message)
+                            val currentRoute =
+                                navController.currentBackStackEntry?.destination?.route
+
+                            if (currentRoute != Screen.Login.route) {
+                                snackBarHostState.showSnackbar(event.message)
+                                navController.navigate(Screen.Login.route) {
+                                    popUpTo(0) { inclusive = true }
+                                    launchSingleTop = true
+                                }
                             }
                         }
                     }
