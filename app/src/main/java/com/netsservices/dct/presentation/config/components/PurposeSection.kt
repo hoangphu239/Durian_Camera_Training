@@ -1,9 +1,13 @@
 package com.netsservices.dct.presentation.config.components
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -11,21 +15,19 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.netsservices.dct.R
-import com.netsservices.dct.presentation.common.ConfigStep
 import com.netsservices.dct.presentation.config.ConfigViewModel
 
+@RequiresApi(Build.VERSION_CODES.P)
 @Composable
 fun PurposeSection(
     viewModel: ConfigViewModel,
-    currentMode: ScanMode,
-    onSelected: (ScanMode) -> Unit
+    currentMode: ScanMode
 ) {
     Row(
         modifier = Modifier
@@ -36,23 +38,27 @@ fun PurposeSection(
                 shape = RoundedCornerShape(8.dp)
             )
             .padding(start = 20.dp, end = 10.dp, top = 15.dp, bottom = 15.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
+        horizontalArrangement = Arrangement.SpaceBetween,
     ) {
-        Text(
-            text = stringResource(R.string.scan_mode),
-            style = MaterialTheme.typography.titleMedium
-        )
+        Column {
+            Text(
+                modifier = Modifier.padding(top = 7.dp),
+                text = stringResource(R.string.scan_mode),
+                style = MaterialTheme.typography.titleMedium
+            )
+            Spacer(modifier = Modifier.weight(1f))
+        }
+
+        Spacer(modifier = Modifier.width(10.dp))
 
         ModeSelector(
-            modifier = Modifier.width(190.dp),
+            viewModel = viewModel,
             itemPadding = 6.dp,
             textSize = 13.sp,
-            selectedMode = currentMode,
+            currentMode = currentMode,
             onSelected = { selectedMode ->
                 if(currentMode != selectedMode) {
-                    viewModel.updateAction(ConfigStep.MODE.name)
-                    onSelected(selectedMode)
+                    viewModel.saveScanMode(selectedMode)
                 }
             }
         )

@@ -7,7 +7,6 @@
     <string name="thailand">ไทย</string>
     <string name="vietnamese">Tiếng Việt</string>
     <string name="press_back_again_to_exit">กด back อีกครั้งเพื่อออก</string>
-    <string name="continue_capture">บันทึกภาพต่อ</string>
     <string name="country">ประเทศ</string>
     <string name="welcome_back">ยินดีต้อนรับ,\nดีใจที่ได้พบคุณ!</string>
     <string name="email">อีเมล</string>
@@ -34,7 +33,6 @@
     <string name="select_durian_variety">เลือกพันธุ์ทุเรียน</string>
     <string name="fringerprint">ลายนิ้วมือ</string>
     <string name="collection">ของสะสม</string>
-    <string name="collection_mode_is_now_enabled">โหมดการรวบรวมข้อมูลเปิดใช้งานแล้ว</string>
     <string name="site">ที่ตั้ง: %1$s</string>
     <string name="orchard">สวนผลไม้: %1$s</string>
     <string name="plantation">ไร่: %1$s</string>
@@ -48,7 +46,7 @@
     <string name="scan_mode">โหมดสแกน</string>
     <string name="choose_scan_mode">เลือกวิธีการสแกนที่คุณต้องการ:</string>
     <string name="confirm">ยืนยัน</string>
-    <string name="session_has_expired">เซสชั่นการเข้าสู่ระบบของคุณหมดอายุแล้ว โปรดเข้าสู่ระบบอีกครั้ง</string>
+    <string name="session_has_expired">เซสชั่นการเข้าสู่ระบบของคุณหมดอายุแล้ว โปรดเข้าสู่ระบบอีกครั้งง</string>
     <string name="configuration">การกำหนดค่า</string>
     <string name="create_account_to_get_started_now">สร้างบัญชีเพื่อเริ่มต้นใช้งานได้เลย!</string>
     <string name="sign_up">ลงทะเบียน</string>
@@ -60,4 +58,13 @@
     <string name="description">คำอธิบาย</string>
     <string name="would_you_like_to_create_a_new_session">คุณต้องการสร้างเซสชั่นใหม่หรือไม่?</string>
     <string name="no_internet_connection">ไม่มีการเชื่อมต่ออินเทอร์เน็ต</string>
+    <string name="my_phone">โทรศัพท์ของฉัน</string>
+    <string name="pending_review">อยู่ระหว่างการตรวจสอบ</string>
+    <string name="activated">เปิดใช้งานแล้ว</string>
+    <string name="register">ลงทะเบียน</string>
+    <string name="register_device">กรุณาลงทะเบียนอุปกรณ์ของคุณเพื่อเริ่มต้นใช้งาน</string>
+    <string name="privacy_policy">"นโยบายความเป็นส่วนตัว"</string>
+    <string name="required_to_sign_a_contract">เพื่อใช้งานฟังก์ชันนี้ คุณจำเป็นต้องทำสัญญากับเรา</string>
+    <string name="select_mode">เลือกโหมด</string>
+    <string name="unactive">ไม่ทำงาน</string>
 </resources>

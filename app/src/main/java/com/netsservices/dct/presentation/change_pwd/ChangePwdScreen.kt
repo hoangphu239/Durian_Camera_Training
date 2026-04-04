@@ -20,6 +20,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -37,11 +38,13 @@ fun ChangePwdScreen(
     viewModel: ChangePwdViewModel = hiltViewModel(),
     navigateToLogin: () -> Unit
 ) {
+    val context = LocalContext.current
+    val uiState = viewModel.uiState.collectAsState().value
+    val keyboardController = LocalSoftwareKeyboardController.current
+
     var current by remember { mutableStateOf("") }
     var newPass by remember { mutableStateOf("") }
     var confirm by remember { mutableStateOf("") }
-    val uiState = viewModel.uiState.collectAsState().value
-    val keyboardController = LocalSoftwareKeyboardController.current
 
     Column(
         modifier = Modifier
@@ -49,7 +52,6 @@ fun ChangePwdScreen(
             .padding(20.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-
         Spacer(Modifier.height(50.dp))
 
         Text(
@@ -101,7 +103,7 @@ fun ChangePwdScreen(
             modifier = Modifier.fillMaxWidth(),
             onClick = {
                 keyboardController?.hide()
-                viewModel.changePassword(current, newPass, confirm)
+                viewModel.changePassword(context,current, newPass, confirm)
             }) {
             Text(stringResource(R.string.change_password))
         }

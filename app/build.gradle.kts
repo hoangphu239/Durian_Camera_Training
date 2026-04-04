@@ -30,7 +30,15 @@ android {
                 "proguard-rules.pro"
             )
         }
+
+        create("releaseDebug") {
+            initWith(getByName("release"))
+            isDebuggable = true
+            isMinifyEnabled = false
+            signingConfig = signingConfigs.getByName("debug")
+        }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
@@ -52,6 +60,12 @@ android {
     bundle {
         language {
             enableSplit = false
+        }
+    }
+
+    packaging {
+        jniLibs {
+            useLegacyPackaging = false
         }
     }
 }

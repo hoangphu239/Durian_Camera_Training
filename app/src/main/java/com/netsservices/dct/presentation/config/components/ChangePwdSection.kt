@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowForwardIos
 import androidx.compose.material3.Icon
@@ -32,9 +33,9 @@ fun ChangePasswordSection(
             .padding(horizontal = 16.dp)
             .border(
                 BorderStroke(0.8.dp, SolidColor(MaterialTheme.colorScheme.tertiary)),
-                shape = androidx.compose.foundation.shape.RoundedCornerShape(8.dp)
+                shape = RoundedCornerShape(8.dp)
             )
-            .padding(start = 20.dp, end = 5.dp, top = 10.dp, bottom = 10.dp),
+            .padding(start = 20.dp, top = 4.dp, bottom = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {

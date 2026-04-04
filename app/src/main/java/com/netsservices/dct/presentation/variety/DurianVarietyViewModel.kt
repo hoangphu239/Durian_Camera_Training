@@ -1,6 +1,5 @@
 package com.netsservices.dct.presentation.variety
 
-import android.annotation.SuppressLint
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -22,12 +21,10 @@ class DurianVarietyViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
     private val repo: Repository,
 ) : ViewModel() {
-
     data class UiState(
         val durianVarieties: List<DurianItem> = emptyList(),
         val selectDurianVariety: DurianItem? = null,
     )
-
     private val _uiState = MutableStateFlow(UiState())
     val uiState = _uiState.asStateFlow()
 
@@ -38,7 +35,6 @@ class DurianVarietyViewModel @Inject constructor(
         }
     }
 
-    @SuppressLint("LogNotTimber")
     fun getDurianVarieties(countryCode: String) {
         viewModelScope.launch {
             repo.getDurianVarieties(countryCode).handle(
@@ -52,5 +48,9 @@ class DurianVarietyViewModel @Inject constructor(
     fun selectDurianVariety(durianVariety: DurianItem) {
         _uiState.update { it.copy(selectDurianVariety = durianVariety) }
         PreferenceManager.saveDurianVariety(context, durianVariety)
+    }
+
+    fun updateAction(action: String) {
+        PreferenceManager.saveAction(context, action)
     }
 }

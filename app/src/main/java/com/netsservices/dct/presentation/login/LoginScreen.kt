@@ -23,6 +23,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -40,6 +41,7 @@ fun LoginScreen(
     onNavigateRegister: () -> Unit,
     onLoginSuccess: () -> Unit
 ) {
+    val context = LocalContext.current
     val uiState = viewModel.uiState.collectAsState().value
     val keyboardController = LocalSoftwareKeyboardController.current
     var email by rememberSaveable { mutableStateOf("") }
@@ -92,7 +94,7 @@ fun LoginScreen(
                 modifier = Modifier.fillMaxWidth(),
                 onClick = {
                     keyboardController?.hide()
-                    viewModel.login(email, password)
+                    viewModel.login(context, email, password)
                 }) {
                 Text(stringResource(R.string.login))
             }

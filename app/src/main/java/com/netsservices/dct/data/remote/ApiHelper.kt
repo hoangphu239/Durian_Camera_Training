@@ -1,7 +1,5 @@
 package com.netsservices.dct.data.remote
 
-import android.annotation.SuppressLint
-import android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -35,7 +33,6 @@ suspend fun <T> safeApiCall(
     }
 }
 
-@SuppressLint("LogNotTimber")
 inline fun <T> ApiResult<T>.handle(
     onSuccess: (T) -> Unit,
     noinline onError: ((code: Int, message: String?) -> Unit) = { _, _ -> }
@@ -48,7 +45,6 @@ inline fun <T> ApiResult<T>.handle(
         }
         is ApiResult.Exception -> {
             onError(-1, exception.localizedMessage)
-            Log.e("API-Exception", exception.localizedMessage ?: "Network error")
         }
     }
 }

@@ -3,9 +3,11 @@ package com.netsservices.dct.data.remote.utils
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.core.content.edit
+import com.netsservices.dct.data.remote.response.ContractItem
 import com.netsservices.dct.data.remote.response.DurianItem
 import com.netsservices.dct.data.remote.response.Site
-import com.netsservices.dct.domain.model.DeviceInfo
+import com.netsservices.dct.domain.model.Plantation
+import com.netsservices.dct.presentation.common.DeviceStatus
 import com.netsservices.dct.presentation.config.components.ScanMode
 import com.netsservices.dct.presentation.utils.JsonUtil
 
@@ -16,9 +18,11 @@ object PreferenceManager {
     private const val USER_ID = "user_id"
     private const val ACTION = "action"
     private const val SITE = "site"
-    private const val DEVICE_INFO = "device_info"
+    private const val PLANTATION = "plantation"
+    private const val DEVICE_STATUS = "device_status"
     private const val DURIAN_TYPE = "durian_type"
     private const val SCAN_MODE = "scan_mode"
+    private const val CONTRACT = "contract"
 
     private fun getPrefs(context: Context): SharedPreferences {
         return context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
@@ -48,6 +52,16 @@ object PreferenceManager {
     fun getSite(context: Context): Site? {
         val json = getPrefs(context).getString(SITE, null) ?: return null
         return JsonUtil.fromJson<Site>(json)
+    }
+
+    fun savePlantation(context: Context, plantation: Plantation) {
+        val json = JsonUtil.toJson(plantation)
+        getPrefs(context).edit { putString(PLANTATION, json) }
+    }
+
+    fun getPlantation(context: Context): Plantation? {
+        val json = getPrefs(context).getString(PLANTATION, null) ?: return null
+        return JsonUtil.fromJson<Plantation>(json)
     }
 
     fun saveDurianVariety(context: Context, variety: DurianItem) {
@@ -87,14 +101,22 @@ object PreferenceManager {
         return getPrefs(context).getString(ACTION, "") ?: ""
     }
 
-    fun saveDeviceInfo(context: Context, device: DeviceInfo) {
-        val json = JsonUtil.toJson(device)
-        getPrefs(context).edit { putString(DEVICE_INFO, json) }
+    fun saveDeviceStatus(context: Context, status: String) {
+        getPrefs(context).edit { putString(DEVICE_STATUS, status) }
     }
 
-    fun getDeviceInfo(context: Context): DeviceInfo? {
-        val json = getPrefs(context).getString(DEVICE_INFO, null) ?: return null
-        return JsonUtil.fromJson<DeviceInfo>(json)
+    fun getDeviceStatus(context: Context): String {
+        return getPrefs(context).getString(DEVICE_STATUS, DeviceStatus.UNACTIVE.value) ?: DeviceStatus.UNACTIVE.value
+    }
+
+    fun saveActiveContract(context: Context, contract: ContractItem) {
+        val json = JsonUtil.toJson(contract)
+        getPrefs(context).edit { putString(CONTRACT, json) }
+    }
+
+    fun getActiveContract(context: Context): ContractItem? {
+        val json = getPrefs(context).getString(CONTRACT, null) ?: return null
+        return JsonUtil.fromJson<ContractItem>(json)
     }
 
     fun clearAction(context: Context) {

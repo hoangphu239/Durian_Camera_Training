@@ -1,11 +1,9 @@
 package com.netsservices.dct.presentation.login
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.util.Patterns
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -15,7 +13,6 @@ import com.netsservices.dct.data.remote.response.LoginResponse
 import com.netsservices.dct.data.remote.resquest.LoginRequest
 import com.netsservices.dct.data.remote.utils.PreferenceManager
 import com.netsservices.dct.domain.repository.Repository
-import com.netsservices.dct.presentation.utils.Utils.showToast
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -45,7 +42,7 @@ class LoginViewModel @Inject constructor(
     var passwordError by mutableStateOf<String?>(null)
         private set
 
-    fun validateCredentials(email: String, password: String): Boolean {
+    fun validateCredentials(context: Context, email: String, password: String): Boolean {
         emailError = when {
             email.isBlank() -> context.getString(R.string.email_required)
             !Patterns.EMAIL_ADDRESS.matcher(email)
@@ -64,10 +61,9 @@ class LoginViewModel @Inject constructor(
         return emailError == null && passwordError == null
     }
 
-    @SuppressLint("LogNotTimber")
-    fun login(email: String, password: String) {
+    fun login(context: Context, email: String, password: String) {
         viewModelScope.launch {
-            if (!validateCredentials(email, password)) return@launch
+            if (!validateCredentials(context, email, password)) return@launch
 
             _uiState.update { state -> state.copy(isLoading = true) }
             repo.login(LoginRequest(email, password)).handle(

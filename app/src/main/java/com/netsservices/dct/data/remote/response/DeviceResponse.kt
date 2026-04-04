@@ -6,5 +6,6 @@ data class DeviceResponse(
     val macAddress: String,
     val deviceCode: String?,
     val name: String?,
-    val createdAt: String
+    val createdAt: String,
+    val message: String
 )

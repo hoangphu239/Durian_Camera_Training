@@ -30,7 +30,6 @@ class ChangePwdViewModel @Inject constructor(
         val isLoading: Boolean = false,
         val isSuccess: Boolean = false
     )
-
     private val _uiState = MutableStateFlow(UiState())
     val uiState = _uiState.asStateFlow()
 
@@ -42,6 +41,7 @@ class ChangePwdViewModel @Inject constructor(
         private set
 
     fun validateCredentials(
+        context: Context,
         currentPassword: String,
         newPassword: String,
         confirmPassword: String
@@ -72,9 +72,9 @@ class ChangePwdViewModel @Inject constructor(
                 confirmPasswordError == null
     }
 
-    fun changePassword(currentPassword: String, newPassword: String, confirmPassword: String) {
+    fun changePassword(context: Context, currentPassword: String, newPassword: String, confirmPassword: String) {
         viewModelScope.launch {
-            if (!validateCredentials(currentPassword, newPassword, confirmPassword)) return@launch
+            if (!validateCredentials(context,currentPassword, newPassword, confirmPassword)) return@launch
 
             _uiState.update { it.copy(isLoading = true) }
             repo.changePassword(ChangePwdRequest(currentPassword, newPassword)).handle(

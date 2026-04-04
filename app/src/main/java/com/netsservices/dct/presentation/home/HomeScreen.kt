@@ -1,7 +1,9 @@
 package com.netsservices.dct.presentation.home
 
+import android.os.Build
 import android.util.Size
 import android.view.ViewGroup
+import androidx.annotation.RequiresApi
 import androidx.camera.core.AspectRatio
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
@@ -48,12 +50,13 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import com.netsservices.dct.R
 import com.netsservices.dct.data.remote.response.DurianItem
-import com.netsservices.dct.data.remote.response.Site
 import com.netsservices.dct.data.remote.utils.PreferenceManager
 import com.netsservices.dct.presentation.common.ConfigStep
+import com.netsservices.dct.presentation.common.DeviceStatus
 import com.netsservices.dct.presentation.common.IMAGE_HEIGHT
 import com.netsservices.dct.presentation.common.IMAGE_WIDTH
 import com.netsservices.dct.presentation.components.AppText
+import com.netsservices.dct.presentation.config.ConfigViewModel
 import com.netsservices.dct.presentation.config.components.ModeSelectionDialog
 import com.netsservices.dct.presentation.config.components.ScanMode
 import com.netsservices.dct.presentation.helper.camera.FrameProcessor
@@ -61,11 +64,14 @@ import com.netsservices.dct.presentation.home.components.ScanCameraView
 import java.util.concurrent.Executors
 
 
+@RequiresApi(Build.VERSION_CODES.P)
 @Composable
 fun HomeScreen(
     viewModel: HomeViewModel,
+    configViewModel: ConfigViewModel,
+    gps: Pair<Double, Double>?,
     navigateLocation: () -> Unit,
-    navigateVariety: () -> Unit
+    navigateVariety: () -> Unit,
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -74,19 +80,22 @@ fun HomeScreen(
     val processor = remember { FrameProcessor() }
     val executor = remember { Executors.newSingleThreadExecutor() }
 
-    var site by remember { mutableStateOf<Site?>(null) }
-    var durianType by remember { mutableStateOf<DurianItem?>(null) }
+    var deviceStatus by remember { mutableStateOf(DeviceStatus.UNACTIVE.value) }
     var scanMode by remember { mutableStateOf<ScanMode?>(null) }
+//  var site by remember { mutableStateOf<Site?>(null) }
+    var durianType by remember { mutableStateOf<DurianItem?>(null) }
 
     var isInitialized by remember { mutableStateOf(false) }
     val isConfigReady by remember {
-        derivedStateOf { site != null && durianType != null && scanMode != null }
+       derivedStateOf { deviceStatus == DeviceStatus.ACTIVATE.value && scanMode != null && durianType != null }
+//     derivedStateOf { deviceStatus == DeviceStatus.ACTIVATE.value && scanMode != null && site != null && durianType != null }
     }
     val currentStep by remember {
         derivedStateOf {
             when {
-                site == null -> ConfigStep.SITE
+                deviceStatus == DeviceStatus.UNACTIVE.value -> ConfigStep.REGISTER_DEVICE
                 scanMode == null -> ConfigStep.MODE
+//                site == null -> ConfigStep.SITE
                 durianType == null -> ConfigStep.DURIAN_TYPE
                 else -> ConfigStep.DONE
             }
@@ -101,6 +110,7 @@ fun HomeScreen(
             scaleType = PreviewView.ScaleType.FIT_CENTER
         }
     }
+
 
     LaunchedEffect(Unit) {
         val cameraProviderFuture = ProcessCameraProvider.getInstance(context)
@@ -222,29 +232,36 @@ fun HomeScreen(
 
     if (isInitialized && currentStep != ConfigStep.DONE) {
         when (currentStep) {
-            ConfigStep.SITE -> {
-                AlertDialog(
-                    onDismissRequest = {},
-                    title = { Text(stringResource(R.string.configuration_required)) },
-                    text = { Text(stringResource(R.string.select_site)) },
-                    confirmButton = {
-                        TextButton(onClick = navigateLocation) {
-                            Text(stringResource(R.string.accept))
-                        }
-                    }
-                )
+            ConfigStep.REGISTER_DEVICE -> {
+                viewModel.registerDevice {
+                    deviceStatus = PreferenceManager.getDeviceStatus(context)
+                }
             }
 
             ConfigStep.MODE -> {
                 ModeSelectionDialog(
+                    viewModel = configViewModel,
                     currentMode = scanMode,
-                    onConfirm = { selected ->
-                        PreferenceManager.saveScanMode(context, selected)
-                        scanMode = selected
+                    onConfirm = { selectedMode ->
+                        PreferenceManager.saveScanMode(context, selectedMode)
+                        scanMode = selectedMode
                     },
                     onDismiss = {}
                 )
             }
+
+//            ConfigStep.SITE -> {
+//                AlertDialog(
+//                    onDismissRequest = {},
+//                    title = { Text(stringResource(R.string.configuration_required)) },
+//                    text = { Text(stringResource(R.string.select_site)) },
+//                    confirmButton = {
+//                        TextButton(onClick = navigateLocation) {
+//                            Text(stringResource(R.string.accept))
+//                        }
+//                    }
+//                )
+//            }
 
             ConfigStep.DURIAN_TYPE -> {
                 AlertDialog(
@@ -258,14 +275,16 @@ fun HomeScreen(
                     }
                 )
             }
+
             else -> {}
         }
     }
 
     LaunchedEffect(Unit) {
-        site = PreferenceManager.getSite(context)
-        durianType = PreferenceManager.getDurianVariety(context)
+        deviceStatus = PreferenceManager.getDeviceStatus(context)
         scanMode = PreferenceManager.getScanMode(context)
+//      site = PreferenceManager.getSite(context)
+        durianType = PreferenceManager.getDurianVariety(context)
         isInitialized = true
     }
 
@@ -275,24 +294,29 @@ fun HomeScreen(
 
                 val action = PreferenceManager.getAction(context)
 
-                if (action == ConfigStep.SITE.name) {
-                    PreferenceManager.clearAction(context)
-                    PreferenceManager.clearDurianVariety(context)
-                    PreferenceManager.clearDurianVariety(context)
-                    scanMode = null
-                    durianType = null
-                }
-
                 if (action == ConfigStep.MODE.name) {
                     PreferenceManager.clearAction(context)
                     PreferenceManager.clearDurianVariety(context)
                     durianType = null
                 }
+
+//                if (action == ConfigStep.SITE.name) {
+//                    PreferenceManager.clearAction(context)
+//                    PreferenceManager.clearDurianVariety(context)
+//                    scanMode = null
+//                    durianType = null
+//                }
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
         onDispose {
             lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
+
+    LaunchedEffect(gps) {
+        gps?.let {
+            viewModel.updateGPS(it)
         }
     }
 

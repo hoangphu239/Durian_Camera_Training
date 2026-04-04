@@ -14,9 +14,9 @@ import androidx.navigation.compose.navigation
 import com.netsservices.dct.R
 import com.netsservices.dct.presentation.change_pwd.ChangePwdScreen
 import com.netsservices.dct.presentation.config.ConfigScreen
+import com.netsservices.dct.presentation.config.ConfigViewModel
 import com.netsservices.dct.presentation.home.HomeScreen
 import com.netsservices.dct.presentation.home.HomeViewModel
-import com.netsservices.dct.presentation.location.LocationScreen
 import com.netsservices.dct.presentation.login.LoginScreen
 import com.netsservices.dct.presentation.register.RegisterScreen
 import com.netsservices.dct.presentation.variety.DurianVarietyScreen
@@ -79,8 +79,12 @@ fun MainNavHost(
                     navController.getBackStackEntry(Routes.MAIN_GRAPH)
                 }
                 val homeViewModel: HomeViewModel = hiltViewModel(parentEntry)
+                val configViewModel: ConfigViewModel = hiltViewModel(parentEntry)
+
                 HomeScreen(
                     viewModel = homeViewModel,
+                    configViewModel = configViewModel,
+                    gps = mainViewModel.gps,
                     navigateLocation = {
                         navController.navigate(Screen.Location.route)
                     },
@@ -109,15 +113,15 @@ fun MainNavHost(
                 )
             }
 
-            composable(Screen.Location.route) { backStackEntry ->
-                val title = stringResource(R.string.site_title)
-                LaunchedEffect(backStackEntry) {
-                    onTopBarTitleChange(title)
-                }
-                mainViewModel.gps?.let {
-                    LocationScreen(countryName = mainViewModel.countryInfo.name)
-                }
-            }
+//            composable(Screen.Location.route) { backStackEntry ->
+//                val title = stringResource(R.string.site_title)
+//                LaunchedEffect(backStackEntry) {
+//                    onTopBarTitleChange(title)
+//                }
+//                mainViewModel.gps?.let {
+//                    LocationScreen(countryName = mainViewModel.countryInfo.name)
+//                }
+//            }
 
             composable(Screen.DurianVariety.route) { backStackEntry ->
                 val title = stringResource(R.string.durian_variety)

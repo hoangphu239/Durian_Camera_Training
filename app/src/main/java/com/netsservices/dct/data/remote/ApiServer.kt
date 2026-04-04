@@ -13,8 +13,9 @@ import com.netsservices.dct.data.remote.resquest.CreateSessionRequest
 import com.netsservices.dct.data.remote.resquest.InitFileRequest
 import com.netsservices.dct.data.remote.resquest.LoginRequest
 import com.netsservices.dct.data.remote.response.ChangePwdResponse
+import com.netsservices.dct.data.remote.response.ContractResponse
 import com.netsservices.dct.data.remote.response.DeviceResponse
-import com.netsservices.dct.data.remote.resquest.RegisterDeviceRequest
+import com.netsservices.dct.data.remote.resquest.DeviceRequest
 import com.netsservices.dct.data.remote.resquest.RegisterRequest
 import okhttp3.RequestBody
 import retrofit2.Response
@@ -29,6 +30,7 @@ import retrofit2.http.Query
 const val LOGIN = "/v1/auth/login"
 const val REGISTER = "/v1/auth/register"
 const val CHANGE_PASSWORD = "/v1/auth/change-password"
+const val CONTRACTS = "/v1/contracts"
 const val REGISTER_DEVICE = "/v1/device/register"
 const val QUICK_SEARCH = "/v1/search/sites"
 const val DURIAN_TYPES = "/v1/durian-types"
@@ -55,13 +57,19 @@ interface ApiServer {
 
     @POST(REGISTER_DEVICE)
     suspend fun registerDevice(
-        @Body request: RegisterDeviceRequest
+        @Body request: DeviceRequest
     ): Response<DeviceResponse>
 
     @GET(QUICK_SEARCH)
     suspend fun quickSearch(
         @Query("q") query: String
     ): Response<SiteResponse>
+
+    @GET(CONTRACTS)
+    suspend fun getContracts(
+        @Query("search") search: String,
+        @Query("status") status: String
+    ): Response<ContractResponse>
 
     @GET(DURIAN_TYPES)
     suspend fun getDurianVarieties(

@@ -1,8 +1,9 @@
 package com.netsservices.dct.presentation.config.components
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
@@ -17,23 +18,27 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.netsservices.dct.R
+import com.netsservices.dct.presentation.common.ConfigStep
+import com.netsservices.dct.presentation.config.ConfigViewModel
 
 enum class ScanMode {
     FINGERPRINT,
     COLLECTION
 }
 
+@RequiresApi(Build.VERSION_CODES.P)
 @Composable
 fun ModeSelectionDialog(
+    viewModel: ConfigViewModel,
     currentMode: ScanMode?,
     onConfirm: (ScanMode) -> Unit,
     onDismiss: () -> Unit
 ) {
-    var selectedMode by remember { mutableStateOf(currentMode ?: ScanMode.FINGERPRINT) }
+    var selectedMode by remember { mutableStateOf(currentMode ?: ScanMode.COLLECTION) }
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Select Mode") },
+        title = { Text(stringResource(R.string.select_mode)) },
         text = {
             Column {
                 Text(
@@ -44,14 +49,17 @@ fun ModeSelectionDialog(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 ModeSelector(
-                    modifier = Modifier.fillMaxWidth(),
-                    selectedMode = selectedMode,
+                    viewModel = viewModel,
+                    currentMode = selectedMode,
                     onSelected = { selectedMode = it }
                 )
             }
         },
         confirmButton = {
-            TextButton(onClick = { onConfirm(selectedMode) }) {
+            TextButton(onClick = {
+                viewModel.updateAction(ConfigStep.MODE.name)
+                onConfirm(selectedMode) }
+            ) {
                 Text(stringResource(R.string.confirm))
             }
         }

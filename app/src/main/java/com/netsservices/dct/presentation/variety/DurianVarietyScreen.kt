@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.netsservices.dct.R
 import com.netsservices.dct.data.remote.response.DurianItem
+import com.netsservices.dct.presentation.common.ConfigStep
 
 
 @Composable
@@ -39,12 +40,12 @@ fun DurianVarietyScreen(
     countryCode: String
 ) {
     val uiState = viewModel.uiState.collectAsState().value
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(start = 16.dp, end = 16.dp, top = 5.dp, bottom = 16.dp)
     ) {
-
         DurianTypesDropdown(
             uiState = uiState,
             onSelect = { durian ->
@@ -55,6 +56,7 @@ fun DurianVarietyScreen(
         Spacer(modifier = Modifier.weight(1f))
 
         uiState.selectDurianVariety?.let { variety ->
+            viewModel.updateAction(ConfigStep.DURIAN_TYPE.name)
             SelectedDurianVariety(variety)
         }
     }
@@ -130,12 +132,6 @@ fun SelectedDurianVariety(durianVariety: DurianItem) {
         Spacer(Modifier.height(5.dp))
         Text(
             stringResource(R.string.description) + ": ${durianVariety.description}",
-            fontSize = 15.sp,
-            fontWeight = FontWeight.Medium
-        )
-        Spacer(Modifier.height(5.dp))
-        Text(
-            stringResource(R.string.country) + ": ${durianVariety.country.name}",
             fontSize = 15.sp,
             fontWeight = FontWeight.Medium
         )

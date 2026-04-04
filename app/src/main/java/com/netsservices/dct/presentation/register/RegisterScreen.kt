@@ -22,6 +22,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -39,6 +40,7 @@ fun RegisterScreen(
     viewModel: RegisterViewModel = hiltViewModel(),
     onNavigateLogin: () -> Unit
 ) {
+    val context = LocalContext.current
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     val uiState = viewModel.uiState.collectAsState().value
@@ -90,7 +92,7 @@ fun RegisterScreen(
                 modifier = Modifier.fillMaxWidth(),
                 onClick = {
                     keyboardController?.hide()
-                    viewModel.register(email, password)
+                    viewModel.register(context, email, password)
                 }) {
                 Text(stringResource(R.string.sign_up))
             }

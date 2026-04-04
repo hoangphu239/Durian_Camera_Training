@@ -41,12 +41,12 @@ import com.netsservices.dct.R
 import com.netsservices.dct.data.remote.AppEvent
 import com.netsservices.dct.data.remote.AppEventBus
 import com.netsservices.dct.data.remote.utils.PreferenceManager
+import com.netsservices.dct.presentation.common.INVALID_TOKEN
 import com.netsservices.dct.presentation.common.LanguagePrefs
 import com.netsservices.dct.presentation.components.TopBar
 import com.netsservices.dct.presentation.helper.PermissionManager
 import com.netsservices.dct.presentation.theme.DurianCameraTrainingTheme
 import com.netsservices.dct.presentation.utils.Utils.setAppLocale
-import com.netsservices.dct.presentation.utils.Utils.showToast
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
@@ -157,12 +157,15 @@ class MainActivity : ComponentActivity() {
                             snackBarHostState.showSnackbar(event.message)
                         }
                         is AppEvent.Unauthorized -> {
-                            snackBarHostState.showSnackbar(event.message)
-                            val currentRoute =
-                                navController.currentBackStackEntry?.destination?.route
-
-                            if (currentRoute != Screen.Login.route) {
+                            val currentRoute = navController.currentBackStackEntry?.destination?.route
+                            if(currentRoute == Screen.Login.route) {
                                 snackBarHostState.showSnackbar(event.message)
+                            } else if (currentRoute != Screen.Login.route) {
+                                if(event.message == INVALID_TOKEN) {
+                                    snackBarHostState.showSnackbar(getString(R.string.session_has_expired))
+                                } else {
+                                    snackBarHostState.showSnackbar(event.message)
+                                }
                                 navController.navigate(Screen.Login.route) {
                                     popUpTo(0) { inclusive = true }
                                     launchSingleTop = true

@@ -1,6 +1,5 @@
 package com.netsservices.dct.presentation.helper.connection
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.Network
@@ -53,7 +52,7 @@ class NetworkServiceImpl @Inject constructor(context: Context) : NetworkService 
         .distinctUntilChanged()
         .flowOn(Dispatchers.IO)
 
-    @SuppressLint("ObsoleteSdkInt")
+
     override fun isInternetAvailable(): Boolean {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             val activeNetwork = connectivityManager.activeNetwork

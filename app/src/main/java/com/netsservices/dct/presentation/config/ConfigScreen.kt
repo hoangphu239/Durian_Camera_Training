@@ -1,7 +1,8 @@
 package com.netsservices.dct.presentation.config
 
-import android.annotation.SuppressLint
 import android.app.Activity
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -27,12 +28,13 @@ import com.netsservices.dct.data.remote.response.Site
 import com.netsservices.dct.presentation.config.components.ChangePasswordSection
 import com.netsservices.dct.presentation.config.components.DurianVarietySection
 import com.netsservices.dct.presentation.config.components.LanguageSection
-import com.netsservices.dct.presentation.config.components.LocationSection
 import com.netsservices.dct.presentation.config.components.PurposeSection
+import com.netsservices.dct.presentation.config.components.RegisterDeviceSection
 import com.netsservices.dct.presentation.config.components.ScanMode
 import java.util.Locale
 
 
+@RequiresApi(Build.VERSION_CODES.P)
 @Composable
 fun ConfigScreen(
     activity: Activity,
@@ -46,12 +48,12 @@ fun ConfigScreen(
     val selectedSite by viewModel.currentSite.collectAsState()
     val selectedDurianVariety by viewModel.currentVariety.collectAsState()
     val currentMode by viewModel.currentMode.collectAsState()
+    val deviceStatus by viewModel.deviceStatus.collectAsState()
+
 
     LaunchedEffect(lifecycleOwner) {
         lifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.RESUMED) {
-            viewModel.loadSite()
-            viewModel.loadDurianVariety()
-            viewModel.loadScanMode()
+            viewModel.loadData()
         }
     }
 
@@ -63,13 +65,12 @@ fun ConfigScreen(
     ) {
         ConfigScreenContent(
             viewModel = viewModel,
+            deviceStatus = deviceStatus,
+            currentMode = currentMode ?: ScanMode.COLLECTION,
+            selectedDurianVariety = selectedDurianVariety,
             language = language,
             selectedSite = selectedSite,
-            selectedDurianVariety = selectedDurianVariety,
-            currentMode = currentMode ?: ScanMode.FINGERPRINT,
-            onLanguageChange = { lang ->
-                viewModel.onLanguageSelected(activity, lang)
-            },
+            onLanguageChange = { lang -> viewModel.onLanguageSelected(activity, lang) },
             onOpenLocation = { openLocation() },
             onOpenDurianVariety = { openDurianVariety() },
             onChangePwd = { onChangePwd() }
@@ -77,14 +78,15 @@ fun ConfigScreen(
     }
 }
 
-@SuppressLint("MissingPermission")
+@RequiresApi(Build.VERSION_CODES.P)
 @Composable
 fun ConfigScreenContent(
     viewModel: ConfigViewModel,
+    deviceStatus: String,
+    currentMode: ScanMode,
+    selectedDurianVariety: DurianItem?,
     language: String,
     selectedSite: Site?,
-    selectedDurianVariety: DurianItem?,
-    currentMode: ScanMode,
     onLanguageChange: (String) -> Unit,
     onOpenLocation: () -> Unit,
     onOpenDurianVariety: () -> Unit,
@@ -103,25 +105,32 @@ fun ConfigScreenContent(
                 .verticalScroll(scrollState),
             verticalArrangement = Arrangement.spacedBy(20.dp),
         ) {
-            LanguageSection(
-                language = language,
-                onLanguageChange = onLanguageChange
+            RegisterDeviceSection(
+                status = deviceStatus
             )
-            LocationSection(
-                selectedSite = selectedSite,
-                onOpenLocation = onOpenLocation
-            )
+
             PurposeSection(
                 viewModel = viewModel,
-                currentMode = currentMode,
-                onSelected = { mode ->
-                    viewModel.saveScanMode(mode)
-                }
+                currentMode = currentMode
             )
+
             DurianVarietySection(
                 selectedDurianVariety = selectedDurianVariety,
                 onOpenDurianVariety = onOpenDurianVariety
             )
+
+//            if(currentMode == ScanMode.COLLECTION && selectedSite != null) {
+//                LocationSection(
+//                    selectedSite = selectedSite,
+//                    onOpenLocation = onOpenLocation
+//                )
+//            }
+
+            LanguageSection(
+                language = language,
+                onLanguageChange = onLanguageChange
+            )
+
             ChangePasswordSection(
                 onChangePwd = onChangePwd
             )

@@ -1,6 +1,6 @@
 package com.netsservices.dct.domain.model
 
-import com.netsservices.dct.data.remote.resquest.RegisterDeviceRequest
+import com.netsservices.dct.data.remote.resquest.DeviceRequest
 import com.netsservices.dct.presentation.common.toMacAddress
 
 data class DeviceInfo(
@@ -10,8 +10,8 @@ data class DeviceInfo(
     val meta: Meta
 )
 
-fun DeviceInfo.toRegisterDeviceRequest(): RegisterDeviceRequest {
-    return RegisterDeviceRequest(
+fun DeviceInfo.toRegisterDeviceRequest(): DeviceRequest {
+    return DeviceRequest(
         macAddress = this.deviceId.toMacAddress(),
         deviceCode = this.deviceCode,
         name = this.name,

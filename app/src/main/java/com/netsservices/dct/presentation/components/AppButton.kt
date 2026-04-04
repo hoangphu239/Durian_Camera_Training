@@ -7,28 +7,32 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.netsservices.dct.R
 
 @Composable
 fun AppButton(
     modifier: Modifier = Modifier,
     text: String,
     imageVector: ImageVector? = null,
-    textColor: Int,
+    textColor: Int = R.color.white,
+    backgroundColor: Color = MaterialTheme.colorScheme.primary,
     enable: Boolean = true,
     onClick: () -> Unit,
 ) {
     Button(
         modifier = modifier,
         shape = RoundedCornerShape(8.dp),
-        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF62833a)),
+        colors = ButtonDefaults.buttonColors(containerColor = backgroundColor),
         enabled = enable,
         onClick = onClick
     ) {

@@ -12,7 +12,6 @@ import com.netsservices.dct.data.remote.handle
 import com.netsservices.dct.data.remote.response.RegisterResponse
 import com.netsservices.dct.data.remote.resquest.RegisterRequest
 import com.netsservices.dct.domain.repository.Repository
-import com.netsservices.dct.presentation.utils.Utils.showToast
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -41,7 +40,7 @@ class RegisterViewModel @Inject constructor(
     var passwordError by mutableStateOf<String?>(null)
         private set
 
-    fun validateCredentials(email: String, password: String): Boolean {
+    fun validateCredentials(context: Context, email: String, password: String): Boolean {
         emailError = when {
             email.isBlank() -> context.getString(R.string.email_required)
             !Patterns.EMAIL_ADDRESS.matcher(email)
@@ -59,9 +58,9 @@ class RegisterViewModel @Inject constructor(
         return emailError == null && passwordError == null
     }
 
-    fun register(email: String, password: String) {
+    fun register(context: Context, email: String, password: String) {
         viewModelScope.launch {
-            if (!validateCredentials(email, password)) return@launch
+            if (!validateCredentials(context, email, password)) return@launch
             _uiState.update { state -> state.copy(isLoading = true) }
             repo.register(RegisterRequest(email, password)).handle(
                 onSuccess = { _ ->
