@@ -5,6 +5,7 @@ import com.netsservices.dct.data.remote.ApiServer
 import com.netsservices.dct.data.remote.repository.RepositoryImpl
 import com.netsservices.dct.data.remote.utils.PreferenceManager
 import com.netsservices.dct.domain.repository.Repository
+import com.netsservices.dct.presentation.common.AppConfig
 import com.netsservices.dct.presentation.common.ApplicationScope
 import com.netsservices.dct.presentation.common.Constants
 import com.netsservices.dct.presentation.common.LanguagePrefs
@@ -39,7 +40,6 @@ class AppModule {
         }
 
         return OkHttpClient.Builder()
-            .addInterceptor(logging)
             .addInterceptor { chain ->
                 val request = chain.request()
                 if (request.url.encodedPath.contains("/auth/login") ||
@@ -48,7 +48,7 @@ class AppModule {
                     return@addInterceptor chain.proceed(request)
                 }
                 val token = PreferenceManager.getAuthToken(application)
-                val lang = runBlocking { LanguagePrefs.getLanguage(application).first() }
+                val lang = AppConfig.language
 
                 val newRequest = request.newBuilder()
                     .addHeader("Authorization", "Bearer $token")
@@ -56,6 +56,7 @@ class AppModule {
                     .build()
                 chain.proceed(newRequest)
             }
+            .addInterceptor(logging)
             .connectTimeout(30, TimeUnit.SECONDS)
             .readTimeout(30, TimeUnit.SECONDS)
             .build()
