@@ -46,8 +46,8 @@ enum class ContractStatus(val value: String) {
     CANCELLED("Cancelled"),
 }
 
-const val IMAGE_WIDTH = 1080
-const val IMAGE_HEIGHT = 1440
+const val IMAGE_WIDTH = 1920
+const val IMAGE_HEIGHT = 1080
 const val INVALID_TOKEN = "Invalid token"
 const val ULTRA_WIDE = "ULTRA_WIDE"
 const val WIDE = "WIDE"

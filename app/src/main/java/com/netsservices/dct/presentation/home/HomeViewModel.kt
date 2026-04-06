@@ -5,6 +5,7 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.netsservices.dct.data.remote.ApiErrorCode
 import com.netsservices.dct.data.remote.handle
 import com.netsservices.dct.data.remote.response.CheckFrameResponse
 import com.netsservices.dct.data.remote.response.StatusFile
@@ -23,6 +24,7 @@ import com.netsservices.dct.presentation.config.components.ScanMode
 import com.netsservices.dct.presentation.helper.camera.CameraManager
 import com.netsservices.dct.presentation.helper.connection.NetworkService
 import com.netsservices.dct.presentation.utils.Utils.getDeviceID
+import com.netsservices.dct.presentation.utils.Utils.saveJpegToGallery
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -72,6 +74,8 @@ class HomeViewModel @Inject constructor(
     private var isFlowRunning = false
     private var imageBody: RequestBody? = null
     private var gps: Pair<Double, Double>? = null
+    private var isUnauthorized = false
+
 
     fun registerDevice(onSuccess: () -> Unit) {
         val deviceId = getDeviceID(context)
@@ -104,6 +108,7 @@ class HomeViewModel @Inject constructor(
 
     fun checkFrame(raw: ByteArray) {
         if (uiState.value.blockCapture) return
+        if (isUnauthorized) return
         if (!shouldSendFrame()) return
 
         viewModelScope.launch {
@@ -132,7 +137,10 @@ class HomeViewModel @Inject constructor(
                                 isFlowRunning = false
                             }
                         },
-                        onError = { _, _ ->
+                        onError = { code, _ ->
+                            if (code == ApiErrorCode.UNAUTHORIZED) {
+                                isUnauthorized = true
+                            }
                             clearData()
                         }
                     )

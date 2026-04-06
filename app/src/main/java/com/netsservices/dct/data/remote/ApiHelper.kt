@@ -6,6 +6,8 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import retrofit2.Response
 import org.json.JSONObject
+import java.util.concurrent.atomic.AtomicBoolean
+
 
 suspend fun <T> safeApiCall(
     apiCall: suspend () -> Response<T>
@@ -23,7 +25,7 @@ suspend fun <T> safeApiCall(
             val errorBody = response.errorBody()?.string()
             val errorMessage = try {
                 JSONObject(errorBody ?: "").getString("message")
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 response.message()
             }
             ApiResult.Error(response.code(), errorMessage ?: "Unknown error")
@@ -52,8 +54,10 @@ inline fun <T> ApiResult<T>.handle(
 fun handleError(errorCode: Int, message: String) {
     when (errorCode) {
         ApiErrorCode.UNAUTHORIZED -> {
-            CoroutineScope(Dispatchers.Main).launch {
-                AppEventBus.events.emit(AppEvent.Unauthorized(message))
+            if (ErrorState.unauthorizedHandled.compareAndSet(false, true)) {
+                CoroutineScope(Dispatchers.Main).launch {
+                    AppEventBus.events.emit(AppEvent.Unauthorized(message))
+                }
             }
         }
 
@@ -82,4 +86,8 @@ object AppEventBus {
 sealed class AppEvent {
     data class ShowToast(val message: String) : AppEvent()
     data class Unauthorized(val message: String) : AppEvent()
+}
+
+object ErrorState {
+    val unauthorizedHandled = AtomicBoolean(false)
 }

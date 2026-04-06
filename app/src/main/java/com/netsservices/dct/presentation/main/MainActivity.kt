@@ -53,6 +53,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
+
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
@@ -61,6 +62,7 @@ class MainActivity : ComponentActivity() {
     lateinit var navController: NavHostController
     lateinit var snackBarHostState: SnackbarHostState
 
+    @RequiresApi(Build.VERSION_CODES.P)
     override fun onStart() {
         super.onStart()
         permissionManager.requestAll {
@@ -157,6 +159,8 @@ class MainActivity : ComponentActivity() {
                             snackBarHostState.showSnackbar(event.message)
                         }
                         is AppEvent.Unauthorized -> {
+                            if (snackBarHostState.currentSnackbarData != null) return@collect
+
                             val currentRoute = navController.currentBackStackEntry?.destination?.route
                             if(currentRoute == Screen.Login.route) {
                                 snackBarHostState.showSnackbar(event.message)

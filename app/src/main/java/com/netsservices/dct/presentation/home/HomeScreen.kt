@@ -1,7 +1,6 @@
 package com.netsservices.dct.presentation.home
 
 import android.os.Build
-import android.util.Size
 import android.view.ViewGroup
 import androidx.annotation.RequiresApi
 import androidx.camera.core.AspectRatio
@@ -53,8 +52,6 @@ import com.netsservices.dct.data.remote.response.DurianItem
 import com.netsservices.dct.data.remote.utils.PreferenceManager
 import com.netsservices.dct.presentation.common.ConfigStep
 import com.netsservices.dct.presentation.common.DeviceStatus
-import com.netsservices.dct.presentation.common.IMAGE_HEIGHT
-import com.netsservices.dct.presentation.common.IMAGE_WIDTH
 import com.netsservices.dct.presentation.components.AppText
 import com.netsservices.dct.presentation.config.ConfigViewModel
 import com.netsservices.dct.presentation.config.components.ModeSelectionDialog
@@ -101,16 +98,16 @@ fun HomeScreen(
             }
         }
     }
+
     val previewView = remember {
         PreviewView(context).apply {
             layoutParams = ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT
             )
-            scaleType = PreviewView.ScaleType.FIT_CENTER
+            scaleType = PreviewView.ScaleType.FILL_CENTER
         }
     }
-
 
     LaunchedEffect(Unit) {
         val cameraProviderFuture = ProcessCameraProvider.getInstance(context)
@@ -121,27 +118,30 @@ fun HomeScreen(
             val preview = Preview.Builder()
                 .setTargetAspectRatio(AspectRatio.RATIO_16_9)
                 .build()
-                .apply {
-                    setSurfaceProvider(previewView.surfaceProvider)
-                }
+                .apply { setSurfaceProvider(previewView.surfaceProvider) }
 
             val capture = ImageCapture.Builder()
                 .setTargetAspectRatio(AspectRatio.RATIO_16_9)
-                .setCaptureMode(ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY)
+                .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
                 .build()
 
             val analysis = ImageAnalysis.Builder()
-                .setTargetResolution(Size(IMAGE_WIDTH, IMAGE_HEIGHT))
+                .setTargetAspectRatio(AspectRatio.RATIO_16_9)
                 .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                 .build()
 
             analysis.setAnalyzer(executor) { image ->
-                if (uiState.blockCapture) return@setAnalyzer
+                if (uiState.blockCapture) {
+                    image.close()
+                    return@setAnalyzer
+                }
                 try {
                     if (isConfigReady) {
-                        val raw = processor.imageProxyToJpeg(image)
-                        raw?.let {
-                            viewModel.checkFrame(raw)
+                        val bitmap = processor.imageProxyToBitmap(image)
+                        bitmap?.let {
+                            val finalBitmap = processor.cropAndResize(bitmap)
+                            val jpeg = processor.bitmapToJpeg(finalBitmap)
+                            viewModel.checkFrame(jpeg)
                         }
                     }
                 } catch (e: Exception) {
@@ -160,6 +160,7 @@ fun HomeScreen(
                 analysis,
                 capture
             )
+
         }, ContextCompat.getMainExecutor(context))
     }
 
