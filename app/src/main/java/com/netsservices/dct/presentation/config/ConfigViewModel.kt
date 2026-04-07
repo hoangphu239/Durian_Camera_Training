@@ -20,6 +20,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -29,21 +30,25 @@ class ConfigViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
     private val repo: Repository
 ) : ViewModel() {
+
+    data class UiState(
+        val isLoading: Boolean = false,
+        val isSuccess: Boolean = false,
+        val verifiedContract: Boolean = false,
+    )
+    private val _uiState = MutableStateFlow(UiState())
+    val uiState = _uiState.asStateFlow()
+
     private val _deviceStatus = MutableStateFlow(PreferenceManager.getDeviceStatus(context))
     val deviceStatus = _deviceStatus.asStateFlow()
     private val _currentMode = MutableStateFlow<ScanMode?>(null)
     val currentMode: StateFlow<ScanMode?> = _currentMode
-    private val _verifiedContract = MutableStateFlow(false)
-    val verifiedContract = _verifiedContract.asStateFlow()
     private val _currentVariety = MutableStateFlow<DurianItem?>(null)
     val currentVariety: StateFlow<DurianItem?> = _currentVariety
-    private val _language = MutableStateFlow("en")
-    val language = _language.asStateFlow()
     private val _currentSite = MutableStateFlow<Site?>(null)
     val currentSite: StateFlow<Site?> = _currentSite
-    private val _isLoading = MutableStateFlow(false)
-    val isLoading = _isLoading.asStateFlow()
-
+    private val _selectLanguage = MutableStateFlow("en")
+    val selectLanguage = _selectLanguage.asStateFlow()
 
     init {
         observeLanguage()
@@ -56,24 +61,23 @@ class ConfigViewModel @Inject constructor(
     }
 
     fun verifyContract(context: Context, search: String, onSuccess: () -> Unit) {
-        _isLoading.value = true
+        _uiState.update { it.copy(isLoading = true) }
         viewModelScope.launch {
             repo.getContracts(search, ContractStatus.ACTIVE.value).handle(
                 onSuccess = { data ->
-                    _isLoading.value = false
+                    _uiState.update { it.copy(isLoading = false) }
                     val result = findActiveContract(data.items)
                     if(result!=null) {
-                        _verifiedContract.value = true
+                        _uiState.update { it.copy(verifiedContract = true) }
                         saveContract(result)
                         onSuccess()
                     } else {
-                        _verifiedContract.value = false
+                        _uiState.update { it.copy(verifiedContract = false) }
                         showToast(context, context.getString(R.string.required_to_sign_a_contract))
                     }
                 },
                 onError = { _, _ ->
-                    _isLoading.value = false
-                    _verifiedContract.value = false
+                    _uiState.update { it.copy(isLoading = false, verifiedContract = false) }
                 }
             )
         }
@@ -94,7 +98,7 @@ class ConfigViewModel @Inject constructor(
     private fun observeLanguage() {
         viewModelScope.launch {
             LanguagePrefs.getLanguage(context).collect {
-                _language.value = it
+                _selectLanguage.value = it
             }
         }
     }

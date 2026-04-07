@@ -10,6 +10,7 @@ import com.netsservices.dct.data.remote.response.DeviceResponse
 import com.netsservices.dct.data.remote.response.DurianTypeResponse
 import com.netsservices.dct.data.remote.response.FileResponse
 import com.netsservices.dct.data.remote.response.InitFileResponse
+import com.netsservices.dct.data.remote.response.LanguageResponse
 import com.netsservices.dct.data.remote.response.LoginResponse
 import com.netsservices.dct.data.remote.response.RegisterResponse
 import com.netsservices.dct.data.remote.response.SessionResponse
@@ -48,6 +49,10 @@ class RepositoryImpl @Inject constructor(
         return safeApiCall { api.changePassword(changeRequest) }
     }
 
+    override suspend fun getLanguages(): ApiResult<List<LanguageResponse>> {
+        return safeApiCall { api.getLanguages() }
+    }
+
     override suspend fun quickSearch(query: String): ApiResult<SiteResponse> {
         return safeApiCall { api.quickSearch(query) }
     }
@@ -56,7 +61,7 @@ class RepositoryImpl @Inject constructor(
         return safeApiCall { api.getContracts(search, status) }
     }
 
-    override suspend fun getDurianVarieties(countryCode: String): ApiResult<DurianTypeResponse> {
+    override suspend fun getDurianVarieties(countryCode: String?): ApiResult<DurianTypeResponse> {
         return safeApiCall { api.getDurianVarieties(countryCode) }
     }
 

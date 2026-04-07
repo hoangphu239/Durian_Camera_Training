@@ -11,6 +11,7 @@ import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -160,17 +161,19 @@ fun HomeScreen(
                 analysis,
                 capture
             )
-
         }, ContextCompat.getMainExecutor(context))
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
-        Column(modifier = Modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
             val guidance = uiState.dataFrame?.guidance ?: ""
             val isDetected = uiState.dataFrame?.durianDetected == true && uiState.dataFrame.ready
 
             AppText(
-                modifier = Modifier.padding(start = 10.dp, bottom = 10.dp),
+                modifier = Modifier.padding(start = 10.dp),
                 text = guidance,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Medium,

@@ -22,7 +22,7 @@ class DurianVarietyViewModel @Inject constructor(
     private val repo: Repository,
 ) : ViewModel() {
     data class UiState(
-        val durianVarieties: List<DurianItem> = emptyList(),
+        val durianVarieties: List<DurianItem>? = emptyList(),
         val selectDurianVariety: DurianItem? = null,
     )
     private val _uiState = MutableStateFlow(UiState())
@@ -35,11 +35,15 @@ class DurianVarietyViewModel @Inject constructor(
         }
     }
 
-    fun getDurianVarieties(countryCode: String) {
+    fun getDurianVarieties(countryCode: String?) {
         viewModelScope.launch {
             repo.getDurianVarieties(countryCode).handle(
                 onSuccess = { data ->
-                    _uiState.update { it.copy(durianVarieties = data.items) }
+                    if(data.items.isNotEmpty()) {
+                        _uiState.update { it.copy(durianVarieties = data.items) }
+                    } else {
+                        _uiState.update { it.copy(durianVarieties = null) }
+                    }
                 }
             )
         }

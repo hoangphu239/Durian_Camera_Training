@@ -19,16 +19,21 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.netsservices.dct.R
-import com.netsservices.dct.presentation.common.Constants
+import com.netsservices.dct.data.remote.response.LanguageResponse
 import com.netsservices.dct.presentation.common.LanguagePrefs
 import com.netsservices.dct.presentation.components.AppText
 
+
 @Composable
 fun LanguageSection(
-    language: String,
+    languages: List<LanguageResponse>?,
+    selectLanguage: String,
     onLanguageChange: (String) -> Unit,
 ) {
     val context = LocalContext.current
+
+    if (languages.isNullOrEmpty()) return
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -37,36 +42,26 @@ fun LanguageSection(
                 BorderStroke(0.8.dp, SolidColor(MaterialTheme.colorScheme.tertiary)),
                 shape = RoundedCornerShape(8.dp)
             )
-            .padding(start = 20.dp, end = 20.dp, top = 16.dp),
+            .padding(start = 20.dp, end = 20.dp, top = 16.dp)
     ) {
+
         Text(
             text = stringResource(R.string.select_language),
             style = MaterialTheme.typography.titleMedium
         )
-        LanguageOption(
-            stringResource(R.string.english),
-            language == "en"
-        ) {
-            if (LanguagePrefs.getLanguageNow(context) == Constants.ENGLISH) return@LanguageOption
-            onLanguageChange("en")
-        }
-        LanguageOption(
-            stringResource(R.string.thailand),
-            language == "th"
-        ) {
-            if (LanguagePrefs.getLanguageNow(context) == Constants.THAI) return@LanguageOption
-            onLanguageChange("th")
-        }
-        LanguageOption(
-            stringResource(R.string.vietnamese),
-            language == "vi"
-        ) {
-            if (LanguagePrefs.getLanguageNow(context) == Constants.VIETNAMESE) return@LanguageOption
-            onLanguageChange("vi")
+
+        languages.forEach { language ->
+            LanguageOption(
+                title = language.label,
+                selected = selectLanguage == language.id
+            ) {
+                val currentLang = LanguagePrefs.getLanguageNow(context)
+                if (currentLang == language.id) return@LanguageOption
+                onLanguageChange(language.id)
+            }
         }
     }
 }
-
 
 @Composable
 fun LanguageOption(

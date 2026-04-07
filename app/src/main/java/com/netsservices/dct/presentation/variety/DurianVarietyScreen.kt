@@ -2,6 +2,7 @@ package com.netsservices.dct.presentation.variety
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -22,16 +23,19 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.netsservices.dct.R
 import com.netsservices.dct.data.remote.response.DurianItem
 import com.netsservices.dct.presentation.common.ConfigStep
+import com.netsservices.dct.presentation.components.AppText
 
 
 @Composable
@@ -41,23 +45,35 @@ fun DurianVarietyScreen(
 ) {
     val uiState = viewModel.uiState.collectAsState().value
 
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxSize()
-            .padding(start = 16.dp, end = 16.dp, top = 5.dp, bottom = 16.dp)
+            .padding(start = 16.dp, end = 16.dp, top = 5.dp, bottom = 16.dp),
+        contentAlignment = Alignment.Center
     ) {
-        DurianTypesDropdown(
-            uiState = uiState,
-            onSelect = { durian ->
-                viewModel.selectDurianVariety(durian)
+        if(uiState.durianVarieties == null) {
+            AppText(
+                text = stringResource(R.string.this_feature_is_currently_supported_in_the_asia_region),
+                textAlign = TextAlign.Center,
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Medium
+            )
+        } else {
+            Column(modifier = Modifier.fillMaxSize()) {
+                DurianTypesDropdown(
+                    uiState = uiState,
+                    onSelect = { durian ->
+                        viewModel.selectDurianVariety(durian)
+                    }
+                )
+
+                Spacer(modifier = Modifier.weight(1f))
+
+                uiState.selectDurianVariety?.let { variety ->
+                    viewModel.updateAction(ConfigStep.DURIAN_TYPE.name)
+                    SelectedDurianVariety(variety)
+                }
             }
-        )
-
-        Spacer(modifier = Modifier.weight(1f))
-
-        uiState.selectDurianVariety?.let { variety ->
-            viewModel.updateAction(ConfigStep.DURIAN_TYPE.name)
-            SelectedDurianVariety(variety)
         }
     }
 
@@ -81,7 +97,6 @@ fun DurianTypesDropdown(
         expanded = expanded,
         onExpandedChange = { expanded = !expanded }
     ) {
-
         OutlinedTextField(
             value = selected?.name ?: "",
             onValueChange = {},
@@ -99,7 +114,7 @@ fun DurianTypesDropdown(
             expanded = expanded,
             onDismissRequest = { expanded = false }
         ) {
-            uiState.durianVarieties.forEach { durian ->
+            uiState.durianVarieties?.forEach { durian ->
                 DropdownMenuItem(
                     text = { Text(durian.name) },
                     onClick = {
@@ -125,7 +140,7 @@ fun SelectedDurianVariety(durianVariety: DurianItem) {
         verticalArrangement = Arrangement.Center
     ) {
         Text(
-            stringResource(R.string.durian_variety) + ": ${durianVariety.name} (${durianVariety.localName})",
+            stringResource(R.string.selected_durian_variety) + ": ${durianVariety.name} (${durianVariety.localName})",
             fontWeight = FontWeight.Medium,
             fontSize = 15.sp
         )

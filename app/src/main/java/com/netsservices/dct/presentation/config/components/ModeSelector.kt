@@ -12,7 +12,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -39,8 +38,7 @@ fun ModeSelector(
     textSize: TextUnit = 14.sp
 ) {
     val context = LocalContext.current
-    val verifiedContract = viewModel.verifiedContract.collectAsState().value
-    val isLoading = viewModel.isLoading.collectAsState().value
+    val uiState = viewModel.uiState.collectAsState().value
 
     Box(contentAlignment = Alignment.Center) {
         Row(
@@ -49,7 +47,7 @@ fun ModeSelector(
                 .background(Color.LightGray.copy(alpha = 0.2f), RoundedCornerShape(12.dp))
         ){
             ModeItem(
-                title = stringResource(R.string.fringerprint),
+                title = stringResource(R.string.fingerprint),
                 selected = currentMode == ScanMode.FINGERPRINT,
                 modifier = Modifier.weight(1f),
                 padding = itemPadding,
@@ -75,7 +73,7 @@ fun ModeSelector(
             )
         }
 
-        if (isLoading) {
+        if (uiState.isLoading) {
             CircularProgressIndicator()
         }
     }

@@ -15,6 +15,7 @@ import com.netsservices.dct.data.remote.resquest.LoginRequest
 import com.netsservices.dct.data.remote.response.ChangePwdResponse
 import com.netsservices.dct.data.remote.response.ContractResponse
 import com.netsservices.dct.data.remote.response.DeviceResponse
+import com.netsservices.dct.data.remote.response.LanguageResponse
 import com.netsservices.dct.data.remote.resquest.DeviceRequest
 import com.netsservices.dct.data.remote.resquest.RegisterRequest
 import okhttp3.RequestBody
@@ -30,6 +31,7 @@ import retrofit2.http.Query
 const val LOGIN = "/v1/auth/login"
 const val REGISTER = "/v1/auth/register"
 const val CHANGE_PASSWORD = "/v1/auth/change-password"
+const val LANGUAGES = "/v1/lang/languages"
 const val CONTRACTS = "/v1/contracts"
 const val REGISTER_DEVICE = "/v1/device/register"
 const val QUICK_SEARCH = "/v1/search/sites"
@@ -38,6 +40,7 @@ const val CHECK_FRAME = "/v1/capture/check-frame"
 const val CREATE_SESSIONS = "/v1/session/sessions"
 const val INIT_FILE = "/v1/fileroutes/files/init"
 const val UPLOAD_FILE = "/v1/fileroutes/files/{fileId}/upload"
+
 interface ApiServer {
 
     @POST(REGISTER)
@@ -49,6 +52,9 @@ interface ApiServer {
     suspend fun login(
         @Body request: LoginRequest
     ): Response<LoginResponse>
+
+    @GET(LANGUAGES)
+    suspend fun getLanguages(): Response<List<LanguageResponse>>
 
     @POST(CHANGE_PASSWORD)
     suspend fun changePassword(
@@ -73,7 +79,7 @@ interface ApiServer {
 
     @GET(DURIAN_TYPES)
     suspend fun getDurianVarieties(
-        @Query("countryCode") countryCode: String,
+        @Query("countryCode") countryCode: String?,
     ): Response<DurianTypeResponse>
 
     @POST(CHECK_FRAME)

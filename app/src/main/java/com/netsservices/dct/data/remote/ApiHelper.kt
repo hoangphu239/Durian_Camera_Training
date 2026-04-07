@@ -54,10 +54,8 @@ inline fun <T> ApiResult<T>.handle(
 fun handleError(errorCode: Int, message: String) {
     when (errorCode) {
         ApiErrorCode.UNAUTHORIZED -> {
-            if (ErrorState.unauthorizedHandled.compareAndSet(false, true)) {
-                CoroutineScope(Dispatchers.Main).launch {
-                    AppEventBus.events.emit(AppEvent.Unauthorized(message))
-                }
+            CoroutineScope(Dispatchers.Main).launch {
+                AppEventBus.events.emit(AppEvent.Unauthorized(message))
             }
         }
 
@@ -86,8 +84,4 @@ object AppEventBus {
 sealed class AppEvent {
     data class ShowToast(val message: String) : AppEvent()
     data class Unauthorized(val message: String) : AppEvent()
-}
-
-object ErrorState {
-    val unauthorizedHandled = AtomicBoolean(false)
 }

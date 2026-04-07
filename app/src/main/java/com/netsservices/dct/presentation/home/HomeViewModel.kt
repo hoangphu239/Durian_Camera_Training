@@ -24,7 +24,6 @@ import com.netsservices.dct.presentation.config.components.ScanMode
 import com.netsservices.dct.presentation.helper.camera.CameraManager
 import com.netsservices.dct.presentation.helper.connection.NetworkService
 import com.netsservices.dct.presentation.utils.Utils.getDeviceID
-import com.netsservices.dct.presentation.utils.Utils.saveJpegToGallery
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow

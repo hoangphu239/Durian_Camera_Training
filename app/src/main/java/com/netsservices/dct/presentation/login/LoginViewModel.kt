@@ -8,7 +8,6 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.netsservices.dct.R
-import com.netsservices.dct.data.remote.ErrorState
 import com.netsservices.dct.data.remote.handle
 import com.netsservices.dct.data.remote.response.LoginResponse
 import com.netsservices.dct.data.remote.resquest.LoginRequest
@@ -71,7 +70,6 @@ class LoginViewModel @Inject constructor(
                 onSuccess = { data ->
                     saveDataToLocal(data.token, data.user.id)
                     _uiState.update { it.copy(isSuccess = true) }
-                    ErrorState.unauthorizedHandled.set(false)
                 }
             )
             _uiState.update { state -> state.copy(isLoading = false) }

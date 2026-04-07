@@ -101,6 +101,7 @@ fun MainNavHost(
                 }
                 ConfigScreen(
                     activity = activity,
+                    languages = mainViewModel.languages,
                     openLocation = {
                         navController.navigate(Screen.Location.route)
                     },
