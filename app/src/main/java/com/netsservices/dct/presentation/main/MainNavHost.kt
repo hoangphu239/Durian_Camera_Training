@@ -129,7 +129,9 @@ fun MainNavHost(
                 LaunchedEffect(backStackEntry) {
                     onTopBarTitleChange(title)
                 }
-                DurianVarietyScreen(countryCode = mainViewModel.countryInfo.code)
+                DurianVarietyScreen(
+                    countryCode = mainViewModel.countryInfo.code.takeIf { mainViewModel.isCountrySupported } ?: ""
+                )
             }
 
             composable(Screen.ChangePassword.route) {

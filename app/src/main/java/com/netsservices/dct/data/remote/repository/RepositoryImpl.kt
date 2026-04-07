@@ -6,6 +6,7 @@ import com.netsservices.dct.data.remote.ApiServer
 import com.netsservices.dct.data.remote.response.ChangePwdResponse
 import com.netsservices.dct.data.remote.response.CheckFrameResponse
 import com.netsservices.dct.data.remote.response.ContractResponse
+import com.netsservices.dct.data.remote.response.CountryResponse
 import com.netsservices.dct.data.remote.response.DeviceResponse
 import com.netsservices.dct.data.remote.response.DurianTypeResponse
 import com.netsservices.dct.data.remote.response.FileResponse
@@ -22,6 +23,7 @@ import com.netsservices.dct.data.remote.resquest.LoginRequest
 import com.netsservices.dct.data.remote.resquest.DeviceRequest
 import com.netsservices.dct.data.remote.resquest.RegisterRequest
 import com.netsservices.dct.data.remote.safeApiCall
+import com.netsservices.dct.domain.model.Country
 import com.netsservices.dct.domain.repository.Repository
 import okhttp3.RequestBody
 import javax.inject.Inject
@@ -51,6 +53,10 @@ class RepositoryImpl @Inject constructor(
 
     override suspend fun getLanguages(): ApiResult<List<LanguageResponse>> {
         return safeApiCall { api.getLanguages() }
+    }
+
+    override suspend fun getCountries(): ApiResult<CountryResponse> {
+        return safeApiCall { api.getCountries() }
     }
 
     override suspend fun quickSearch(query: String): ApiResult<SiteResponse> {

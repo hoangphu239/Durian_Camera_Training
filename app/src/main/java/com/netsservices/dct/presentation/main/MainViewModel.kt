@@ -39,6 +39,12 @@ class MainViewModel @Inject constructor(
     var languages by mutableStateOf<List<LanguageResponse>>(emptyList())
         private set
 
+    var countries by mutableStateOf<List<Country>>(emptyList())
+        private set
+
+    var isCountrySupported by mutableStateOf(false)
+        private set
+
     init {
         getLanguages()
     }
@@ -54,6 +60,7 @@ class MainViewModel @Inject constructor(
                     longitude = gps!!.second
                 )
                 countryInfo = Country(code = country.first!!, name = country.second!!)
+                getCountries()
             }
         }
     }
@@ -66,5 +73,20 @@ class MainViewModel @Inject constructor(
                 }
             )
         }
+    }
+
+    private fun getCountries() {
+        viewModelScope.launch {
+            repo.getCountries().handle(
+                onSuccess = { data ->
+                    countries = data.items
+                    checkCountrySupported()
+                }
+            )
+        }
+    }
+
+    fun checkCountrySupported() {
+        isCountrySupported = countries.any { it.code == countryInfo.code }
     }
 }

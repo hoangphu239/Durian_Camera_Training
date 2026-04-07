@@ -4,6 +4,7 @@ import com.netsservices.dct.data.remote.ApiResult
 import com.netsservices.dct.data.remote.response.ChangePwdResponse
 import com.netsservices.dct.data.remote.response.CheckFrameResponse
 import com.netsservices.dct.data.remote.response.ContractResponse
+import com.netsservices.dct.data.remote.response.CountryResponse
 import com.netsservices.dct.data.remote.response.DeviceResponse
 import com.netsservices.dct.data.remote.response.DurianTypeResponse
 import com.netsservices.dct.data.remote.response.FileResponse
@@ -19,6 +20,7 @@ import com.netsservices.dct.data.remote.resquest.InitFileRequest
 import com.netsservices.dct.data.remote.resquest.LoginRequest
 import com.netsservices.dct.data.remote.resquest.DeviceRequest
 import com.netsservices.dct.data.remote.resquest.RegisterRequest
+import com.netsservices.dct.domain.model.Country
 import okhttp3.RequestBody
 
 
@@ -28,6 +30,7 @@ interface Repository {
     suspend fun registerDevice(registerRequest: DeviceRequest): ApiResult<DeviceResponse>
     suspend fun changePassword(changeRequest: ChangePwdRequest): ApiResult<ChangePwdResponse>
     suspend fun getLanguages(): ApiResult<List<LanguageResponse>>
+    suspend fun getCountries(): ApiResult<CountryResponse>
     suspend fun quickSearch(query: String): ApiResult<SiteResponse>
     suspend fun getContracts(search: String, status: String): ApiResult<ContractResponse>
     suspend fun getDurianVarieties(countryCode: String?): ApiResult<DurianTypeResponse>

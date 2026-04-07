@@ -14,10 +14,12 @@ import com.netsservices.dct.data.remote.resquest.InitFileRequest
 import com.netsservices.dct.data.remote.resquest.LoginRequest
 import com.netsservices.dct.data.remote.response.ChangePwdResponse
 import com.netsservices.dct.data.remote.response.ContractResponse
+import com.netsservices.dct.data.remote.response.CountryResponse
 import com.netsservices.dct.data.remote.response.DeviceResponse
 import com.netsservices.dct.data.remote.response.LanguageResponse
 import com.netsservices.dct.data.remote.resquest.DeviceRequest
 import com.netsservices.dct.data.remote.resquest.RegisterRequest
+import com.netsservices.dct.domain.model.Country
 import okhttp3.RequestBody
 import retrofit2.Response
 import retrofit2.http.Body
@@ -31,6 +33,7 @@ import retrofit2.http.Query
 const val LOGIN = "/v1/auth/login"
 const val REGISTER = "/v1/auth/register"
 const val CHANGE_PASSWORD = "/v1/auth/change-password"
+const val COUNTRIES = "/v1/countries"
 const val LANGUAGES = "/v1/lang/languages"
 const val CONTRACTS = "/v1/contracts"
 const val REGISTER_DEVICE = "/v1/device/register"
@@ -55,6 +58,9 @@ interface ApiServer {
 
     @GET(LANGUAGES)
     suspend fun getLanguages(): Response<List<LanguageResponse>>
+
+    @GET(COUNTRIES)
+    suspend fun getCountries(): Response<CountryResponse>
 
     @POST(CHANGE_PASSWORD)
     suspend fun changePassword(

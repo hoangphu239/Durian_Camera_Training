@@ -167,7 +167,7 @@ fun HomeScreen(
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
             modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.spacedBy(10.dp)
+            verticalArrangement = Arrangement.spacedBy(15.dp)
         ) {
             val guidance = uiState.dataFrame?.guidance ?: ""
             val isDetected = uiState.dataFrame?.durianDetected == true && uiState.dataFrame.ready
