@@ -3,9 +3,6 @@
     <string name="app_name">Durian Camera Training</string>
     <string name="short_app_name">DCT</string>
     <string name="select_language">Chọn ngôn ngữ</string>
-    <string name="english">Tiếng Anh</string>
-    <string name="thailand">Thái Lan</string>
-    <string name="vietnamese">Tiếng Việt</string>
     <string name="press_back_again_to_exit">Nhấn quay lại lần nữa để thoát</string>
     <string name="country">Quốc gia</string>
     <string name="welcome_back">Chào mừng bạn quay lại!\nRất vui được gặp bạn</string>
