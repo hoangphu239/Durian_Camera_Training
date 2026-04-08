@@ -1,5 +1,6 @@
 package com.netsservices.dct.data.remote
 
+import com.netsservices.dct.data.remote.response.BundleLanguageResponse
 import com.netsservices.dct.data.remote.response.CheckFrameResponse
 import com.netsservices.dct.data.remote.response.DurianTypeResponse
 import com.netsservices.dct.data.remote.response.FileResponse
@@ -35,6 +36,7 @@ const val REGISTER = "/v1/auth/register"
 const val CHANGE_PASSWORD = "/v1/auth/change-password"
 const val COUNTRIES = "/v1/countries"
 const val LANGUAGES = "/v1/lang/languages"
+const val LANGUAGE_BUNDLE = "/v1/lang/bundle"
 const val CONTRACTS = "/v1/contracts"
 const val REGISTER_DEVICE = "/v1/device/register"
 const val QUICK_SEARCH = "/v1/search/sites"
@@ -55,6 +57,12 @@ interface ApiServer {
     suspend fun login(
         @Body request: LoginRequest
     ): Response<LoginResponse>
+
+    @GET(LANGUAGE_BUNDLE)
+    suspend fun getBundleLanguage(
+        @Query("langId") langId: String,
+        @Query("prefix") prefix: String
+    ): Response<BundleLanguageResponse>
 
     @GET(LANGUAGES)
     suspend fun getLanguages(): Response<List<LanguageResponse>>

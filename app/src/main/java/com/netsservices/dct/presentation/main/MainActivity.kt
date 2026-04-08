@@ -41,7 +41,7 @@ import com.netsservices.dct.R
 import com.netsservices.dct.data.remote.AppEvent
 import com.netsservices.dct.data.remote.AppEventBus
 import com.netsservices.dct.data.remote.utils.PreferenceManager
-import com.netsservices.dct.presentation.common.INVALID_TOKEN
+import com.netsservices.dct.presentation.common.Constants
 import com.netsservices.dct.presentation.common.LanguagePrefs
 import com.netsservices.dct.presentation.components.TopBar
 import com.netsservices.dct.presentation.helper.PermissionManager
@@ -165,7 +165,7 @@ class MainActivity : ComponentActivity() {
                             if(currentRoute == Screen.Login.route) {
                                 snackBarHostState.showSnackbar(event.message)
                             } else if (currentRoute != Screen.Login.route) {
-                                if(event.message == INVALID_TOKEN) {
+                                if(event.message == Constants.INVALID_TOKEN) {
                                     snackBarHostState.showSnackbar(getString(R.string.session_has_expired))
                                 } else {
                                     snackBarHostState.showSnackbar(event.message)

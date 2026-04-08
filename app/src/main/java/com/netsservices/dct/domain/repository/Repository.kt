@@ -1,6 +1,7 @@
 package com.netsservices.dct.domain.repository
 
 import com.netsservices.dct.data.remote.ApiResult
+import com.netsservices.dct.data.remote.response.BundleLanguageResponse
 import com.netsservices.dct.data.remote.response.ChangePwdResponse
 import com.netsservices.dct.data.remote.response.CheckFrameResponse
 import com.netsservices.dct.data.remote.response.ContractResponse
@@ -29,6 +30,7 @@ interface Repository {
     suspend fun register(registerRequest: RegisterRequest): ApiResult<RegisterResponse>
     suspend fun registerDevice(registerRequest: DeviceRequest): ApiResult<DeviceResponse>
     suspend fun changePassword(changeRequest: ChangePwdRequest): ApiResult<ChangePwdResponse>
+    suspend fun getBundleLanguage(langId: String, prefix: String): ApiResult<BundleLanguageResponse>
     suspend fun getLanguages(): ApiResult<List<LanguageResponse>>
     suspend fun getCountries(): ApiResult<CountryResponse>
     suspend fun quickSearch(query: String): ApiResult<SiteResponse>

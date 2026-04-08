@@ -48,7 +48,7 @@ fun RegisterDeviceSection(status: String) {
             DeviceStatus.UNACTIVE.value -> {
                 ItemStatus(
                     color = Color(0xFF444444),
-                    text = stringResource(R.string.unactive)
+                    text = stringResource(R.string.inactive)
                 )
             }
             DeviceStatus.PENDING_APPROVAL.value -> {

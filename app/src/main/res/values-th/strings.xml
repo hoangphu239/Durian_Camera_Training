@@ -60,10 +60,8 @@
     <string name="pending_review">รอตรวจสอบ</string>
     <string name="activated">ใช้งานแล้ว</string>
     <string name="register">ลงทะเบียน</string>
-    <string name="register_device">กรุณาลงทะเบียนอุปกรณ์</string>
-    <string name="privacy_policy">นโยบายความเป็นส่วนตัว</string>
     <string name="required_to_sign_a_contract">ต้องทำสัญญาก่อนใช้งานฟีเจอร์นี้</string>
     <string name="select_mode">เลือกโหมด</string>
-    <string name="unactive">ไม่ใช้งาน</string>
+    <string name="inactive">ไม่ใช้งาน</string>
     <string name="this_feature_is_currently_supported_in_the_asia_region">ฟีเจอร์นี้ใช้ได้เฉพาะในเอเชียเท่านั้น</string>
 </resources>

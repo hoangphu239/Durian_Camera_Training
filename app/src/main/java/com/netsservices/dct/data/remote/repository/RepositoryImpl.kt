@@ -3,6 +3,7 @@ package com.netsservices.dct.data.remote.repository
 
 import com.netsservices.dct.data.remote.ApiResult
 import com.netsservices.dct.data.remote.ApiServer
+import com.netsservices.dct.data.remote.response.BundleLanguageResponse
 import com.netsservices.dct.data.remote.response.ChangePwdResponse
 import com.netsservices.dct.data.remote.response.CheckFrameResponse
 import com.netsservices.dct.data.remote.response.ContractResponse
@@ -49,6 +50,10 @@ class RepositoryImpl @Inject constructor(
 
     override suspend fun changePassword(changeRequest: ChangePwdRequest): ApiResult<ChangePwdResponse> {
         return safeApiCall { api.changePassword(changeRequest) }
+    }
+
+    override suspend fun getBundleLanguage(langId: String, prefix: String): ApiResult<BundleLanguageResponse> {
+        return safeApiCall { api.getBundleLanguage(langId, prefix) }
     }
 
     override suspend fun getLanguages(): ApiResult<List<LanguageResponse>> {

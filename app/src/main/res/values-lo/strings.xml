@@ -60,10 +60,8 @@
     <string name="pending_review">ລໍຖ້າກວດສອບ</string>
     <string name="activated">ໃຊ້ງານແລ້ວ</string>
     <string name="register">ລົງທະບຽນ</string>
-    <string name="register_device">ກະລຸນາລົງທະບຽນອຸປະກອນ</string>
-    <string name="privacy_policy">ນະໂຍບາຍຄວາມເປັນສ່ວນຕົວ</string>
     <string name="required_to_sign_a_contract">ທ່ານຈຳເປັນຕ້ອງເຊັນສັນຍາກ່ອນໃຊ້ຟັງຊັນນີ້</string>
     <string name="select_mode">ເລືອກໂໝດ</string>
-    <string name="unactive">ບໍ່ໃຊ້ງານ</string>
+    <string name="inactive">ບໍ່ໃຊ້ງານ</string>
     <string name="this_feature_is_currently_supported_in_the_asia_region">ຟັງຊັນນີ້ໃຊ້ໄດ້ສະເພາະໃນອາຊີເທົ່ານັ້ນ</string>
 </resources>

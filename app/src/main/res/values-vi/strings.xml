@@ -60,10 +60,8 @@
     <string name="pending_review">Đang chờ duyệt</string>
     <string name="activated">Đã kích hoạt</string>
     <string name="register">Đăng ký</string>
-    <string name="register_device">Vui lòng đăng ký thiết bị</string>
-    <string name="privacy_policy">Chính sách bảo mật</string>
     <string name="required_to_sign_a_contract">Bạn cần ký hợp đồng để sử dụng tính năng này</string>
     <string name="select_mode">Chọn chế độ</string>
-    <string name="unactive">Chưa kích hoạt</string>
+    <string name="inactive">Chưa kích hoạt</string>
     <string name="this_feature_is_currently_supported_in_the_asia_region">Tính năng này hiện chỉ hỗ trợ tại Châu Á</string>
 </resources>

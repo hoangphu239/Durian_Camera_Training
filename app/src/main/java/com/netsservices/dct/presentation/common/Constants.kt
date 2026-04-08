@@ -2,6 +2,16 @@ package com.netsservices.dct.presentation.common
 
 object Constants {
     const val BASE_URL = "https://api.duriancare.com/"
+    const val IMAGE_WIDTH = 1920
+    const val IMAGE_HEIGHT = 1080
+    const val INVALID_TOKEN = "Invalid token"
+    const val ULTRA_WIDE = "ULTRA_WIDE"
+    const val WIDE = "WIDE"
+    const val TELE = "TELE"
+    const val UNKNOWN = "UNKNOWN"
+    const val BACK = "BACK"
+    const val LANG_ID = "en"
+    const val PREFIX = "ui.dct"
 }
 
 enum class PurposeType {
@@ -40,12 +50,3 @@ enum class ContractStatus(val value: String) {
     EXPIRED("Expired"),
     CANCELLED("Cancelled"),
 }
-
-const val IMAGE_WIDTH = 1920
-const val IMAGE_HEIGHT = 1080
-const val INVALID_TOKEN = "Invalid token"
-const val ULTRA_WIDE = "ULTRA_WIDE"
-const val WIDE = "WIDE"
-const val TELE = "TELE"
-const val UNKNOWN = "UNKNOWN"
-const val BACK = "BACK"

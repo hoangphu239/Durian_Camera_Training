@@ -8,11 +8,7 @@ import android.util.SizeF
 import androidx.annotation.RequiresApi
 import com.netsservices.dct.domain.model.CameraDetail
 import com.netsservices.dct.domain.model.SensorInfo
-import com.netsservices.dct.presentation.common.ULTRA_WIDE
-import com.netsservices.dct.presentation.common.WIDE
-import com.netsservices.dct.presentation.common.TELE
-import com.netsservices.dct.presentation.common.UNKNOWN
-import com.netsservices.dct.presentation.common.BACK
+import com.netsservices.dct.presentation.common.Constants
 
 object CameraManager {
 
@@ -108,14 +104,14 @@ object CameraManager {
         val cameraDetail = mainCamera?.let { cam ->
 
             val type = when (cam.type) {
-                CameraType.ULTRA_WIDE -> ULTRA_WIDE
-                CameraType.WIDE -> WIDE
-                CameraType.TELE -> TELE
-                else -> UNKNOWN
+                CameraType.ULTRA_WIDE -> Constants.ULTRA_WIDE
+                CameraType.WIDE -> Constants.WIDE
+                CameraType.TELE -> Constants.TELE
+                else -> Constants.UNKNOWN
             }
 
             CameraDetail(
-                facing = BACK,
+                facing = Constants.BACK,
                 type = type,
                 focalLengthMm = cam.focal?.toDouble() ?: 0.0,
                 sensor = SensorInfo(
