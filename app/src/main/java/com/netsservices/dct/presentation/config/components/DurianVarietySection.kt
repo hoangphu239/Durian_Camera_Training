@@ -15,22 +15,28 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.netsservices.dct.R
 import com.netsservices.dct.data.remote.response.DurianItem
+import com.netsservices.dct.i18n.LangKey
+import com.netsservices.dct.presentation.common.getText
 import com.netsservices.dct.presentation.components.AppText
+import com.netsservices.dct.presentation.config.ConfigViewModel
 
 @Composable
 fun DurianVarietySection(
+    viewmodel: ConfigViewModel,
     selectedDurianVariety: DurianItem?,
     onOpenDurianVariety: () -> Unit
 ) {
+    val mapLang = viewmodel.mapLang.collectAsState().value
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -43,9 +49,10 @@ fun DurianVarietySection(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Text(
-            text = stringResource(R.string.durian_variety),
-            style = MaterialTheme.typography.titleMedium
+        AppText(
+            text = mapLang.getText(LangKey.Text.DurianVariety, R.string.durian_variety),
+            fontWeight = FontWeight.Medium,
+            fontSize = 15.sp
         )
 
         Row(
@@ -58,8 +65,7 @@ fun DurianVarietySection(
                 AppText(
                     modifier = Modifier.padding(end = 5.dp),
                     text = it.name,
-                    color = R.color.gray,
-                    fontSize = 14.sp,
+                    color = R.color.gray
                 )
             }
 

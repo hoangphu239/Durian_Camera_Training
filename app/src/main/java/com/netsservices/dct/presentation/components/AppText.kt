@@ -7,6 +7,7 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.TextUnit.Companion
 import androidx.compose.ui.unit.sp
 import com.netsservices.dct.R
 
@@ -16,8 +17,9 @@ fun AppText(
     text: String,
     textAlign: TextAlign = TextAlign.Start,
     color: Int = R.color.black,
-    fontSize: TextUnit = 13.sp,
-    fontWeight: FontWeight = FontWeight.Normal
+    fontSize: TextUnit = 14.sp,
+    fontWeight: FontWeight = FontWeight.Normal,
+    lineHeight: TextUnit = TextUnit.Unspecified
 ) {
     Text(
         modifier = modifier,
@@ -25,6 +27,7 @@ fun AppText(
         text = text,
         fontWeight = fontWeight,
         fontSize = fontSize,
-        color = colorResource(id = color)
+        color = colorResource(id = color),
+        lineHeight = lineHeight
     )
 }

@@ -20,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.netsservices.dct.R
@@ -43,9 +44,9 @@ fun LocationSection(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Text(
+        AppText(
             text = stringResource(R.string.site_title),
-            style = MaterialTheme.typography.titleMedium
+            fontWeight = FontWeight.Medium,
         )
 
         Row(
@@ -58,8 +59,7 @@ fun LocationSection(
                 AppText(
                     modifier = Modifier.padding(end = 5.dp),
                     text = it.name,
-                    color = R.color.gray,
-                    fontSize = 14.sp,
+                    color = R.color.gray
                 )
             }
 

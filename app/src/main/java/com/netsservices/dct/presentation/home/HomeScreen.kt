@@ -24,7 +24,6 @@ import androidx.compose.material.icons.filled.SignalWifiConnectedNoInternet4
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -41,7 +40,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -51,8 +49,10 @@ import androidx.lifecycle.LifecycleEventObserver
 import com.netsservices.dct.R
 import com.netsservices.dct.data.remote.response.DurianItem
 import com.netsservices.dct.data.remote.utils.PreferenceManager
+import com.netsservices.dct.i18n.LangKey
 import com.netsservices.dct.presentation.common.ConfigStep
 import com.netsservices.dct.presentation.common.DeviceStatus
+import com.netsservices.dct.presentation.common.getText
 import com.netsservices.dct.presentation.components.AppText
 import com.netsservices.dct.presentation.config.ConfigViewModel
 import com.netsservices.dct.presentation.config.components.ModeSelectionDialog
@@ -85,7 +85,7 @@ fun HomeScreen(
 
     var isInitialized by remember { mutableStateOf(false) }
     val isConfigReady by remember {
-       derivedStateOf { deviceStatus == DeviceStatus.ACTIVATE.value && scanMode != null && durianType != null }
+        derivedStateOf { deviceStatus == DeviceStatus.ACTIVATE.value && scanMode != null && durianType != null }
 //     derivedStateOf { deviceStatus == DeviceStatus.ACTIVATE.value && scanMode != null && site != null && durianType != null }
     }
     val currentStep by remember {
@@ -109,6 +109,8 @@ fun HomeScreen(
             scaleType = PreviewView.ScaleType.FILL_CENTER
         }
     }
+
+    val mapLang = viewModel.mapLang.collectAsState().value
 
     LaunchedEffect(Unit) {
         val cameraProviderFuture = ProcessCameraProvider.getInstance(context)
@@ -169,14 +171,14 @@ fun HomeScreen(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(15.dp)
         ) {
-            val guidance = uiState.dataFrame?.guidance ?: ""
+            val guidanceKey = uiState.dataFrame?.guidanceKey?:" "
             val isDetected = uiState.dataFrame?.durianDetected == true && uiState.dataFrame.ready
 
             AppText(
                 modifier = Modifier.padding(start = 10.dp),
-                text = guidance,
-                fontSize = 14.sp,
+                text = mapLang.getText(guidanceKey, " "),
                 fontWeight = FontWeight.Medium,
+                fontSize = 15.sp,
                 color = R.color.red
             )
 
@@ -201,13 +203,30 @@ fun HomeScreen(
         if (uiState.blockCapture) {
             AlertDialog(
                 onDismissRequest = {},
-                title = { Text(stringResource(R.string.confirm)) },
-                text = { Text(stringResource(R.string.would_you_like_to_create_a_new_session)) },
+                title = {
+                    AppText(
+                        text = mapLang.getText(LangKey.Button.Confirm, R.string.confirm),
+                        fontSize = 17.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                },
+                text = {
+                    AppText(
+                        text = mapLang.getText(
+                            LangKey.Message.CreateNewSession,
+                            R.string.would_you_like_to_create_a_new_session
+                        )
+                    )
+                },
                 confirmButton = {
                     TextButton(onClick = {
                         viewModel.unblockCapture()
                     }) {
-                        Text(stringResource(R.string.accept))
+                        AppText(
+                            text = mapLang.getText(LangKey.Button.Accept, R.string.accept),
+                            fontSize = 15.sp,
+                            fontWeight = FontWeight.Bold
+                        )
                     }
                 }
             )
@@ -228,7 +247,12 @@ fun HomeScreen(
                         tint = colorResource(R.color.black)
                     )
                     Spacer(Modifier.height(10.dp))
-                    Text(text = stringResource(R.string.no_internet_connection))
+                    AppText(
+                        text = mapLang.getText(
+                            LangKey.Message.NoInternet,
+                            R.string.no_internet_connection
+                        )
+                    )
                 }
             }
         }
@@ -270,11 +294,31 @@ fun HomeScreen(
             ConfigStep.DURIAN_TYPE -> {
                 AlertDialog(
                     onDismissRequest = {},
-                    title = { Text(stringResource(R.string.configuration_required)) },
-                    text = { Text(stringResource(R.string.select_durian_type)) },
+                    title = {
+                        AppText(
+                            text = mapLang.getText(
+                                LangKey.Message.ConfigurationRequired,
+                                R.string.configuration_required
+                            ),
+                            fontSize = 17.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    },
+                    text = {
+                        AppText(
+                            text = mapLang.getText(
+                                LangKey.Message.SelectDurianVariety,
+                                R.string.config_durian_variety
+                            )
+                        )
+                    },
                     confirmButton = {
                         TextButton(onClick = navigateVariety) {
-                            Text(stringResource(R.string.accept))
+                            AppText(
+                                text = mapLang.getText(LangKey.Button.Accept, R.string.accept),
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 15.sp,
+                            )
                         }
                     }
                 )

@@ -11,11 +11,15 @@ import com.netsservices.dct.data.remote.handle
 import com.netsservices.dct.data.remote.resquest.ChangePwdRequest
 import com.netsservices.dct.data.remote.utils.PreferenceManager
 import com.netsservices.dct.domain.repository.Repository
+import com.netsservices.dct.i18n.LangKey
+import com.netsservices.dct.presentation.common.LanguagePrefs
 import com.netsservices.dct.presentation.utils.Utils.showToast
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -25,6 +29,13 @@ class ChangePwdViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
     private val repo: Repository
 ) : ViewModel() {
+
+    val mapLang = LanguagePrefs.getTranslations(context)
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.Eagerly,
+            initialValue = emptyMap()
+        )
 
     data class UiState(
         val isLoading: Boolean = false,
@@ -47,23 +58,32 @@ class ChangePwdViewModel @Inject constructor(
         confirmPassword: String
     ): Boolean {
         passwordError = when {
-            currentPassword.isBlank() -> context.getString(R.string.password_required)
-            currentPassword.length < 6 -> context.getString(R.string.password_too_short)
-            !currentPassword.any { it.isDigit() } -> context.getString(R.string.password_must_contain_at_least_1_number)
+            currentPassword.isBlank() -> mapLang.value[LangKey.Message.PasswordRequired]?:
+            context.getString(R.string.password_required)
+            currentPassword.length < 6 -> mapLang.value[LangKey.Message.PasswordTooShort]?:
+            context.getString(R.string.password_too_short)
+            !currentPassword.any { it.isDigit() } -> mapLang.value[LangKey.Message.PasswordRequireNumber]?:
+            context.getString(R.string.password_must_contain_at_least_1_number)
             else -> null
         }
 
         newPasswordError = when {
-            newPassword.isBlank() -> context.getString(R.string.new_password_required)
-            newPassword.length < 6 -> context.getString(R.string.new_password_too_short)
-            !newPassword.any { it.isDigit() } -> context.getString(R.string.new_password_must_contain_at_least_1_number)
-            newPassword == currentPassword -> context.getString(R.string.new_password_must_be_different_from_current_password)
+            newPassword.isBlank() -> mapLang.value[LangKey.Message.NewPasswordRequired]?:
+            context.getString(R.string.new_password_required)
+            newPassword.length < 6 -> mapLang.value[LangKey.Message.NewPasswordTooShort]?:
+            context.getString(R.string.new_password_too_short)
+            !newPassword.any { it.isDigit() } -> mapLang.value[LangKey.Message.NewPasswordRequireNumber]?:
+            context.getString(R.string.new_password_must_contain_at_least_1_number)
+            newPassword == currentPassword -> mapLang.value[LangKey.Message.NewPasswordNotSame]?:
+            context.getString(R.string.new_password_must_be_different_from_current_password)
             else -> null
         }
 
         confirmPasswordError = when {
-            confirmPassword.isBlank() -> context.getString(R.string.confirm_password_required)
-            confirmPassword != newPassword -> context.getString(R.string.new_password_and_confirm_new_password_do_not_match)
+            confirmPassword.isBlank() -> mapLang.value[LangKey.Message.ConfirmPasswordRequired]?:
+            context.getString(R.string.confirm_password_required)
+            confirmPassword != newPassword -> mapLang.value[LangKey.Message.PasswordNotMatch]?:
+            context.getString(R.string.new_password_and_confirm_new_password_do_not_match)
             else -> null
         }
 

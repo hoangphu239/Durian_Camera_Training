@@ -12,10 +12,14 @@ import com.netsservices.dct.data.remote.handle
 import com.netsservices.dct.data.remote.response.RegisterResponse
 import com.netsservices.dct.data.remote.resquest.RegisterRequest
 import com.netsservices.dct.domain.repository.Repository
+import com.netsservices.dct.i18n.LangKey
+import com.netsservices.dct.presentation.common.LanguagePrefs
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -25,6 +29,13 @@ class RegisterViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
     private val repo: Repository
 ) : ViewModel() {
+
+    val mapLang = LanguagePrefs.getTranslations(context)
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.Eagerly,
+            initialValue = emptyMap()
+        )
 
     data class UiState(
         val isLoading: Boolean = false,
@@ -42,16 +53,21 @@ class RegisterViewModel @Inject constructor(
 
     fun validateCredentials(context: Context, email: String, password: String): Boolean {
         emailError = when {
-            email.isBlank() -> context.getString(R.string.email_required)
+            email.isBlank() ->  mapLang.value[LangKey.Message.EmailRequired]?:
+                context.getString(R.string.email_required)
             !Patterns.EMAIL_ADDRESS.matcher(email)
-                .matches() -> context.getString(R.string.invalid_email_format)
+                .matches() ->  mapLang.value[LangKey.Message.InvalidEmailFormat]?:
+                    context.getString(R.string.invalid_email_format)
 
             else -> null
         }
         passwordError = when {
-            password.isBlank() -> context.getString(R.string.password_required)
-            password.length < 10 -> context.getString(R.string.password_require_least_10_chars)
-            !password.any { it.isDigit() } -> context.getString(R.string.password_must_contain_at_least_1_number)
+            password.isBlank() ->  mapLang.value[LangKey.Message.PasswordRequired]?:
+                context.getString(R.string.password_required)
+            password.length < 10 ->  mapLang.value[LangKey.Message.PasswordMinLength]?:
+                context.getString(R.string.password_require_least_10_chars)
+            !password.any { it.isDigit() } -> mapLang.value[LangKey.Message.PasswordRequireNumber]?:
+                context.getString(R.string.password_must_contain_at_least_1_number)
             else -> null
         }
 

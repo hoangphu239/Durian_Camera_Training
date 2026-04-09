@@ -4,6 +4,7 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -12,7 +13,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import com.netsservices.dct.R
+import com.netsservices.dct.i18n.LangKey
 import com.netsservices.dct.presentation.change_pwd.ChangePwdScreen
+import com.netsservices.dct.presentation.common.getText
 import com.netsservices.dct.presentation.config.ConfigScreen
 import com.netsservices.dct.presentation.config.ConfigViewModel
 import com.netsservices.dct.presentation.home.HomeScreen
@@ -31,6 +34,7 @@ fun MainNavHost(
     startDestination: String,
     onTopBarTitleChange: (String) -> Unit
 ) {
+    val mapLang = mainViewModel.mapLang.collectAsState().value
     NavHost(
         navController = navController,
         startDestination = startDestination
@@ -95,7 +99,7 @@ fun MainNavHost(
             }
 
             composable(Screen.Config.route) { backStackEntry ->
-                val title = stringResource(R.string.configuration)
+                val title = mapLang.getText(LangKey.Text.Configuration, R.string.configuration)
                 LaunchedEffect(backStackEntry) {
                     onTopBarTitleChange(title)
                 }
@@ -129,9 +133,7 @@ fun MainNavHost(
                 LaunchedEffect(backStackEntry) {
                     onTopBarTitleChange(title)
                 }
-                DurianVarietyScreen(
-                    countryCode = mainViewModel.countryInfo.code.takeIf { mainViewModel.isCountrySupported } ?: ""
-                )
+                DurianVarietyScreen(countryCode = mainViewModel.countryInfo.code)
             }
 
             composable(Screen.ChangePassword.route) {

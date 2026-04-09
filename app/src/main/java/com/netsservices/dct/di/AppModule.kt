@@ -8,7 +8,6 @@ import com.netsservices.dct.domain.repository.Repository
 import com.netsservices.dct.presentation.common.AppConfig
 import com.netsservices.dct.presentation.common.ApplicationScope
 import com.netsservices.dct.presentation.common.Constants
-import com.netsservices.dct.presentation.common.LanguagePrefs
 import com.netsservices.dct.presentation.helper.connection.NetworkService
 import com.netsservices.dct.presentation.helper.connection.NetworkServiceImpl
 import dagger.Module
@@ -18,8 +17,6 @@ import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.runBlocking
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit

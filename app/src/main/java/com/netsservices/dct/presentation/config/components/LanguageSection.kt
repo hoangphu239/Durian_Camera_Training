@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -18,24 +17,30 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.netsservices.dct.R
 import com.netsservices.dct.data.remote.response.LanguageResponse
+import com.netsservices.dct.i18n.LangKey
 import com.netsservices.dct.presentation.common.LanguagePrefs
+import com.netsservices.dct.presentation.common.getText
 import com.netsservices.dct.presentation.components.AppText
+import com.netsservices.dct.presentation.config.ConfigViewModel
 
 
 @Composable
 fun LanguageSection(
+    viewModel: ConfigViewModel,
     languages: List<LanguageResponse>?,
     selectLanguage: String,
     onLanguageChange: (String) -> Unit,
 ) {
     val context = LocalContext.current
     val currentLang by LanguagePrefs
-        .getLanguage(context)
+        .getLanguageId(context)
         .collectAsState(initial = "en")
+    val mapLang = viewModel.mapLang.collectAsState().value
 
     if (languages.isNullOrEmpty()) return
 
@@ -50,9 +55,10 @@ fun LanguageSection(
             .padding(start = 20.dp, end = 20.dp, top = 16.dp)
     ) {
 
-        Text(
-            text = stringResource(R.string.select_language),
-            style = MaterialTheme.typography.titleMedium
+        AppText(
+            text = mapLang.getText(LangKey.Text.SelectLanguage, R.string.select_language),
+            fontWeight = FontWeight.Medium,
+            fontSize = 15.sp
         )
 
         languages.forEach { language ->

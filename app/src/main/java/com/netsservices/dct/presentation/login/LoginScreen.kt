@@ -10,9 +10,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -25,7 +24,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -33,6 +31,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.netsservices.dct.R
+import com.netsservices.dct.i18n.LangKey
+import com.netsservices.dct.presentation.common.getText
+import com.netsservices.dct.presentation.components.AppButton
+import com.netsservices.dct.presentation.components.AppText
 import com.netsservices.dct.presentation.components.AppTextField
 
 @Composable
@@ -46,6 +48,7 @@ fun LoginScreen(
     val keyboardController = LocalSoftwareKeyboardController.current
     var email by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
+    val mapLang = viewModel.mapLang.collectAsState().value
 
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
@@ -57,9 +60,9 @@ fun LoginScreen(
 
             Spacer(modifier = Modifier.height(50.dp))
 
-            Text(
+            AppText(
                 modifier = Modifier.align(Alignment.Start),
-                text = stringResource(R.string.welcome_back),
+                text = mapLang.getText(LangKey.Text.WelcomeBack,R.string.welcome_back),
                 fontWeight = FontWeight.Bold,
                 fontSize = 36.sp,
                 lineHeight = 40.sp
@@ -70,7 +73,7 @@ fun LoginScreen(
             AppTextField(
                 value = email,
                 onValueChange = { email = it },
-                hint = stringResource(R.string.email),
+                hint = mapLang.getText(LangKey.Input.Email,R.string.email),
                 error = viewModel.emailError,
                 keyboardType = KeyboardType.Email,
                 imeAction = ImeAction.Next
@@ -81,7 +84,7 @@ fun LoginScreen(
             AppTextField(
                 value = password,
                 onValueChange = { password = it },
-                hint = stringResource(R.string.password),
+                hint = mapLang.getText(LangKey.Input.Password,R.string.password),
                 isPassword = true,
                 error = viewModel.passwordError,
                 keyboardType = KeyboardType.Password,
@@ -90,22 +93,27 @@ fun LoginScreen(
 
             Spacer(Modifier.height(40.dp))
 
-            Button(
+            AppButton(
                 modifier = Modifier.fillMaxWidth(),
+                text = mapLang.getText(LangKey.Button.Login,R.string.login),
                 onClick = {
                     keyboardController?.hide()
                     viewModel.login(context, email, password)
-                }) {
-                Text(stringResource(R.string.login))
-            }
+                }
+            )
 
             Spacer(Modifier.weight(1f))
 
             Row {
-                Text(stringResource(R.string.not_have_account))
-                Text(
-                    text = stringResource(R.string.sign_up_now),
-                    color = Color.Blue,
+                AppText(
+                    text = mapLang.getText(LangKey.Message.NotHaveAccount,R.string.not_have_account),
+                    fontSize = 15.sp,
+                )
+                Spacer(modifier = Modifier.width(5.dp))
+                AppText(
+                    text = mapLang.getText(LangKey.Button.SignUpNow, R.string.sign_up_now),
+                    color = R.color.blue,
+                    fontSize = 15.sp,
                     modifier = Modifier.clickable { onNavigateRegister() }
                 )
             }

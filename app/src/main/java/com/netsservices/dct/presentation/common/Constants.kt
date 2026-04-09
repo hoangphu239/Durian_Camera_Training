@@ -10,8 +10,11 @@ object Constants {
     const val TELE = "TELE"
     const val UNKNOWN = "UNKNOWN"
     const val BACK = "BACK"
-    const val LANG_ID = "en"
-    const val PREFIX = "ui.dct"
+}
+
+enum class BundlePrefix(val value: String) {
+    PREFIX_UI("ui.dct"),
+    PREFIX_CAPTURE("capture."),
 }
 
 enum class PurposeType {

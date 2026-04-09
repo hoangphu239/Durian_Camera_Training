@@ -11,6 +11,7 @@ import com.netsservices.dct.data.remote.response.DurianItem
 import com.netsservices.dct.data.remote.response.Site
 import com.netsservices.dct.data.remote.utils.PreferenceManager
 import com.netsservices.dct.domain.repository.Repository
+import com.netsservices.dct.i18n.LangKey
 import com.netsservices.dct.presentation.common.ContractStatus
 import com.netsservices.dct.presentation.common.LanguagePrefs
 import com.netsservices.dct.presentation.config.components.ScanMode
@@ -18,8 +19,10 @@ import com.netsservices.dct.presentation.utils.Utils.showToast
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -50,6 +53,13 @@ class ConfigViewModel @Inject constructor(
     private val _selectLanguage = MutableStateFlow("en")
     val selectLanguage = _selectLanguage.asStateFlow()
 
+    val mapLang = LanguagePrefs.getTranslations(context)
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.Eagerly,
+            initialValue = emptyMap()
+        )
+
     init {
         observeLanguage()
     }
@@ -60,7 +70,7 @@ class ConfigViewModel @Inject constructor(
 //        _currentSite.value = PreferenceManager.getSite(context)
     }
 
-    fun verifyContract(context: Context, search: String, onSuccess: () -> Unit) {
+    fun verifyContract(context: Context, search: String, mapLang: Map<String, String>, onSuccess: () -> Unit) {
         _uiState.update { it.copy(isLoading = true) }
         viewModelScope.launch {
             repo.getContracts(search, ContractStatus.ACTIVE.value).handle(
@@ -73,7 +83,10 @@ class ConfigViewModel @Inject constructor(
                         onSuccess()
                     } else {
                         _uiState.update { it.copy(verifiedContract = false) }
-                        showToast(context, context.getString(R.string.required_to_sign_a_contract))
+                        showToast(context,
+                            mapLang[LangKey.Message.RequireContract]?:
+                            context.getString(R.string.required_to_sign_a_contract)
+                        )
                     }
                 },
                 onError = { _, _ ->
@@ -97,15 +110,15 @@ class ConfigViewModel @Inject constructor(
 
     private fun observeLanguage() {
         viewModelScope.launch {
-            LanguagePrefs.getLanguage(context).collect {
+            LanguagePrefs.getLanguageId(context).collect {
                 _selectLanguage.value = it
             }
         }
     }
 
-    fun onLanguageSelected(activity: Activity, lang: String) {
+    fun onLanguageSelected(activity: Activity, selectLanguage: String) {
         viewModelScope.launch {
-            LanguagePrefs.setLanguage(activity, lang)
+            LanguagePrefs.setLanguageId(activity, selectLanguage)
             activity.recreate()
         }
     }

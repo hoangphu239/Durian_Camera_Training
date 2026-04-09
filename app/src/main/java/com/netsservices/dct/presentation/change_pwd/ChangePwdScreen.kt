@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -22,7 +21,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -30,6 +28,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.netsservices.dct.R
+import com.netsservices.dct.i18n.LangKey
+import com.netsservices.dct.presentation.common.getText
+import com.netsservices.dct.presentation.components.AppButton
+import com.netsservices.dct.presentation.components.AppText
 import com.netsservices.dct.presentation.components.AppTextField
 
 
@@ -41,6 +43,7 @@ fun ChangePwdScreen(
     val context = LocalContext.current
     val uiState = viewModel.uiState.collectAsState().value
     val keyboardController = LocalSoftwareKeyboardController.current
+    val mapLang = viewModel.mapLang.collectAsState().value
 
     var current by remember { mutableStateOf("") }
     var newPass by remember { mutableStateOf("") }
@@ -54,8 +57,8 @@ fun ChangePwdScreen(
     ) {
         Spacer(Modifier.height(50.dp))
 
-        Text(
-            text = stringResource(R.string.update_your_password),
+        AppText(
+            text = mapLang.getText(LangKey.Text.UpdateYourPassword, R.string.update_your_password),
             fontWeight = FontWeight.Bold,
             fontSize = 36.sp,
             lineHeight = 40.sp
@@ -66,7 +69,7 @@ fun ChangePwdScreen(
         AppTextField(
             value = current,
             onValueChange = { current = it },
-            hint = stringResource(R.string.current_password),
+            hint = mapLang.getText(LangKey.Input.CurrentPassword, R.string.current_password),
             isPassword = true,
             error = viewModel.passwordError,
             keyboardType = KeyboardType.Password,
@@ -78,7 +81,7 @@ fun ChangePwdScreen(
         AppTextField(
             value = newPass,
             onValueChange = { newPass = it },
-            hint = stringResource(R.string.new_password),
+            hint = mapLang.getText(LangKey.Input.NewPassword, R.string.new_password),
             isPassword = true,
             keyboardType = KeyboardType.Password,
             error = viewModel.newPasswordError,
@@ -90,7 +93,7 @@ fun ChangePwdScreen(
         AppTextField(
             value = confirm,
             onValueChange = { confirm = it },
-            hint = stringResource(R.string.confirm_new_password),
+            hint = mapLang.getText(LangKey.Input.ConfirmNewPassword, R.string.confirm_new_password),
             isPassword = true,
             error = viewModel.confirmPasswordError,
             keyboardType = KeyboardType.Password,
@@ -99,14 +102,14 @@ fun ChangePwdScreen(
 
         Spacer(Modifier.height(32.dp))
 
-        Button(
+        AppButton(
             modifier = Modifier.fillMaxWidth(),
+            text = mapLang.getText(LangKey.Button.ChangePassword, R.string.change_password),
             onClick = {
                 keyboardController?.hide()
                 viewModel.changePassword(context,current, newPass, confirm)
-            }) {
-            Text(stringResource(R.string.change_password))
-        }
+            }
+        )
     }
 
 

@@ -5,7 +5,7 @@ data class CheckFrameResponse(
     val durianDetected: Boolean,
     val durianConfidence: Float,
     val checks: Checks,
-    val guidance: String
+    val guidanceKey: String
 )
 
 data class Checks(

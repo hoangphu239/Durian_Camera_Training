@@ -39,7 +39,7 @@
     <string name="select_site_and_durian_type">Vui lòng chọn khu vực và loại sầu riêng trước khi dùng camera</string>
     <string name="accept">Đồng ý</string>
     <string name="select_site">Vui lòng chọn khu vực trước khi dùng camera</string>
-    <string name="select_durian_type">Vui lòng chọn loại sầu riêng trước khi dùng camera</string>
+    <string name="config_durian_variety">Vui lòng chọn loại sầu riêng trước khi dùng camera</string>
     <string name="select_scan_mode">Vui lòng chọn chế độ trước khi dùng camera</string>
     <string name="scan_mode">Chế độ quét</string>
     <string name="choose_scan_mode">Chọn cách quét:</string>

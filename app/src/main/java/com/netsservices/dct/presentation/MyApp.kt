@@ -15,7 +15,7 @@ class MyApp : Application() {
         super.onCreate()
 
         CoroutineScope(Dispatchers.IO).launch {
-            LanguagePrefs.getLanguage(this@MyApp).collect {
+            LanguagePrefs.getLanguageId(this@MyApp).collect {
                 AppConfig.language = it
             }
         }

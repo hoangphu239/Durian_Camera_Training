@@ -28,7 +28,7 @@
     <string name="new_password_and_confirm_new_password_do_not_match">รหัสผ่านไม่ตรงกัน</string>
     <string name="durian_variety">สายพันธุ์ทุเรียน</string>
     <string name="selected_durian_variety">สายพันธุ์ที่เลือก</string>
-    <string name="select_durian_variety">เลือกสายพันธุ์ทุเรียน</string>
+    <string name="config_durian_variety">เลือกสายพันธุ์ทุเรียน</string>
     <string name="fingerprint">ลายนิ้วมือ</string>
     <string name="collection">การเก็บข้อมูล</string>
     <string name="site">ไซต์: %1$s</string>
@@ -39,7 +39,7 @@
     <string name="select_site_and_durian_type">กรุณาเลือกไซต์และสายพันธุ์ก่อนใช้กล้อง</string>
     <string name="accept">ยอมรับ</string>
     <string name="select_site">กรุณาเลือกไซต์ก่อนใช้กล้อง</string>
-    <string name="select_durian_type">กรุณาเลือกสายพันธุ์ก่อนใช้กล้อง</string>
+    <string name="select_durian_variety">กรุณาเลือกสายพันธุ์ก่อนใช้กล้อง</string>
     <string name="select_scan_mode">กรุณาเลือกโหมดก่อนใช้กล้อง</string>
     <string name="scan_mode">โหมดสแกน</string>
     <string name="choose_scan_mode">เลือกวิธีการสแกน:</string>

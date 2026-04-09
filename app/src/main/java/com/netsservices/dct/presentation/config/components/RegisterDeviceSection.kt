@@ -12,22 +12,30 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Circle
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.netsservices.dct.R
+import com.netsservices.dct.i18n.LangKey
 import com.netsservices.dct.presentation.common.DeviceStatus
+import com.netsservices.dct.presentation.common.getText
 import com.netsservices.dct.presentation.components.AppText
+import com.netsservices.dct.presentation.config.ConfigViewModel
 
 
 @Composable
-fun RegisterDeviceSection(status: String) {
+fun RegisterDeviceSection(
+    viewModel: ConfigViewModel,
+    status: String
+) {
+    val mapLang = viewModel.mapLang.collectAsState().value
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -40,27 +48,28 @@ fun RegisterDeviceSection(status: String) {
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Text(
-            text = stringResource(R.string.my_phone),
-            style = MaterialTheme.typography.titleMedium
+        AppText(
+            text = mapLang.getText(LangKey.Text.MyPhone, R.string.my_phone),
+            fontWeight = FontWeight.Medium,
+            fontSize = 15.sp
         )
         when(status) {
             DeviceStatus.UNACTIVE.value -> {
                 ItemStatus(
                     color = Color(0xFF444444),
-                    text = stringResource(R.string.inactive)
+                    text = mapLang.getText(LangKey.Text.Inactive, R.string.inactive),
                 )
             }
             DeviceStatus.PENDING_APPROVAL.value -> {
                 ItemStatus(
                     color = Color(0xFFFF9800),
-                    text = stringResource(R.string.activated)
+                    text = mapLang.getText(LangKey.Text.PendingReview, R.string.pending_review),
                 )
             }
             DeviceStatus.ACTIVATE.value -> {
                 ItemStatus(
                     color = Color(0xFF4CAF50),
-                    text = stringResource(R.string.activated)
+                    text = mapLang.getText(LangKey.Text.Active, R.string.activated),
                 )
             }
         }
@@ -80,8 +89,7 @@ fun ItemStatus(color: Color, text: String) {
         )
         AppText(
             text = text,
-            color = R.color.gray,
-            fontSize = 14.sp,
+            color = R.color.gray
         )
     }
 }

@@ -1,5 +1,7 @@
 package com.netsservices.dct.presentation.common
 
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringResource
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
@@ -51,3 +53,28 @@ fun String.toMacAddress(): String {
         .joinToString(":")
 }
 
+@Composable
+fun Map<String, String>.getText(
+    key: String,
+    fallback: Int
+): String {
+    val value = this[key]
+    return if (value.isNullOrBlank()) {
+        stringResource(fallback)
+    } else {
+        value
+    }
+}
+
+@Composable
+fun Map<String, String>.getText(
+    key: String,
+    fallback: String
+): String {
+    val value = this[key]
+    return if (value.isNullOrBlank()) {
+        fallback
+    } else {
+        value
+    }
+}

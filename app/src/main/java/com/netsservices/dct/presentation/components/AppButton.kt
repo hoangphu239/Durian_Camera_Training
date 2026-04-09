@@ -47,7 +47,6 @@ fun AppButton(
         AppText(
             text = text,
             color = textColor,
-            fontSize = 14.sp,
             fontWeight = FontWeight.Normal,
             textAlign = TextAlign.Center
         )

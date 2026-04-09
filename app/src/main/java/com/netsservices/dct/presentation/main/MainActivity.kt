@@ -41,8 +41,10 @@ import com.netsservices.dct.R
 import com.netsservices.dct.data.remote.AppEvent
 import com.netsservices.dct.data.remote.AppEventBus
 import com.netsservices.dct.data.remote.utils.PreferenceManager
+import com.netsservices.dct.i18n.LangKey
 import com.netsservices.dct.presentation.common.Constants
 import com.netsservices.dct.presentation.common.LanguagePrefs
+import com.netsservices.dct.presentation.common.getText
 import com.netsservices.dct.presentation.components.TopBar
 import com.netsservices.dct.presentation.helper.PermissionManager
 import com.netsservices.dct.presentation.theme.DurianCameraTrainingTheme
@@ -62,6 +64,8 @@ class MainActivity : ComponentActivity() {
     lateinit var navController: NavHostController
     lateinit var snackBarHostState: SnackbarHostState
 
+    lateinit var mapLang: Map<String, String>
+
     @RequiresApi(Build.VERSION_CODES.P)
     override fun onStart() {
         super.onStart()
@@ -74,17 +78,19 @@ class MainActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.Q)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val lang = runBlocking { LanguagePrefs.getLanguage(this@MainActivity).first() }
-        setAppLocale(this, lang)
-
         val isLoggedIn = runBlocking {
             PreferenceManager.getAuthToken(this@MainActivity).isNotEmpty()
         }
-
         enableEdgeToEdge()
         setContent {
+            val context = LocalContext.current
+            val lang by LanguagePrefs.getLanguageId(context).collectAsState(initial = "en")
+            setAppLocale(this, lang)
+
             navController = rememberNavController()
             snackBarHostState = remember { SnackbarHostState() }
+            mapLang = viewModel.mapLang.collectAsState().value
+
             val navBackStackEntry by navController.currentBackStackEntryFlow
                 .collectAsState(initial = navController.currentBackStackEntry)
             val currentRoute = navBackStackEntry?.destination?.route
@@ -141,16 +147,16 @@ class MainActivity : ComponentActivity() {
                                 startDestination = startDestination,
                                 onTopBarTitleChange = { title -> topBarTitle.value = title }
                             )
-                            DoubleBackPressHandler(navController)
+                            DoubleBackPressHandler(navController, mapLang)
                         }
                     }
                 )
             }
         }
-        observeAppEvents()
+        observeAppEvents(viewModel)
     }
 
-    private fun observeAppEvents() {
+    private fun observeAppEvents(viewModel: MainViewModel) {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 AppEventBus.events.collect { event ->
@@ -160,13 +166,13 @@ class MainActivity : ComponentActivity() {
                         }
                         is AppEvent.Unauthorized -> {
                             if (snackBarHostState.currentSnackbarData != null) return@collect
-
                             val currentRoute = navController.currentBackStackEntry?.destination?.route
                             if(currentRoute == Screen.Login.route) {
                                 snackBarHostState.showSnackbar(event.message)
                             } else if (currentRoute != Screen.Login.route) {
                                 if(event.message == Constants.INVALID_TOKEN) {
-                                    snackBarHostState.showSnackbar(getString(R.string.session_has_expired))
+                                    snackBarHostState.showSnackbar(message = mapLang[LangKey.Message.SessionExpired]?:"")
+                                    viewModel.clearData()
                                 } else {
                                     snackBarHostState.showSnackbar(event.message)
                                 }
@@ -186,7 +192,7 @@ class MainActivity : ComponentActivity() {
 
 // ==== BACK PRESS HANDLER ====
 @Composable
-private fun DoubleBackPressHandler(navController: NavHostController) {
+private fun DoubleBackPressHandler(navController: NavHostController, mapLang: Map<String, String>) {
     var showToast by remember { mutableStateOf(false) }
     var backPressState by remember { mutableStateOf<BackPress>(BackPress.Idle) }
     val context = LocalContext.current
@@ -197,7 +203,8 @@ private fun DoubleBackPressHandler(navController: NavHostController) {
             if (showToast) {
                 Toast.makeText(
                     context,
-                    stringResource(R.string.press_back_again_to_exit), Toast.LENGTH_SHORT
+                    mapLang.getText(LangKey.Message.PressBackAgainToExit, R.string.press_back_again_to_exit),
+                    Toast.LENGTH_SHORT
                 ).show()
             }
 

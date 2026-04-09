@@ -16,13 +16,16 @@ import com.netsservices.dct.domain.model.DeviceInfo
 import com.netsservices.dct.domain.model.Meta
 import com.netsservices.dct.domain.model.toRegisterDeviceRequest
 import com.netsservices.dct.domain.repository.Repository
+import com.netsservices.dct.presentation.common.BundlePrefix
 import com.netsservices.dct.presentation.common.ConfigStep
 import com.netsservices.dct.presentation.common.DeviceName
+import com.netsservices.dct.presentation.common.LanguagePrefs
 import com.netsservices.dct.presentation.common.PurposeType
 import com.netsservices.dct.presentation.common.toRequestBody
 import com.netsservices.dct.presentation.config.components.ScanMode
 import com.netsservices.dct.presentation.helper.camera.CameraManager
 import com.netsservices.dct.presentation.helper.connection.NetworkService
+import com.netsservices.dct.presentation.utils.Utils.dumpTranslationsToFile
 import com.netsservices.dct.presentation.utils.Utils.getDeviceID
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -55,6 +58,14 @@ class HomeViewModel @Inject constructor(
             else
                 NetworkService.Status.Lost
         )
+    val currentLanguage = LanguagePrefs.getLanguageId(context)
+
+    val mapLang = LanguagePrefs.getTranslations(context)
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.Eagerly,
+            initialValue = emptyMap()
+        )
 
     data class UiState(
         val isLoading: Boolean = false,
@@ -75,6 +86,9 @@ class HomeViewModel @Inject constructor(
     private var gps: Pair<Double, Double>? = null
     private var isUnauthorized = false
 
+    init {
+        observeTranslations()
+    }
 
     fun registerDevice(onSuccess: () -> Unit) {
         val deviceId = getDeviceID(context)
@@ -245,6 +259,53 @@ class HomeViewModel @Inject constructor(
 
     private fun saveDeviceStatus(status: String) {
         PreferenceManager.saveDeviceStatus(context, status)
+    }
+
+    private fun observeTranslations() {
+        viewModelScope.launch {
+            mapLang.collect { cache ->
+                val isEmpty = cache.isEmpty()
+
+                _uiState.update { it.copy(isLoading = isEmpty) }
+
+                if (isEmpty) {
+                    fetchBundleLanguage()
+                }
+            }
+        }
+    }
+
+    private fun fetchBundleLanguage() {
+        val mergedMap = mutableMapOf<String, String>()
+        viewModelScope.launch {
+            try {
+                val langId = currentLanguage.first()
+                repo.getBundleLanguage(
+                    langId,
+                    BundlePrefix.PREFIX_UI.value
+                ).handle(
+                    onSuccess = { data ->
+                        mergedMap.putAll(data.items)
+                    }
+                )
+
+                repo.getBundleLanguage(
+                    langId,
+                    BundlePrefix.PREFIX_CAPTURE.value
+                ).handle(
+                    onSuccess = { data ->
+                        mergedMap.putAll(data.items)
+                    }
+                )
+
+                if (mergedMap.isNotEmpty()) {
+                    LanguagePrefs.saveTranslations(context, mergedMap)
+                    dumpTranslationsToFile(context, mergedMap)
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
     }
 
     fun clearData() {

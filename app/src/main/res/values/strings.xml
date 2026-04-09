@@ -27,7 +27,7 @@
     <string name="new_password_and_confirm_new_password_do_not_match">New password and confirmation do not match</string>
     <string name="durian_variety">Durian Variety</string>
     <string name="selected_durian_variety">Selected Durian Variety</string>
-    <string name="select_durian_variety">Select durian variety</string>
+    <string name="config_durian_variety">Select durian variety</string>
     <string name="fingerprint">Fingerprint</string>
     <string name="collection">Collection</string>
     <string name="site">Site: %1$s</string>
@@ -38,7 +38,7 @@
     <string name="select_site_and_durian_type">Please select a site and durian type before using the camera</string>
     <string name="accept">Accept</string>
     <string name="select_site">Please select a site before using the camera</string>
-    <string name="select_durian_type">Please select a durian type before using the camera</string>
+    <string name="select_durian_variety">Please select a durian type before using the camera</string>
     <string name="select_scan_mode">Please select a scan mode before using the camera</string>
     <string name="scan_mode">Scan Mode</string>
     <string name="choose_scan_mode">Choose how you want to scan:</string>

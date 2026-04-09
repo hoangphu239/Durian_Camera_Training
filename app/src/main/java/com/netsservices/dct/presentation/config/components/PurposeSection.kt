@@ -13,14 +13,17 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.netsservices.dct.R
+import com.netsservices.dct.i18n.LangKey
+import com.netsservices.dct.presentation.common.getText
+import com.netsservices.dct.presentation.components.AppText
 import com.netsservices.dct.presentation.config.ConfigViewModel
 
 @RequiresApi(Build.VERSION_CODES.P)
@@ -29,6 +32,8 @@ fun PurposeSection(
     viewModel: ConfigViewModel,
     currentMode: ScanMode
 ) {
+    val mapLang = viewModel.mapLang.collectAsState().value
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -41,10 +46,11 @@ fun PurposeSection(
         horizontalArrangement = Arrangement.SpaceBetween,
     ) {
         Column {
-            Text(
+            AppText(
                 modifier = Modifier.padding(top = 7.dp),
-                text = stringResource(R.string.scan_mode),
-                style = MaterialTheme.typography.titleMedium
+                text = mapLang.getText(LangKey.Text.ScanMode, R.string.scan_mode),
+                fontWeight = FontWeight.Medium,
+                fontSize = 15.sp
             )
             Spacer(modifier = Modifier.weight(1f))
         }

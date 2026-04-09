@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
@@ -18,13 +17,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.netsservices.dct.R
+import com.netsservices.dct.i18n.LangKey
+import com.netsservices.dct.presentation.common.getText
+import com.netsservices.dct.presentation.components.AppText
 import com.netsservices.dct.presentation.config.ConfigViewModel
 
 
@@ -38,7 +39,7 @@ fun ModeSelector(
     textSize: TextUnit = 14.sp
 ) {
     val context = LocalContext.current
-    val uiState = viewModel.uiState.collectAsState().value
+    val mapLang = viewModel.mapLang.collectAsState().value
 
     Box(contentAlignment = Alignment.Center) {
         Row(
@@ -47,14 +48,18 @@ fun ModeSelector(
                 .background(Color.LightGray.copy(alpha = 0.2f), RoundedCornerShape(12.dp))
         ){
             ModeItem(
-                title = stringResource(R.string.fingerprint),
+                title = mapLang.getText(LangKey.Text.Fingerprint, R.string.fingerprint),
                 selected = currentMode == ScanMode.FINGERPRINT,
                 modifier = Modifier.weight(1f),
                 padding = itemPadding,
                 textSize = textSize,
                 onClick = {
                     if(viewModel.getContract(context) == null) {
-                        viewModel.verifyContract(context,"") {
+                        viewModel.verifyContract(
+                            context = context,
+                            search = "",
+                            mapLang = mapLang
+                        ) {
                             onSelected(ScanMode.FINGERPRINT)
                         }
                     } else {
@@ -64,17 +69,13 @@ fun ModeSelector(
             )
 
             ModeItem(
-                title = stringResource(R.string.collection),
+                title = mapLang.getText(LangKey.Text.Collection, R.string.collection),
                 selected = currentMode == ScanMode.COLLECTION,
                 modifier = Modifier.weight(1f),
                 padding = itemPadding,
                 textSize = textSize,
                 onClick = { onSelected(ScanMode.COLLECTION) }
             )
-        }
-
-        if (uiState.isLoading) {
-            CircularProgressIndicator()
         }
     }
 }
@@ -96,11 +97,11 @@ fun ModeItem(
             .padding(vertical = padding),
         contentAlignment = Alignment.Center
     ) {
-        Text(
+        AppText(
             text = title,
             fontSize = textSize,
             fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
-            color = if (selected) Color.Black else Color.Gray
+            color = if (selected) R.color.black else R.color.gray
         )
     }
 }

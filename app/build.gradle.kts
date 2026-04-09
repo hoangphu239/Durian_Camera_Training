@@ -79,14 +79,18 @@ dependencies {
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
+
     implementation(libs.play.services.location)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
+
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
+
     implementation(libs.androidx.material.icons.extended)
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.androidx.navigation.compose)
@@ -108,4 +112,21 @@ dependencies {
     implementation(libs.logging.interceptor)
     implementation(libs.jenly1314.retrofit.helper)
     implementation(libs.timber)
+}
+
+tasks.register("generateLangKey") {
+    outputs.upToDateWhen { false }
+    doLast {
+        val input = file("$projectDir/translations.json")
+        val output = file(
+            "$projectDir/src/main/java/com/netsservices/dct/i18n/LangKey.kt"
+        )
+        output.parentFile.mkdirs()
+        generateLangKey(input, output)
+        println("LangKey.kt generated at: ${output.absolutePath}")
+    }
+}
+
+tasks.named("preBuild") {
+    dependsOn("generateLangKey")
 }

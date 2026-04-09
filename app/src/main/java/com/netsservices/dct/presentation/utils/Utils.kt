@@ -8,8 +8,11 @@ import android.location.Geocoder
 import android.os.Build
 import android.provider.MediaStore
 import android.provider.Settings
+import android.util.Log
 import android.widget.Toast
+import com.google.gson.Gson
 import com.netsservices.dct.BuildConfig
+import java.io.File
 import java.util.Locale
 
 object Utils {
@@ -103,5 +106,12 @@ object Utils {
 
     fun showToast(context: Context, message: String) {
         Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+    }
+
+    fun dumpTranslationsToFile(context: Context, map: Map<String, String>) {
+        val json = Gson().toJson(map)
+        val file = File(context.filesDir, "translations_dump.json")
+        file.writeText(json)
+        Log.d("LangDump", "Saved to: ${file.absolutePath}")
     }
 }

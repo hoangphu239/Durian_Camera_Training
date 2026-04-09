@@ -28,6 +28,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.netsservices.dct.R
 
 @Composable
 fun AppTextField(
@@ -47,7 +48,7 @@ fun AppTextField(
         OutlinedTextField(
             value = value,
             onValueChange = onValueChange,
-            placeholder = { Text(text = hint, fontSize = hintSize, color = Color.DarkGray) },
+            placeholder = { AppText(text = hint, fontSize = hintSize, color = R.color.gray) },
             singleLine = true,
             visualTransformation = if (isPassword && !passwordVisible)
                 PasswordVisualTransformation()
@@ -77,10 +78,10 @@ fun AppTextField(
         Spacer(Modifier.height(5.dp))
 
         if (error != null) {
-            Text(
+            AppText(
                 text = error,
-                color = Color.Red,
-                style = MaterialTheme.typography.bodySmall
+                color = R.color.red,
+                fontSize = 13.sp
             )
         }
     }
