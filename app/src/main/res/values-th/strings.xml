@@ -64,4 +64,7 @@
     <string name="select_mode">เลือกโหมด</string>
     <string name="inactive">ไม่ใช้งาน</string>
     <string name="this_feature_is_currently_supported_in_the_asia_region">ฟีเจอร์นี้ใช้ได้เฉพาะในเอเชียเท่านั้น</string>
+    <string name="waiting_for_admin_approval_device">โทรศัพท์ของคุณกำลังรอการอนุมัติจากผู้ดูแล…</string>
+    <string name="request_activation">ขอเปิดใช้งาน</string>
+    <string name="processing">กำลังดำเนินการ…</string>
 </resources>

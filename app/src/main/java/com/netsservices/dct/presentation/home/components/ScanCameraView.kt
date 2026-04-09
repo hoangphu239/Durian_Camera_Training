@@ -31,9 +31,9 @@ import androidx.compose.ui.viewinterop.AndroidView
 
 @Composable
 fun ScanCameraView(
+    modifier: Modifier = Modifier,
     previewView: PreviewView,
-    isDetected: Boolean,
-    modifier: Modifier = Modifier
+    isDetected: Boolean
 ) {
     val context = LocalContext.current
 

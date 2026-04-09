@@ -28,7 +28,6 @@ import com.netsservices.dct.presentation.config.components.ChangePasswordSection
 import com.netsservices.dct.presentation.config.components.DurianVarietySection
 import com.netsservices.dct.presentation.config.components.LanguageSection
 import com.netsservices.dct.presentation.config.components.PurposeSection
-import com.netsservices.dct.presentation.config.components.RegisterDeviceSection
 import com.netsservices.dct.presentation.config.components.ScanMode
 import java.util.Locale
 
@@ -104,10 +103,6 @@ fun ConfigScreenContent(
                 .padding(top = 5.dp, bottom = 16.dp),
             verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
-            item {
-                RegisterDeviceSection(status = deviceStatus)
-            }
-
             item {
                 PurposeSection(
                     viewModel = viewModel,

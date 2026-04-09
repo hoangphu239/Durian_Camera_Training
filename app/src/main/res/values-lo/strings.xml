@@ -64,4 +64,7 @@
     <string name="select_mode">ເລືອກໂໝດ</string>
     <string name="inactive">ບໍ່ໃຊ້ງານ</string>
     <string name="this_feature_is_currently_supported_in_the_asia_region">ຟັງຊັນນີ້ໃຊ້ໄດ້ສະເພາະໃນອາຊີເທົ່ານັ້ນ</string>
+    <string name="waiting_for_admin_approval_device">ໂທລະສັບຂອງທ່ານກຳລັງລໍຖ້າການອະນຸມັດຈາກຜູ້ດູແລ…</string>
+    <string name="request_activation">ຮ້ອງຂໍເປີດໃຊ້ງານ</string>
+    <string name="processing">ກຳລັງດຳເນີນການ…</string>
 </resources>

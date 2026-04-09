@@ -78,7 +78,7 @@ fun DurianVarietyScreen(
     }
 
     LaunchedEffect(Unit) {
-        viewModel.getDurianVarieties(countryCode)
+        viewModel.checkCountrySupported(countryCode)
     }
 }
 

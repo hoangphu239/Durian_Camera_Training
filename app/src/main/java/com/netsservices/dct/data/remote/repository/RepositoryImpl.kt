@@ -15,6 +15,7 @@ import com.netsservices.dct.data.remote.response.InitFileResponse
 import com.netsservices.dct.data.remote.response.LanguageResponse
 import com.netsservices.dct.data.remote.response.LoginResponse
 import com.netsservices.dct.data.remote.response.RegisterResponse
+import com.netsservices.dct.data.remote.response.RequestActivationResponse
 import com.netsservices.dct.data.remote.response.SessionResponse
 import com.netsservices.dct.data.remote.response.SiteResponse
 import com.netsservices.dct.data.remote.resquest.ChangePwdRequest
@@ -24,7 +25,6 @@ import com.netsservices.dct.data.remote.resquest.LoginRequest
 import com.netsservices.dct.data.remote.resquest.DeviceRequest
 import com.netsservices.dct.data.remote.resquest.RegisterRequest
 import com.netsservices.dct.data.remote.safeApiCall
-import com.netsservices.dct.domain.model.Country
 import com.netsservices.dct.domain.repository.Repository
 import okhttp3.RequestBody
 import javax.inject.Inject
@@ -74,6 +74,10 @@ class RepositoryImpl @Inject constructor(
 
     override suspend fun getDurianVarieties(countryCode: String?): ApiResult<DurianTypeResponse> {
         return safeApiCall { api.getDurianVarieties(countryCode) }
+    }
+
+    override suspend fun requestActivation(deviceId: String): ApiResult<RequestActivationResponse> {
+        return safeApiCall { api.requestActivation(deviceId) }
     }
 
     override suspend fun checkFrame(image: RequestBody, skipMarkDetection: Boolean): ApiResult<CheckFrameResponse> {

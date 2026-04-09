@@ -19,6 +19,7 @@ object PreferenceManager {
     private const val ACTION = "action"
     private const val SITE = "site"
     private const val PLANTATION = "plantation"
+    private const val DEVICE_ID = "device_id"
     private const val DEVICE_STATUS = "device_status"
     private const val DURIAN_TYPE = "durian_type"
     private const val SCAN_MODE = "scan_mode"
@@ -99,6 +100,14 @@ object PreferenceManager {
 
     fun getAction(context: Context): String {
         return getPrefs(context).getString(ACTION, "") ?: ""
+    }
+
+    fun saveDeviceId(context: Context, deviceId: String) {
+        getPrefs(context).edit { putString(DEVICE_ID, deviceId) }
+    }
+
+    fun getDeviceId(context: Context): String {
+        return getPrefs(context).getString(DEVICE_ID, "") ?: ""
     }
 
     fun saveDeviceStatus(context: Context, status: String) {

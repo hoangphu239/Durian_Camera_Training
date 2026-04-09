@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.netsservices.dct.data.remote.ApiErrorCode
 import com.netsservices.dct.data.remote.handle
 import com.netsservices.dct.data.remote.response.CheckFrameResponse
+import com.netsservices.dct.data.remote.response.DeviceResponse
 import com.netsservices.dct.data.remote.response.StatusFile
 import com.netsservices.dct.data.remote.resquest.CreateSessionRequest
 import com.netsservices.dct.data.remote.resquest.InitFileRequest
@@ -63,7 +64,9 @@ class HomeViewModel @Inject constructor(
         val sessionId: String = "",
         val fileId: String = "",
         val blockCapture: Boolean = false,
-        val disconnect: Boolean = false
+        val disconnect: Boolean = false,
+        val enableActivation: Boolean = true,
+        val message: String = ""
     )
 
     private val _uiState = MutableStateFlow(UiState())
@@ -96,12 +99,29 @@ class HomeViewModel @Inject constructor(
             repo.registerDevice(deviceInfo.toRegisterDeviceRequest()).handle(
                 onSuccess = { data ->
                     if(data.deviceId.isNotEmpty()) {
-                        saveDeviceStatus(data.status)
+                        saveDevice(data)
                         updateAction(ConfigStep.REGISTER_DEVICE.name)
                         onSuccess()
                     }
                 }
             )
+        }
+    }
+
+    fun requestActivation(deviceId: String) {
+        _uiState.update { it.copy(isLoading = true) }
+        viewModelScope.launch {
+            repo.requestActivation(deviceId)
+                .handle(
+                    onSuccess = { data ->
+                        if (data.ok) {
+                            _uiState.update { it.copy(isLoading = false, enableActivation = false, message = data.message) }
+                        }
+                    },
+                    onError = { _, message ->
+                        _uiState.update { it.copy(isLoading = false, enableActivation = false, message = message?:"") }
+                    }
+                )
         }
     }
 
@@ -243,9 +263,12 @@ class HomeViewModel @Inject constructor(
         PreferenceManager.saveAction(context, action)
     }
 
-    private fun saveDeviceStatus(status: String) {
-        PreferenceManager.saveDeviceStatus(context, status)
+    private fun saveDevice(device: DeviceResponse) {
+        PreferenceManager.saveDeviceId(context, device.deviceId)
+        PreferenceManager.saveDeviceStatus(context, device.status)
     }
+
+    fun getDeviceId(): String = PreferenceManager.getDeviceId(context)
 
     fun clearData() {
         _uiState.update {

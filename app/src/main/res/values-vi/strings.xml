@@ -64,4 +64,7 @@
     <string name="select_mode">Chọn chế độ</string>
     <string name="inactive">Chưa kích hoạt</string>
     <string name="this_feature_is_currently_supported_in_the_asia_region">Tính năng này hiện chỉ hỗ trợ tại Châu Á</string>
+    <string name="waiting_for_admin_approval_device">Điện thoại của bạn đang chờ quản trị viên phê duyệt…</string>
+    <string name="request_activation">Yêu cầu kích hoạt</string>
+    <string name="processing">Đang xử lý…</string>
 </resources>

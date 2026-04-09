@@ -35,6 +35,21 @@ class DurianVarietyViewModel @Inject constructor(
         }
     }
 
+    fun checkCountrySupported(countryCode: String) {
+        viewModelScope.launch {
+            repo.getCountries().handle(
+                onSuccess = { data ->
+                    val isSupported = data.items.any { it.code == countryCode }
+                    if (isSupported) {
+                        getDurianVarieties(countryCode)
+                    } else {
+                        getDurianVarieties(null)
+                    }
+                }
+            )
+        }
+    }
+
     fun getDurianVarieties(countryCode: String?) {
         viewModelScope.launch {
             repo.getDurianVarieties(countryCode).handle(

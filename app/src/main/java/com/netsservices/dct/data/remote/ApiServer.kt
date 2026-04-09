@@ -18,6 +18,7 @@ import com.netsservices.dct.data.remote.response.ContractResponse
 import com.netsservices.dct.data.remote.response.CountryResponse
 import com.netsservices.dct.data.remote.response.DeviceResponse
 import com.netsservices.dct.data.remote.response.LanguageResponse
+import com.netsservices.dct.data.remote.response.RequestActivationResponse
 import com.netsservices.dct.data.remote.resquest.DeviceRequest
 import com.netsservices.dct.data.remote.resquest.RegisterRequest
 import com.netsservices.dct.domain.model.Country
@@ -41,6 +42,7 @@ const val CONTRACTS = "/v1/contracts"
 const val REGISTER_DEVICE = "/v1/device/register"
 const val QUICK_SEARCH = "/v1/search/sites"
 const val DURIAN_TYPES = "/v1/durian-types"
+const val REQUEST_ACTIVATION = "/v1/device/{deviceId}/request-activation"
 const val CHECK_FRAME = "/v1/capture/check-frame"
 const val CREATE_SESSIONS = "/v1/session/sessions"
 const val INIT_FILE = "/v1/fileroutes/files/init"
@@ -95,6 +97,11 @@ interface ApiServer {
     suspend fun getDurianVarieties(
         @Query("countryCode") countryCode: String?,
     ): Response<DurianTypeResponse>
+
+    @POST(REQUEST_ACTIVATION)
+    suspend fun requestActivation(
+        @Path("deviceId") deviceId: String,
+    ): Response<RequestActivationResponse>
 
     @POST(CHECK_FRAME)
     suspend fun checkFrame(

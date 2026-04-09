@@ -6,24 +6,17 @@ import androidx.annotation.RequiresApi
 import androidx.camera.core.AspectRatio
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
-import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.SignalWifiConnectedNoInternet4
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -35,32 +28,30 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
 import com.netsservices.dct.R
 import com.netsservices.dct.data.remote.response.DurianItem
 import com.netsservices.dct.data.remote.utils.PreferenceManager
 import com.netsservices.dct.presentation.common.ConfigStep
+import com.netsservices.dct.presentation.common.ConfirmDialog
 import com.netsservices.dct.presentation.common.DeviceStatus
+import com.netsservices.dct.presentation.common.LoadingOverlay
+import com.netsservices.dct.presentation.common.NoInternetView
 import com.netsservices.dct.presentation.components.AppText
 import com.netsservices.dct.presentation.config.ConfigViewModel
 import com.netsservices.dct.presentation.config.components.ModeSelectionDialog
 import com.netsservices.dct.presentation.config.components.ScanMode
 import com.netsservices.dct.presentation.helper.camera.FrameProcessor
+import com.netsservices.dct.presentation.home.components.RequestActivationView
 import com.netsservices.dct.presentation.home.components.ScanCameraView
 import java.util.concurrent.Executors
-
 
 @RequiresApi(Build.VERSION_CODES.P)
 @Composable
@@ -73,27 +64,31 @@ fun HomeScreen(
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
-    val uiState = viewModel.uiState.collectAsState().value
+
+    val uiState by viewModel.uiState.collectAsState()
 
     val processor = remember { FrameProcessor() }
     val executor = remember { Executors.newSingleThreadExecutor() }
 
-    var deviceStatus by remember { mutableStateOf(DeviceStatus.UNACTIVE.value) }
+//    var deviceStatus by remember { mutableStateOf(DeviceStatus.UNACTIVE.value) }
     var scanMode by remember { mutableStateOf<ScanMode?>(null) }
-//  var site by remember { mutableStateOf<Site?>(null) }
     var durianType by remember { mutableStateOf<DurianItem?>(null) }
 
     var isInitialized by remember { mutableStateOf(false) }
+
     val isConfigReady by remember {
-       derivedStateOf { deviceStatus == DeviceStatus.ACTIVATE.value && scanMode != null && durianType != null }
-//     derivedStateOf { deviceStatus == DeviceStatus.ACTIVATE.value && scanMode != null && site != null && durianType != null }
+        derivedStateOf {
+//            deviceStatus == DeviceStatus.ACTIVATE.value &&
+                    scanMode != null &&
+                    durianType != null
+        }
     }
+
     val currentStep by remember {
         derivedStateOf {
             when {
-                deviceStatus == DeviceStatus.UNACTIVE.value -> ConfigStep.REGISTER_DEVICE
+//                deviceStatus == DeviceStatus.UNACTIVE.value -> ConfigStep.REGISTER_DEVICE
                 scanMode == null -> ConfigStep.MODE
-//                site == null -> ConfigStep.SITE
                 durianType == null -> ConfigStep.DURIAN_TYPE
                 else -> ConfigStep.DONE
             }
@@ -110,21 +105,23 @@ fun HomeScreen(
         }
     }
 
-    LaunchedEffect(Unit) {
+    var hasRegistered by remember { mutableStateOf(false) }
+
+    // =========================
+    // INIT CAMERA (FIXED)
+    // =========================
+    DisposableEffect(lifecycleOwner) {
         val cameraProviderFuture = ProcessCameraProvider.getInstance(context)
 
-        cameraProviderFuture.addListener({
+        val listener = Runnable {
             val provider = cameraProviderFuture.get()
 
             val preview = Preview.Builder()
                 .setTargetAspectRatio(AspectRatio.RATIO_16_9)
                 .build()
-                .apply { setSurfaceProvider(previewView.surfaceProvider) }
-
-            val capture = ImageCapture.Builder()
-                .setTargetAspectRatio(AspectRatio.RATIO_16_9)
-                .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
-                .build()
+                .apply {
+                    setSurfaceProvider(previewView.surfaceProvider)
+                }
 
             val analysis = ImageAnalysis.Builder()
                 .setTargetAspectRatio(AspectRatio.RATIO_16_9)
@@ -132,18 +129,17 @@ fun HomeScreen(
                 .build()
 
             analysis.setAnalyzer(executor) { image ->
-                if (uiState.blockCapture) {
+                if (!isConfigReady || uiState.blockCapture) {
                     image.close()
                     return@setAnalyzer
                 }
+
                 try {
-                    if (isConfigReady) {
-                        val bitmap = processor.imageProxyToBitmap(image)
-                        bitmap?.let {
-                            val finalBitmap = processor.cropAndResize(bitmap)
-                            val jpeg = processor.bitmapToJpeg(finalBitmap)
-                            viewModel.checkFrame(jpeg)
-                        }
+                    val bitmap = processor.imageProxyToBitmap(image)
+                    bitmap?.let {
+                        val finalBitmap = processor.cropAndResize(it)
+                        val jpeg = processor.bitmapToJpeg(finalBitmap)
+                        viewModel.checkFrame( jpeg)
                     }
                 } catch (e: Exception) {
                     e.printStackTrace()
@@ -153,27 +149,59 @@ fun HomeScreen(
             }
 
             provider.unbindAll()
-
             provider.bindToLifecycle(
                 lifecycleOwner,
                 CameraSelector.DEFAULT_BACK_CAMERA,
                 preview,
-                analysis,
-                capture
+                analysis
             )
-        }, ContextCompat.getMainExecutor(context))
+        }
+
+        cameraProviderFuture.addListener(listener, ContextCompat.getMainExecutor(context))
+
+        onDispose {
+            executor.shutdown()
+        }
+    }
+
+    // =========================
+    // LOAD CONFIG (FIXED)
+    // =========================
+    LaunchedEffect(Unit) {
+//        deviceStatus = PreferenceManager.getDeviceStatus(context)
+        scanMode = PreferenceManager.getScanMode(context)
+        durianType = PreferenceManager.getDurianVariety(context)
+        isInitialized = true
+    }
+
+    // =========================
+    // HANDLE CONFIG STEP (FIXED BUG)
+    // =========================
+//    LaunchedEffect(currentStep, isInitialized) {
+//        if (!isInitialized) return@LaunchedEffect
+//
+//        if (currentStep == ConfigStep.REGISTER_DEVICE && !hasRegistered) {
+//            hasRegistered = true
+//
+//            viewModel.registerDevice {
+//                deviceStatus = PreferenceManager.getDeviceStatus(context)
+//            }
+//        }
+//    }
+
+    LaunchedEffect(gps) {
+        gps?.let { viewModel.updateGPS(it) }
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.spacedBy(15.dp)
-        ) {
-            val guidance = uiState.dataFrame?.guidance ?: ""
-            val isDetected = uiState.dataFrame?.durianDetected == true && uiState.dataFrame.ready
+        Column(modifier = Modifier.fillMaxSize()) {
+            val guidance = uiState.dataFrame?.guidance?:""
+            val isDetected = uiState.dataFrame?.durianDetected == true && uiState.dataFrame?.ready == true
 
             AppText(
-                modifier = Modifier.padding(start = 10.dp),
+                modifier = Modifier
+                    .wrapContentHeight()
+                    .padding(start = 10.dp, bottom = 30.dp),
                 text = guidance,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Medium,
@@ -188,145 +216,49 @@ fun HomeScreen(
         }
 
         if (uiState.isLoading) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color.Black.copy(alpha = 0.4f)),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator()
-            }
+            LoadingOverlay()
         }
 
         if (uiState.blockCapture) {
-            AlertDialog(
-                onDismissRequest = {},
-                title = { Text(stringResource(R.string.confirm)) },
-                text = { Text(stringResource(R.string.would_you_like_to_create_a_new_session)) },
-                confirmButton = {
-                    TextButton(onClick = {
-                        viewModel.unblockCapture()
-                    }) {
-                        Text(stringResource(R.string.accept))
-                    }
-                }
+            ConfirmDialog(
+                onConfirm = { viewModel.unblockCapture() }
             )
         }
 
         if (uiState.disconnect) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(color = Color.White),
-                contentAlignment = Alignment.Center
-            ) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Icon(
-                        modifier = Modifier.size(50.dp),
-                        imageVector = Icons.Default.SignalWifiConnectedNoInternet4,
-                        contentDescription = "Back",
-                        tint = colorResource(R.color.black)
-                    )
-                    Spacer(Modifier.height(10.dp))
-                    Text(text = stringResource(R.string.no_internet_connection))
-                }
-            }
+            NoInternetView()
         }
     }
 
     if (isInitialized && currentStep != ConfigStep.DONE) {
         when (currentStep) {
-            ConfigStep.REGISTER_DEVICE -> {
-                viewModel.registerDevice {
-                    deviceStatus = PreferenceManager.getDeviceStatus(context)
-                }
-            }
 
             ConfigStep.MODE -> {
                 ModeSelectionDialog(
                     viewModel = configViewModel,
                     currentMode = scanMode,
-                    onConfirm = { selectedMode ->
-                        PreferenceManager.saveScanMode(context, selectedMode)
-                        scanMode = selectedMode
+                    onConfirm = {
+                        PreferenceManager.saveScanMode(context, it)
+                        scanMode = it
                     },
                     onDismiss = {}
                 )
             }
 
-//            ConfigStep.SITE -> {
-//                AlertDialog(
-//                    onDismissRequest = {},
-//                    title = { Text(stringResource(R.string.configuration_required)) },
-//                    text = { Text(stringResource(R.string.select_site)) },
-//                    confirmButton = {
-//                        TextButton(onClick = navigateLocation) {
-//                            Text(stringResource(R.string.accept))
-//                        }
-//                    }
-//                )
-//            }
-
             ConfigStep.DURIAN_TYPE -> {
                 AlertDialog(
                     onDismissRequest = {},
-                    title = { Text(stringResource(R.string.configuration_required)) },
-                    text = { Text(stringResource(R.string.select_durian_type)) },
+                    title = { Text("Configuration required") },
+                    text = { Text("Select durian type") },
                     confirmButton = {
                         TextButton(onClick = navigateVariety) {
-                            Text(stringResource(R.string.accept))
+                            Text("OK")
                         }
                     }
                 )
             }
 
-            else -> {}
-        }
-    }
-
-    LaunchedEffect(Unit) {
-        deviceStatus = PreferenceManager.getDeviceStatus(context)
-        scanMode = PreferenceManager.getScanMode(context)
-//      site = PreferenceManager.getSite(context)
-        durianType = PreferenceManager.getDurianVariety(context)
-        isInitialized = true
-    }
-
-    DisposableEffect(lifecycleOwner) {
-        val observer = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_RESUME) {
-
-                val action = PreferenceManager.getAction(context)
-
-                if (action == ConfigStep.MODE.name) {
-                    PreferenceManager.clearAction(context)
-                    PreferenceManager.clearDurianVariety(context)
-                    durianType = null
-                }
-
-//                if (action == ConfigStep.SITE.name) {
-//                    PreferenceManager.clearAction(context)
-//                    PreferenceManager.clearDurianVariety(context)
-//                    scanMode = null
-//                    durianType = null
-//                }
-            }
-        }
-        lifecycleOwner.lifecycle.addObserver(observer)
-        onDispose {
-            lifecycleOwner.lifecycle.removeObserver(observer)
-        }
-    }
-
-    LaunchedEffect(gps) {
-        gps?.let {
-            viewModel.updateGPS(it)
-        }
-    }
-
-    DisposableEffect(Unit) {
-        onDispose {
-            executor.shutdown()
+            else -> Unit
         }
     }
 }

@@ -130,7 +130,7 @@ fun MainNavHost(
                     onTopBarTitleChange(title)
                 }
                 DurianVarietyScreen(
-                    countryCode = mainViewModel.countryInfo.code.takeIf { mainViewModel.isCountrySupported } ?: ""
+                    countryCode = mainViewModel.countryInfo.code
                 )
             }
 

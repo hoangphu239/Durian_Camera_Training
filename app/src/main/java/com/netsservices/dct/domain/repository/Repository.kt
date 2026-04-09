@@ -13,6 +13,7 @@ import com.netsservices.dct.data.remote.response.InitFileResponse
 import com.netsservices.dct.data.remote.response.LanguageResponse
 import com.netsservices.dct.data.remote.response.LoginResponse
 import com.netsservices.dct.data.remote.response.RegisterResponse
+import com.netsservices.dct.data.remote.response.RequestActivationResponse
 import com.netsservices.dct.data.remote.response.SessionResponse
 import com.netsservices.dct.data.remote.response.SiteResponse
 import com.netsservices.dct.data.remote.resquest.ChangePwdRequest
@@ -36,6 +37,7 @@ interface Repository {
     suspend fun quickSearch(query: String): ApiResult<SiteResponse>
     suspend fun getContracts(search: String, status: String): ApiResult<ContractResponse>
     suspend fun getDurianVarieties(countryCode: String?): ApiResult<DurianTypeResponse>
+    suspend fun requestActivation(deviceId: String): ApiResult<RequestActivationResponse>
     suspend fun checkFrame(image: RequestBody, skipMarkDetection: Boolean): ApiResult<CheckFrameResponse>
     suspend fun createSessions(request: CreateSessionRequest): ApiResult<SessionResponse>
     suspend fun initFile(request: InitFileRequest): ApiResult<InitFileResponse>
