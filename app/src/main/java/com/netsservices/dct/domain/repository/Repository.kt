@@ -17,11 +17,10 @@ import com.netsservices.dct.data.remote.response.SessionResponse
 import com.netsservices.dct.data.remote.response.SiteResponse
 import com.netsservices.dct.data.remote.resquest.ChangePwdRequest
 import com.netsservices.dct.data.remote.resquest.CreateSessionRequest
+import com.netsservices.dct.data.remote.resquest.DeviceRequest
 import com.netsservices.dct.data.remote.resquest.InitFileRequest
 import com.netsservices.dct.data.remote.resquest.LoginRequest
-import com.netsservices.dct.data.remote.resquest.DeviceRequest
 import com.netsservices.dct.data.remote.resquest.RegisterRequest
-import com.netsservices.dct.domain.model.Country
 import okhttp3.RequestBody
 
 

@@ -15,6 +15,7 @@ import com.netsservices.dct.data.remote.utils.PreferenceManager
 import com.netsservices.dct.domain.repository.Repository
 import com.netsservices.dct.i18n.LangKey
 import com.netsservices.dct.presentation.common.LanguagePrefs
+import com.netsservices.dct.presentation.utils.Utils.showToast
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -85,6 +86,9 @@ class LoginViewModel @Inject constructor(
                 onSuccess = { data ->
                     saveDataToLocal(data.token, data.user.id)
                     _uiState.update { it.copy(isSuccess = true) }
+                },
+                onError = { _, message ->
+                    message?.let { showToast(context, it) }
                 }
             )
             _uiState.update { state -> state.copy(isLoading = false) }

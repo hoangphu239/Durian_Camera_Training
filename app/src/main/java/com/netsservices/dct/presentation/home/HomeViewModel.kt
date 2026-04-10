@@ -27,6 +27,7 @@ import com.netsservices.dct.presentation.helper.camera.CameraManager
 import com.netsservices.dct.presentation.helper.connection.NetworkService
 import com.netsservices.dct.presentation.utils.Utils.dumpTranslationsToFile
 import com.netsservices.dct.presentation.utils.Utils.getDeviceID
+import com.netsservices.dct.presentation.utils.Utils.showToast
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -179,7 +180,10 @@ class HomeViewModel @Inject constructor(
                         uploadFile()
                     }
                 },
-                onError = { _, _ -> clearData() }
+                onError = { _, message ->
+                    message?.let { showToast(context, it) }
+                    clearData()
+                }
             )
         }
     }
@@ -194,7 +198,10 @@ class HomeViewModel @Inject constructor(
                         createSession()
                     }
                 },
-                onError = { _, _ -> clearData() }
+                onError = { _, message ->
+                    message?.let { showToast(context, it) }
+                    clearData()
+                }
             )
         }
     }
@@ -226,7 +233,10 @@ class HomeViewModel @Inject constructor(
                         isFlowRunning = false
                     }
                 },
-                onError = { _, _ -> clearData() }
+                onError = { _, message ->
+                    message?.let { showToast(context, it) }
+                    clearData()
+                }
             )
         }
     }

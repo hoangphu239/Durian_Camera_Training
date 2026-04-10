@@ -8,6 +8,7 @@ import com.netsservices.dct.data.remote.response.DurianItem
 import com.netsservices.dct.data.remote.utils.PreferenceManager
 import com.netsservices.dct.domain.repository.Repository
 import com.netsservices.dct.presentation.common.LanguagePrefs
+import com.netsservices.dct.presentation.utils.Utils.showToast
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -70,6 +71,9 @@ class DurianVarietyViewModel @Inject constructor(
                     } else {
                         _uiState.update { it.copy(durianVarieties = null) }
                     }
+                },
+                onError = { _, message ->
+                    message?.let { showToast(context, it) }
                 }
             )
         }

@@ -102,6 +102,9 @@ class ChangePwdViewModel @Inject constructor(
                     clearDataLocal()
                     showToast(context, data.message?:"")
                     _uiState.update { state -> state.copy(isSuccess = true) }
+                },
+                onError = { _, message ->
+                    message?.let { showToast(context, it) }
                 }
             )
             _uiState.update { state -> state.copy(isLoading = false) }

@@ -6,24 +6,16 @@ import androidx.annotation.RequiresApi
 import androidx.camera.core.AspectRatio
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
-import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.SignalWifiConnectedNoInternet4
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Icon
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -34,12 +26,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -51,7 +40,10 @@ import com.netsservices.dct.data.remote.response.DurianItem
 import com.netsservices.dct.data.remote.utils.PreferenceManager
 import com.netsservices.dct.i18n.LangKey
 import com.netsservices.dct.presentation.common.ConfigStep
+import com.netsservices.dct.presentation.common.ConfirmDialog
 import com.netsservices.dct.presentation.common.DeviceStatus
+import com.netsservices.dct.presentation.common.LoadingOverlay
+import com.netsservices.dct.presentation.common.NoInternetView
 import com.netsservices.dct.presentation.common.getText
 import com.netsservices.dct.presentation.components.AppText
 import com.netsservices.dct.presentation.config.ConfigViewModel
@@ -112,21 +104,18 @@ fun HomeScreen(
 
     val mapLang = viewModel.mapLang.collectAsState().value
 
-    LaunchedEffect(Unit) {
+    DisposableEffect(lifecycleOwner) {
         val cameraProviderFuture = ProcessCameraProvider.getInstance(context)
 
-        cameraProviderFuture.addListener({
+        val listener = Runnable {
             val provider = cameraProviderFuture.get()
 
             val preview = Preview.Builder()
                 .setTargetAspectRatio(AspectRatio.RATIO_16_9)
                 .build()
-                .apply { setSurfaceProvider(previewView.surfaceProvider) }
-
-            val capture = ImageCapture.Builder()
-                .setTargetAspectRatio(AspectRatio.RATIO_16_9)
-                .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
-                .build()
+                .apply {
+                    setSurfaceProvider(previewView.surfaceProvider)
+                }
 
             val analysis = ImageAnalysis.Builder()
                 .setTargetAspectRatio(AspectRatio.RATIO_16_9)
@@ -134,18 +123,17 @@ fun HomeScreen(
                 .build()
 
             analysis.setAnalyzer(executor) { image ->
-                if (uiState.blockCapture) {
+                if (!isConfigReady || uiState.blockCapture) {
                     image.close()
                     return@setAnalyzer
                 }
+
                 try {
-                    if (isConfigReady) {
-                        val bitmap = processor.imageProxyToBitmap(image)
-                        bitmap?.let {
-                            val finalBitmap = processor.cropAndResize(bitmap)
-                            val jpeg = processor.bitmapToJpeg(finalBitmap)
-                            viewModel.checkFrame(jpeg)
-                        }
+                    val bitmap = processor.imageProxyToBitmap(image)
+                    bitmap?.let {
+                        val finalBitmap = processor.cropAndResize(it)
+                        val jpeg = processor.bitmapToJpeg(finalBitmap)
+                        viewModel.checkFrame( jpeg)
                     }
                 } catch (e: Exception) {
                     e.printStackTrace()
@@ -155,15 +143,19 @@ fun HomeScreen(
             }
 
             provider.unbindAll()
-
             provider.bindToLifecycle(
                 lifecycleOwner,
                 CameraSelector.DEFAULT_BACK_CAMERA,
                 preview,
-                analysis,
-                capture
+                analysis
             )
-        }, ContextCompat.getMainExecutor(context))
+        }
+
+        cameraProviderFuture.addListener(listener, ContextCompat.getMainExecutor(context))
+
+        onDispose {
+            executor.shutdown()
+        }
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -175,10 +167,12 @@ fun HomeScreen(
             val isDetected = uiState.dataFrame?.durianDetected == true && uiState.dataFrame.ready
 
             AppText(
-                modifier = Modifier.padding(start = 10.dp),
-                text = mapLang.getText(guidanceKey, " "),
+                modifier = Modifier
+                    .wrapContentHeight()
+                    .padding(start = 10.dp, bottom = 30.dp),
+                text = guidanceKey,
+                fontSize = 14.sp,
                 fontWeight = FontWeight.Medium,
-                fontSize = 15.sp,
                 color = R.color.red
             )
 
@@ -190,71 +184,17 @@ fun HomeScreen(
         }
 
         if (uiState.isLoading) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color.Black.copy(alpha = 0.4f)),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator()
-            }
+            LoadingOverlay()
         }
 
         if (uiState.blockCapture) {
-            AlertDialog(
-                onDismissRequest = {},
-                title = {
-                    AppText(
-                        text = mapLang.getText(LangKey.Button.Confirm, R.string.confirm),
-                        fontSize = 17.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                },
-                text = {
-                    AppText(
-                        text = mapLang.getText(
-                            LangKey.Message.CreateNewSession,
-                            R.string.would_you_like_to_create_a_new_session
-                        )
-                    )
-                },
-                confirmButton = {
-                    TextButton(onClick = {
-                        viewModel.unblockCapture()
-                    }) {
-                        AppText(
-                            text = mapLang.getText(LangKey.Button.Accept, R.string.accept),
-                            fontSize = 15.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                }
+            ConfirmDialog(
+                onConfirm = { viewModel.unblockCapture() }
             )
         }
 
         if (uiState.disconnect) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(color = Color.White),
-                contentAlignment = Alignment.Center
-            ) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Icon(
-                        modifier = Modifier.size(50.dp),
-                        imageVector = Icons.Default.SignalWifiConnectedNoInternet4,
-                        contentDescription = "Back",
-                        tint = colorResource(R.color.black)
-                    )
-                    Spacer(Modifier.height(10.dp))
-                    AppText(
-                        text = mapLang.getText(
-                            LangKey.Message.NoInternet,
-                            R.string.no_internet_connection
-                        )
-                    )
-                }
-            }
+            NoInternetView()
         }
     }
 
@@ -365,12 +305,6 @@ fun HomeScreen(
     LaunchedEffect(gps) {
         gps?.let {
             viewModel.updateGPS(it)
-        }
-    }
-
-    DisposableEffect(Unit) {
-        onDispose {
-            executor.shutdown()
         }
     }
 }
