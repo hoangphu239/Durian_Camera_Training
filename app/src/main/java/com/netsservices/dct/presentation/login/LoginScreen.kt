@@ -101,14 +101,14 @@ fun LoginScreen(
 
             Spacer(Modifier.weight(1f))
 
-            Row {
-                Text(stringResource(R.string.not_have_account))
-                Text(
-                    text = stringResource(R.string.sign_up_now),
-                    color = Color.Blue,
-                    modifier = Modifier.clickable { onNavigateRegister() }
-                )
-            }
+//            Row {
+//                Text(stringResource(R.string.not_have_account))
+//                Text(
+//                    text = stringResource(R.string.sign_up_now),
+//                    color = Color.Blue,
+//                    modifier = Modifier.clickable { onNavigateRegister() }
+//                )
+//            }
         }
 
         if (uiState.isLoading) {
