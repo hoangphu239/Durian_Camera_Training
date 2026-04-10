@@ -15,7 +15,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -53,9 +52,12 @@ fun DurianVarietyScreen(
             .padding(start = 16.dp, end = 16.dp, top = 5.dp, bottom = 16.dp),
         contentAlignment = Alignment.Center
     ) {
-        if(uiState.durianVarieties == null) {
+        if (uiState.durianVarieties == null) {
             AppText(
-                text = mapLang.getText(LangKey.Message.RegionAsiaOnly, R.string.this_feature_is_currently_supported_in_the_asia_region),
+                text = mapLang.getText(
+                    LangKey.Message.RegionAsiaOnly,
+                    R.string.this_feature_is_currently_supported_in_the_asia_region
+                ),
                 textAlign = TextAlign.Center,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Medium
@@ -107,7 +109,10 @@ fun DurianTypesDropdown(
             readOnly = true,
             label = {
                 AppText(
-                    text = mapLang.getText(LangKey.Input.SelectDurianVariety, R.string.config_durian_variety),
+                    text = mapLang.getText(
+                        LangKey.Input.SelectDurianVariety,
+                        R.string.config_durian_variety
+                    ),
                     fontSize = 15.sp,
                 )
             },
@@ -148,14 +153,20 @@ fun SelectedDurianVariety(durianVariety: DurianItem, mapLang: Map<String, String
         verticalArrangement = Arrangement.Center
     ) {
         AppText(
-            text = mapLang.getText(LangKey.Text.SelectedDurianVariety, R.string.selected_durian_variety)
+            text = mapLang.getText(
+                LangKey.Text.SelectedDurianVariety,
+                R.string.selected_durian_variety
+            )
                     + ": ${durianVariety.name} (${durianVariety.localName})",
             fontWeight = FontWeight.Medium,
             fontSize = 15.sp
         )
         Spacer(Modifier.height(5.dp))
         AppText(
-            text = mapLang.getText(LangKey.Text.Description, R.string.description) + ": ${durianVariety.description}",
+            text = mapLang.getText(
+                LangKey.Text.Description,
+                R.string.description
+            ) + ": ${durianVariety.description}",
             fontSize = 15.sp,
             fontWeight = FontWeight.Medium
         )

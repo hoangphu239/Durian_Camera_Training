@@ -28,7 +28,7 @@
     <string name="new_password_and_confirm_new_password_do_not_match">ລະຫັດຜ່ານບໍ່ກົງກັນ</string>
     <string name="durian_variety">ປະເພດທຸລຽນ</string>
     <string name="selected_durian_variety">ປະເພດທີ່ເລືອກ</string>
-    <string name="config_durian_variety">ເລືອກປະເພດທຸລຽນ</string>
+    <string name="select_durian_variety">ເລືອກປະເພດທຸລຽນ</string>
     <string name="fingerprint">ລາຍນິ້ວມື</string>
     <string name="collection">ການເກັບຂໍ້ມູນ</string>
     <string name="site">ສະຖານທີ່: %1$s</string>
@@ -39,7 +39,7 @@
     <string name="select_site_and_durian_type">ກະລຸນາເລືອກສະຖານທີ່ ແລະ ປະເພດທຸລຽນກ່ອນໃຊ້ກ້ອງ</string>
     <string name="accept">ຍອມຮັບ</string>
     <string name="select_site">ກະລຸນາເລືອກສະຖານທີ່ກ່ອນໃຊ້ກ້ອງ</string>
-    <string name="select_durian_variety">ກະລຸນາເລືອກປະເພດທຸລຽນກ່ອນໃຊ້ກ້ອງ</string>
+    <string name="config_durian_variety">ກະລຸນາເລືອກປະເພດທຸລຽນກ່ອນໃຊ້ກ້ອງ</string>
     <string name="select_scan_mode">ກະລຸນາເລືອກໂໝດກ່ອນໃຊ້ກ້ອງ</string>
     <string name="scan_mode">ໂໝດສະແກນ</string>
     <string name="choose_scan_mode">ເລືອກວິທີການສະແກນ:</string>

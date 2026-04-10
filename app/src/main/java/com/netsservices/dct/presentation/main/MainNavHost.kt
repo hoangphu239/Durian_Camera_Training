@@ -157,9 +157,7 @@ sealed class Screen(val route: String) {
     data object Config : Screen(route = Routes.CONFIG_SCREEN)
     data object Location : Screen(route = Routes.LOCATION_SCREEN)
     data object DurianVariety : Screen(route = Routes.DURIAN_VARIETY_SCREEN)
-
     data object Register : Screen(route = Routes.REGISTER_SCREEN)
-
     data object ChangePassword : Screen(route = Routes.CHANGE_PASSWORD_SCREEN)
 }
 
