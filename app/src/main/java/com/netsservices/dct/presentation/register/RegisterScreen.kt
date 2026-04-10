@@ -10,10 +10,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -101,6 +103,7 @@ fun RegisterScreen(
 
             Row {
                 Text(stringResource(R.string.already_have_an_account))
+                Spacer(modifier = Modifier.width(5.dp))
                 Text(
                     text = stringResource(R.string.login_now),
                     color = Color.Blue,
@@ -119,7 +122,9 @@ fun RegisterScreen(
                 CircularProgressIndicator()
             }
         }
+    }
 
+    LaunchedEffect(uiState.isSuccess) {
         if (uiState.isSuccess) {
             onNavigateLogin()
         }

@@ -6,6 +6,7 @@ object ApiErrorCode {
     const val FORBIDDEN = 403
     const val NOT_FOUND = 404
     const val TIMEOUT = 408
+    const val CONFLICT = 409
     const val TOO_MANY_REQUESTS = 429
     const val SERVER_ERROR = 500
     const val SERVICE_UNAVAILABLE = 503

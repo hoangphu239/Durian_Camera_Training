@@ -9,11 +9,9 @@ import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material3.AlertDialog
@@ -31,7 +29,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -49,7 +46,6 @@ import com.netsservices.dct.presentation.config.ConfigViewModel
 import com.netsservices.dct.presentation.config.components.ModeSelectionDialog
 import com.netsservices.dct.presentation.config.components.ScanMode
 import com.netsservices.dct.presentation.helper.camera.FrameProcessor
-import com.netsservices.dct.presentation.home.components.RequestActivationView
 import com.netsservices.dct.presentation.home.components.ScanCameraView
 import java.util.concurrent.Executors
 
@@ -70,7 +66,7 @@ fun HomeScreen(
     val processor = remember { FrameProcessor() }
     val executor = remember { Executors.newSingleThreadExecutor() }
 
-//    var deviceStatus by remember { mutableStateOf(DeviceStatus.UNACTIVE.value) }
+    var deviceStatus by remember { mutableStateOf(DeviceStatus.UNACTIVE.value) }
     var scanMode by remember { mutableStateOf<ScanMode?>(null) }
     var durianType by remember { mutableStateOf<DurianItem?>(null) }
 
@@ -78,16 +74,14 @@ fun HomeScreen(
 
     val isConfigReady by remember {
         derivedStateOf {
-//            deviceStatus == DeviceStatus.ACTIVATE.value &&
-                    scanMode != null &&
-                    durianType != null
+            scanMode != null && durianType != null
         }
     }
 
     val currentStep by remember {
         derivedStateOf {
             when {
-//                deviceStatus == DeviceStatus.UNACTIVE.value -> ConfigStep.REGISTER_DEVICE
+                deviceStatus == DeviceStatus.UNACTIVE.value -> ConfigStep.REGISTER_DEVICE
                 scanMode == null -> ConfigStep.MODE
                 durianType == null -> ConfigStep.DURIAN_TYPE
                 else -> ConfigStep.DONE
@@ -107,9 +101,7 @@ fun HomeScreen(
 
     var hasRegistered by remember { mutableStateOf(false) }
 
-    // =========================
-    // INIT CAMERA (FIXED)
-    // =========================
+
     DisposableEffect(lifecycleOwner) {
         val cameraProviderFuture = ProcessCameraProvider.getInstance(context)
 
@@ -139,7 +131,7 @@ fun HomeScreen(
                     bitmap?.let {
                         val finalBitmap = processor.cropAndResize(it)
                         val jpeg = processor.bitmapToJpeg(finalBitmap)
-                        viewModel.checkFrame( jpeg)
+                        viewModel.checkFrame(jpeg)
                     }
                 } catch (e: Exception) {
                     e.printStackTrace()
@@ -164,30 +156,28 @@ fun HomeScreen(
         }
     }
 
-    // =========================
-    // LOAD CONFIG (FIXED)
-    // =========================
+
     LaunchedEffect(Unit) {
-//        deviceStatus = PreferenceManager.getDeviceStatus(context)
+        deviceStatus = PreferenceManager.getDeviceStatus(context)
         scanMode = PreferenceManager.getScanMode(context)
         durianType = PreferenceManager.getDurianVariety(context)
         isInitialized = true
     }
 
-    // =========================
-    // HANDLE CONFIG STEP (FIXED BUG)
-    // =========================
-//    LaunchedEffect(currentStep, isInitialized) {
-//        if (!isInitialized) return@LaunchedEffect
-//
-//        if (currentStep == ConfigStep.REGISTER_DEVICE && !hasRegistered) {
-//            hasRegistered = true
-//
-//            viewModel.registerDevice {
-//                deviceStatus = PreferenceManager.getDeviceStatus(context)
-//            }
-//        }
-//    }
+
+    LaunchedEffect(currentStep, isInitialized) {
+        if (!isInitialized) return@LaunchedEffect
+
+        if (currentStep == ConfigStep.REGISTER_DEVICE && !hasRegistered) {
+            hasRegistered = true
+
+            viewModel.registerDevice(
+                onResult = {
+                    deviceStatus = PreferenceManager.getDeviceStatus(context)
+                }
+            )
+        }
+    }
 
     LaunchedEffect(gps) {
         gps?.let { viewModel.updateGPS(it) }
@@ -195,8 +185,9 @@ fun HomeScreen(
 
     Box(modifier = Modifier.fillMaxSize()) {
         Column(modifier = Modifier.fillMaxSize()) {
-            val guidance = uiState.dataFrame?.guidance?:""
-            val isDetected = uiState.dataFrame?.durianDetected == true && uiState.dataFrame?.ready == true
+            val guidance = uiState.dataFrame?.guidance ?: ""
+            val isDetected =
+                uiState.dataFrame?.durianDetected == true && uiState.dataFrame?.ready == true
 
             AppText(
                 modifier = Modifier

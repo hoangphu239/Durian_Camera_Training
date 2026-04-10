@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
@@ -33,12 +34,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.netsservices.dct.R
+import com.netsservices.dct.presentation.components.AppText
 import com.netsservices.dct.presentation.components.AppTextField
 
 @Composable
 fun LoginScreen(
     viewModel: LoginViewModel = hiltViewModel(),
     onNavigateRegister: () -> Unit,
+    onNavigateForgot: () -> Unit,
     onLoginSuccess: () -> Unit
 ) {
     val context = LocalContext.current
@@ -88,6 +91,23 @@ fun LoginScreen(
                 imeAction = ImeAction.Done
             )
 
+            Box(
+                modifier = Modifier.fillMaxWidth(),
+                contentAlignment = Alignment.CenterEnd
+            ) {
+                AppText(
+                    modifier = Modifier
+                        .padding(top = 5.dp)
+                        .clickable {
+                            keyboardController?.hide()
+                            onNavigateForgot()
+                        },
+                    text = stringResource(R.string.forgot_your_password),
+                    color = R.color.blue,
+                    fontSize = 15.sp
+                )
+            }
+
             Spacer(Modifier.height(40.dp))
 
             Button(
@@ -101,14 +121,15 @@ fun LoginScreen(
 
             Spacer(Modifier.weight(1f))
 
-//            Row {
-//                Text(stringResource(R.string.not_have_account))
-//                Text(
-//                    text = stringResource(R.string.sign_up_now),
-//                    color = Color.Blue,
-//                    modifier = Modifier.clickable { onNavigateRegister() }
-//                )
-//            }
+            Row {
+                Text(stringResource(R.string.not_have_account))
+                Spacer(modifier = Modifier.width(5.dp))
+                Text(
+                    text = stringResource(R.string.sign_up_now),
+                    color = Color.Blue,
+                    modifier = Modifier.clickable { onNavigateRegister() }
+                )
+            }
         }
 
         if (uiState.isLoading) {

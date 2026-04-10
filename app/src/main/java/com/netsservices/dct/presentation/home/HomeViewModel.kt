@@ -6,6 +6,7 @@ import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.netsservices.dct.data.remote.ApiErrorCode
+import com.netsservices.dct.data.remote.ApiErrorCode.CONFLICT
 import com.netsservices.dct.data.remote.handle
 import com.netsservices.dct.data.remote.response.CheckFrameResponse
 import com.netsservices.dct.data.remote.response.DeviceResponse
@@ -19,6 +20,7 @@ import com.netsservices.dct.domain.model.toRegisterDeviceRequest
 import com.netsservices.dct.domain.repository.Repository
 import com.netsservices.dct.presentation.common.ConfigStep
 import com.netsservices.dct.presentation.common.DeviceName
+import com.netsservices.dct.presentation.common.DeviceStatus
 import com.netsservices.dct.presentation.common.PurposeType
 import com.netsservices.dct.presentation.common.toRequestBody
 import com.netsservices.dct.presentation.config.components.ScanMode
@@ -79,7 +81,7 @@ class HomeViewModel @Inject constructor(
     private var isUnauthorized = false
 
 
-    fun registerDevice(onSuccess: () -> Unit) {
+    fun registerDevice(onResult: () -> Unit) {
         val deviceId = getDeviceID(context)
         val camerasRaw = CameraManager.getAllCameraInfo(context)
         val camerasClean = CameraManager.normalizeCameras(camerasRaw)
@@ -98,11 +100,18 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             repo.registerDevice(deviceInfo.toRegisterDeviceRequest()).handle(
                 onSuccess = { data ->
-                    if(data.deviceId.isNotEmpty()) {
+                    if (data.deviceId.isNotEmpty()) {
                         saveDevice(data)
                         updateAction(ConfigStep.REGISTER_DEVICE.name)
-                        onSuccess()
+                        onResult()
                     }
+                },
+                onError = { code, _ ->
+                    if (code == CONFLICT) {
+                        PreferenceManager.saveDeviceStatus(context, DeviceStatus.ACTIVATE.value)
+                    }
+                    updateAction(ConfigStep.REGISTER_DEVICE.name)
+                    onResult()
                 }
             )
         }
@@ -115,11 +124,23 @@ class HomeViewModel @Inject constructor(
                 .handle(
                     onSuccess = { data ->
                         if (data.ok) {
-                            _uiState.update { it.copy(isLoading = false, enableActivation = false, message = data.message) }
+                            _uiState.update {
+                                it.copy(
+                                    isLoading = false,
+                                    enableActivation = false,
+                                    message = data.message
+                                )
+                            }
                         }
                     },
                     onError = { _, message ->
-                        _uiState.update { it.copy(isLoading = false, enableActivation = false, message = message?:"") }
+                        _uiState.update {
+                            it.copy(
+                                isLoading = false,
+                                enableActivation = false,
+                                message = message ?: ""
+                            )
+                        }
                     }
                 )
         }
