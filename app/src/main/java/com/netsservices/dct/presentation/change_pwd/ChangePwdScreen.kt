@@ -8,9 +8,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -107,7 +107,7 @@ fun ChangePwdScreen(
             text = mapLang.getText(LangKey.Button.ChangePassword, R.string.change_password),
             onClick = {
                 keyboardController?.hide()
-                viewModel.changePassword(context,current, newPass, confirm)
+                viewModel.changePassword(context, current, newPass, confirm)
             }
         )
     }
@@ -124,7 +124,9 @@ fun ChangePwdScreen(
         }
     }
 
-    if (uiState.isSuccess) {
-        navigateToLogin()
+    LaunchedEffect(uiState.isSuccess) {
+        if (uiState.isSuccess) {
+            navigateToLogin()
+        }
     }
 }

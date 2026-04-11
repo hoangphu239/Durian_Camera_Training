@@ -110,13 +110,6 @@ fun ConfigScreenContent(
             verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
             item {
-                RegisterDeviceSection(
-                    viewModel = viewModel,
-                    status = deviceStatus
-                )
-            }
-
-            item {
                 PurposeSection(
                     viewModel = viewModel,
                     currentMode = currentMode
