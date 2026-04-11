@@ -23,7 +23,6 @@ import com.netsservices.dct.data.remote.response.RequestActivationResponse
 import com.netsservices.dct.data.remote.resquest.DeviceRequest
 import com.netsservices.dct.data.remote.resquest.ForgotPwdRequest
 import com.netsservices.dct.data.remote.resquest.RegisterRequest
-import com.netsservices.dct.domain.model.Country
 import okhttp3.RequestBody
 import retrofit2.Response
 import retrofit2.http.Body
@@ -37,7 +36,6 @@ import retrofit2.http.Query
 const val LOGIN = "/v1/auth/login"
 const val REGISTER = "/v1/auth/register"
 const val CHANGE_PASSWORD = "/v1/auth/change-password"
-const val FORGOT_PASSWORD = "/v1/auth/forgot-password"
 const val COUNTRIES = "/v1/countries"
 const val LANGUAGES = "/v1/lang/languages"
 const val LANGUAGE_BUNDLE = "/v1/lang/bundle"
@@ -74,12 +72,6 @@ interface ApiServer {
 
     @GET(COUNTRIES)
     suspend fun getCountries(): Response<CountryResponse>
-
-    @POST(FORGOT_PASSWORD)
-    suspend fun forgotPassword(
-        @Body request: ForgotPwdRequest
-    ): Response<ForgotPwdResponse>
-
 
     @POST(CHANGE_PASSWORD)
     suspend fun changePassword(

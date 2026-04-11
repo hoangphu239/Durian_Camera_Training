@@ -67,6 +67,4 @@
     <string name="waiting_for_admin_approval_device">ໂທລະສັບຂອງທ່ານກຳລັງລໍຖ້າການອະນຸມັດຈາກຜູ້ດູແລ…</string>
     <string name="request_activation">ຮ້ອງຂໍເປີດໃຊ້ງານ</string>
     <string name="processing">ກຳລັງດຳເນີນການ…</string>
-    <string name="send">ສົ່ງ</string>
-    <string name="forgot_your_password">ລືມລະຫັດຜ່ານຂອງທ່ານ?</string>
 </resources>

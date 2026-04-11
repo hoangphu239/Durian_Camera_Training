@@ -24,7 +24,6 @@ import com.netsservices.dct.data.remote.resquest.LoginRequest
 import com.netsservices.dct.data.remote.resquest.DeviceRequest
 import com.netsservices.dct.data.remote.resquest.ForgotPwdRequest
 import com.netsservices.dct.data.remote.resquest.RegisterRequest
-import com.netsservices.dct.domain.model.Country
 import okhttp3.RequestBody
 
 
@@ -32,7 +31,6 @@ interface Repository {
     suspend fun login(request: LoginRequest): ApiResult<LoginResponse>
     suspend fun register(registerRequest: RegisterRequest): ApiResult<RegisterResponse>
     suspend fun registerDevice(registerRequest: DeviceRequest): ApiResult<DeviceResponse>
-    suspend fun forgotPassword(forgotPwdRequest: ForgotPwdRequest): ApiResult<ForgotPwdResponse>
     suspend fun changePassword(changeRequest: ChangePwdRequest): ApiResult<ChangePwdResponse>
     suspend fun getBundleLanguage(langId: String, prefix: String): ApiResult<BundleLanguageResponse>
     suspend fun getLanguages(): ApiResult<List<LanguageResponse>>

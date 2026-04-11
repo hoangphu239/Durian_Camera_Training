@@ -41,7 +41,6 @@ import com.netsservices.dct.presentation.components.AppTextField
 fun LoginScreen(
     viewModel: LoginViewModel = hiltViewModel(),
     onNavigateRegister: () -> Unit,
-    onNavigateForgot: () -> Unit,
     onLoginSuccess: () -> Unit
 ) {
     val context = LocalContext.current
@@ -90,23 +89,6 @@ fun LoginScreen(
                 keyboardType = KeyboardType.Password,
                 imeAction = ImeAction.Done
             )
-
-            Box(
-                modifier = Modifier.fillMaxWidth(),
-                contentAlignment = Alignment.CenterEnd
-            ) {
-                AppText(
-                    modifier = Modifier
-                        .padding(top = 5.dp)
-                        .clickable {
-                            keyboardController?.hide()
-                            onNavigateForgot()
-                        },
-                    text = stringResource(R.string.forgot_your_password),
-                    color = R.color.blue,
-                    fontSize = 15.sp
-                )
-            }
 
             Spacer(Modifier.height(40.dp))
 

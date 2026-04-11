@@ -67,6 +67,4 @@
     <string name="waiting_for_admin_approval_device">โทรศัพท์ของคุณกำลังรอการอนุมัติจากผู้ดูแล…</string>
     <string name="request_activation">ขอเปิดใช้งาน</string>
     <string name="processing">กำลังดำเนินการ…</string>
-    <string name="send">ส่ง</string>
-    <string name="forgot_your_password">ลืมรหัสผ่านของคุณ?</string>
 </resources>

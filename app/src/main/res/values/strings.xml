@@ -67,6 +67,4 @@
     <string name="waiting_for_admin_approval_device">Your phone is waiting for admin approval…</string>
     <string name="request_activation">Request Activation</string>
     <string name="processing">Processing…</string>
-    <string name="send">Send</string>
-    <string name="forgot_your_password">Forgot your password?</string>
 </resources>

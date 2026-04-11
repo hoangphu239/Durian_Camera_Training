@@ -50,10 +50,6 @@ class RepositoryImpl @Inject constructor(
         return safeApiCall { api.registerDevice(registerRequest) }
     }
 
-    override suspend fun forgotPassword(forgotPwdRequest: ForgotPwdRequest): ApiResult<ForgotPwdResponse> {
-        return safeApiCall { api.forgotPassword(forgotPwdRequest) }
-    }
-
     override suspend fun changePassword(changeRequest: ChangePwdRequest): ApiResult<ChangePwdResponse> {
         return safeApiCall { api.changePassword(changeRequest) }
     }
