@@ -50,8 +50,7 @@ class RegisterViewModel @Inject constructor(
         }
         passwordError = when {
             password.isBlank() -> context.getString(R.string.password_required)
-            password.length < 10 -> context.getString(R.string.password_require_least_10_chars)
-            !password.any { it.isDigit() } -> context.getString(R.string.password_must_contain_at_least_1_number)
+            password.length < 6 -> context.getString(R.string.password_too_short)
             else -> null
         }
 

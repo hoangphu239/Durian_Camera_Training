@@ -49,14 +49,12 @@ class ChangePwdViewModel @Inject constructor(
         passwordError = when {
             currentPassword.isBlank() -> context.getString(R.string.password_required)
             currentPassword.length < 6 -> context.getString(R.string.password_too_short)
-            !currentPassword.any { it.isDigit() } -> context.getString(R.string.password_must_contain_at_least_1_number)
             else -> null
         }
 
         newPasswordError = when {
             newPassword.isBlank() -> context.getString(R.string.new_password_required)
             newPassword.length < 6 -> context.getString(R.string.new_password_too_short)
-            !newPassword.any { it.isDigit() } -> context.getString(R.string.new_password_must_contain_at_least_1_number)
             newPassword == currentPassword -> context.getString(R.string.new_password_must_be_different_from_current_password)
             else -> null
         }

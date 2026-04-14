@@ -54,7 +54,6 @@ class LoginViewModel @Inject constructor(
         passwordError = when {
             password.isBlank() -> context.getString(R.string.password_required)
             password.length < 6 -> context.getString(R.string.password_too_short)
-            !password.any { it.isDigit() } -> context.getString(R.string.password_must_contain_at_least_1_number)
             else -> null
         }
 
