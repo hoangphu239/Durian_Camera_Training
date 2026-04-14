@@ -13,13 +13,10 @@ android {
         applicationId = "com.netsservices.dct"
         minSdk = 24
         targetSdk = 36
-        versionCode = 4
+        versionCode = 5
         versionName = "1.0.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-
-        buildConfigField("String", "AUTH_EMAIL", "\"${project.properties["EMAIL"]}\"")
-        buildConfigField("String", "AUTH_PASSWORD", "\"${project.properties["PASSWORD"]}\"")
     }
 
     buildTypes {
