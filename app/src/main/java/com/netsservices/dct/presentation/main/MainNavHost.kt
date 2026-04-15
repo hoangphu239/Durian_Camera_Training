@@ -15,6 +15,7 @@ import com.netsservices.dct.R
 import com.netsservices.dct.presentation.change_pwd.ChangePwdScreen
 import com.netsservices.dct.presentation.config.ConfigScreen
 import com.netsservices.dct.presentation.config.ConfigViewModel
+import com.netsservices.dct.presentation.forgot_pwd.ForgotPwdScreen
 import com.netsservices.dct.presentation.home.HomeScreen
 import com.netsservices.dct.presentation.home.HomeViewModel
 import com.netsservices.dct.presentation.login.LoginScreen
@@ -51,11 +52,24 @@ fun MainNavHost(
                     },
                     onNavigateRegister = {
                         navController.navigate(Screen.Register.route)
+                    },
+                    onNavigateForgot = {
+                        navController.navigate(Screen.ForgotPassword.route)
                     }
                 )
             }
             composable(Screen.Register.route) {
                 RegisterScreen(
+                    onNavigateLogin = {
+                        navController.navigate(Screen.Login.route) {
+                            popUpTo(Screen.Login.route) { inclusive = true }
+                            launchSingleTop = true
+                        }
+                    }
+                )
+            }
+            composable(Screen.ForgotPassword.route) {
+                ForgotPwdScreen(
                     onNavigateLogin = {
                         navController.navigate(Screen.Login.route) {
                             popUpTo(Screen.Login.route) { inclusive = true }
@@ -157,6 +171,7 @@ sealed class Screen(val route: String) {
     data object DurianVariety : Screen(route = Routes.DURIAN_VARIETY_SCREEN)
     data object Register : Screen(route = Routes.REGISTER_SCREEN)
     data object ChangePassword : Screen(route = Routes.CHANGE_PASSWORD_SCREEN)
+    data object ForgotPassword : Screen(route = Routes.FORGOT_PASSWORD_SCREEN)
 }
 
 object Routes {
@@ -169,4 +184,5 @@ object Routes {
     const val DURIAN_VARIETY_SCREEN = "durian_variety"
     const val REGISTER_SCREEN = "register"
     const val CHANGE_PASSWORD_SCREEN = "change_password"
+    const val FORGOT_PASSWORD_SCREEN = "forgot_password"
 }
