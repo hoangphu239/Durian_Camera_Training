@@ -64,4 +64,6 @@
     <string name="select_mode">เลือกโหมด</string>
     <string name="inactive">ไม่ใช้งาน</string>
     <string name="this_feature_is_currently_supported_in_the_asia_region">ฟีเจอร์นี้ใช้ได้เฉพาะในเอเชียเท่านั้น</string>
+    <string name="send">ส่ง</string>
+    <string name="forgot_your_password">ลืมรหัสผ่านของคุณ?</string>
 </resources>

@@ -64,4 +64,6 @@
     <string name="select_mode">ເລືອກໂໝດ</string>
     <string name="inactive">ບໍ່ໃຊ້ງານ</string>
     <string name="this_feature_is_currently_supported_in_the_asia_region">ຟັງຊັນນີ້ໃຊ້ໄດ້ສະເພາະໃນອາຊີເທົ່ານັ້ນ</string>
+    <string name="send">ສົ່ງ</string>
+    <string name="forgot_your_password">ລືມລະຫັດຜ່ານຂອງທ່ານ?</string>
 </resources>

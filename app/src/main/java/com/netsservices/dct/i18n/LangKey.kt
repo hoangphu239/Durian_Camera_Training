@@ -8,6 +8,7 @@ object LangKey {
         const val Login = "ui.dct.button.login"
         const val LoginNow = "ui.dct.button.login_now"
         const val Register = "ui.dct.button.register"
+        const val Send = "ui.dct.button.send"
         const val SignUp = "ui.dct.button.sign_up"
         const val SignUpNow = "ui.dct.button.sign_up_now"
     }
@@ -53,6 +54,7 @@ object LangKey {
         const val Description = "ui.dct.text.description"
         const val DurianVariety = "ui.dct.text.durian_variety"
         const val Fingerprint = "ui.dct.text.fingerprint"
+        const val ForgotPassword = "ui.dct.text.forgot_password"
         const val Inactive = "ui.dct.text.inactive"
         const val MyPhone = "ui.dct.text.my_phone"
         const val PendingReview = "ui.dct.text.pending_review"

@@ -64,4 +64,6 @@
     <string name="select_mode">Chọn chế độ</string>
     <string name="inactive">Chưa kích hoạt</string>
     <string name="this_feature_is_currently_supported_in_the_asia_region">Tính năng này hiện chỉ hỗ trợ tại Châu Á</string>
+    <string name="send">Gửi</string>
+    <string name="forgot_your_password">Bạn quên mật khẩu?</string>
 </resources>

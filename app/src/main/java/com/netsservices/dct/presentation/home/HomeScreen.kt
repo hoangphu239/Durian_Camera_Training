@@ -163,14 +163,14 @@ fun HomeScreen(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(15.dp)
         ) {
-            val guidanceKey = uiState.dataFrame?.guidanceKey?:" "
+            val guidance = uiState.dataFrame?.guidance?:" "
             val isDetected = uiState.dataFrame?.durianDetected == true && uiState.dataFrame.ready
 
             AppText(
                 modifier = Modifier
                     .wrapContentHeight()
                     .padding(start = 10.dp, bottom = 30.dp),
-                text = guidanceKey,
+                text = guidance,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Medium,
                 color = R.color.red

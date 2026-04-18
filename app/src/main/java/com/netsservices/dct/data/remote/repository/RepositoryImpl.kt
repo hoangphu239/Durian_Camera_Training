@@ -11,6 +11,7 @@ import com.netsservices.dct.data.remote.response.CountryResponse
 import com.netsservices.dct.data.remote.response.DeviceResponse
 import com.netsservices.dct.data.remote.response.DurianTypeResponse
 import com.netsservices.dct.data.remote.response.FileResponse
+import com.netsservices.dct.data.remote.response.ForgotPwdResponse
 import com.netsservices.dct.data.remote.response.InitFileResponse
 import com.netsservices.dct.data.remote.response.LanguageResponse
 import com.netsservices.dct.data.remote.response.LoginResponse
@@ -22,6 +23,7 @@ import com.netsservices.dct.data.remote.resquest.CreateSessionRequest
 import com.netsservices.dct.data.remote.resquest.InitFileRequest
 import com.netsservices.dct.data.remote.resquest.LoginRequest
 import com.netsservices.dct.data.remote.resquest.DeviceRequest
+import com.netsservices.dct.data.remote.resquest.ForgotPwdRequest
 import com.netsservices.dct.data.remote.resquest.RegisterRequest
 import com.netsservices.dct.data.remote.safeApiCall
 import com.netsservices.dct.domain.model.Country
@@ -46,6 +48,10 @@ class RepositoryImpl @Inject constructor(
 
     override suspend fun registerDevice(registerRequest: DeviceRequest): ApiResult<DeviceResponse> {
         return safeApiCall { api.registerDevice(registerRequest) }
+    }
+
+    override suspend fun forgotPassword(forgotPwdRequest: ForgotPwdRequest): ApiResult<ForgotPwdResponse> {
+        return safeApiCall { api.forgotPassword(forgotPwdRequest) }
     }
 
     override suspend fun changePassword(changeRequest: ChangePwdRequest): ApiResult<ChangePwdResponse> {

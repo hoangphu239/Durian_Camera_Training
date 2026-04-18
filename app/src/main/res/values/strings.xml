@@ -63,4 +63,6 @@
     <string name="select_mode">Select Mode</string>
     <string name="inactive">Inactive</string>
     <string name="this_feature_is_currently_supported_in_the_asia_region">This feature is currently available in Asia only.</string>
+    <string name="send">Send</string>
+    <string name="forgot_your_password">Forgot your password?</string>
 </resources>
