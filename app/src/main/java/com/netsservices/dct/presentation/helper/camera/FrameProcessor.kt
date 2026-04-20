@@ -3,10 +3,10 @@ package com.netsservices.dct.presentation.helper.camera
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.ImageFormat
+import android.graphics.Matrix
 import android.graphics.Rect
 import android.graphics.YuvImage
 import androidx.camera.core.ImageProxy
-import androidx.core.graphics.scale
 import java.io.ByteArrayOutputStream
 
 class FrameProcessor {
@@ -34,52 +34,20 @@ class FrameProcessor {
         )
 
         val out = ByteArrayOutputStream()
+        yuvImage.compressToJpeg(Rect(0, 0, image.width, image.height), 100, out)
 
-        yuvImage.compressToJpeg(
-            Rect(0, 0, image.width, image.height),
-            100,
-            out
-        )
+        return BitmapFactory.decodeByteArray(out.toByteArray(), 0, out.size())
+    }
 
-        val imageBytes = out.toByteArray()
-
-        return BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
+    fun rotateBitmap(bitmap: Bitmap, rotationDegrees: Int): Bitmap {
+        if (rotationDegrees == 0) return bitmap
+        val matrix = Matrix().apply { postRotate(rotationDegrees.toFloat()) }
+        return Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
     }
 
     fun bitmapToJpeg(bitmap: Bitmap): ByteArray {
         val stream = ByteArrayOutputStream()
-
-        bitmap.compress(
-            Bitmap.CompressFormat.JPEG,
-            95,
-            stream
-        )
-
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream)
         return stream.toByteArray()
-    }
-
-    fun cropAndResize(src: Bitmap): Bitmap {
-        val targetRatio = 1920f / 1080f
-        val srcRatio = src.width.toFloat() / src.height.toFloat()
-
-        val newWidth: Int
-        val newHeight: Int
-        val xOffset: Int
-        val yOffset: Int
-
-        if (srcRatio > targetRatio) {
-            newHeight = src.height
-            newWidth = (targetRatio * newHeight).toInt()
-            xOffset = (src.width - newWidth) / 2
-            yOffset = 0
-        } else {
-            newWidth = src.width
-            newHeight = (newWidth / targetRatio).toInt()
-            xOffset = 0
-            yOffset = (src.height - newHeight) / 2
-        }
-
-        val cropped = Bitmap.createBitmap(src, xOffset, yOffset, newWidth, newHeight)
-        return cropped.scale(1920, 1080)
     }
 }

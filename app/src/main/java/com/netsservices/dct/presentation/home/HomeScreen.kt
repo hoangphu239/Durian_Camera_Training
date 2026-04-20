@@ -1,9 +1,9 @@
 package com.netsservices.dct.presentation.home
 
 import android.os.Build
+import android.util.Size
 import android.view.ViewGroup
 import androidx.annotation.RequiresApi
-import androidx.camera.core.AspectRatio
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.Preview
@@ -49,6 +49,7 @@ import com.netsservices.dct.presentation.helper.camera.FrameProcessor
 import com.netsservices.dct.presentation.home.components.ScanCameraView
 import java.util.concurrent.Executors
 
+
 @RequiresApi(Build.VERSION_CODES.P)
 @Composable
 fun HomeScreen(
@@ -73,9 +74,7 @@ fun HomeScreen(
     var isInitialized by remember { mutableStateOf(false) }
 
     val isConfigReady by remember {
-        derivedStateOf {
-            scanMode != null && durianType != null
-        }
+        derivedStateOf { scanMode != null && durianType != null }
     }
 
     val currentStep by remember {
@@ -95,32 +94,35 @@ fun HomeScreen(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT
             )
-            scaleType = PreviewView.ScaleType.FILL_CENTER
+            scaleType = PreviewView.ScaleType.FIT_CENTER
         }
     }
 
     var hasRegistered by remember { mutableStateOf(false) }
-
 
     DisposableEffect(lifecycleOwner) {
         val cameraProviderFuture = ProcessCameraProvider.getInstance(context)
 
         val listener = Runnable {
             val provider = cameraProviderFuture.get()
+            val resolution = Size(1080, 1920)
 
+            // ===== PREVIEW =====
             val preview = Preview.Builder()
-                .setTargetAspectRatio(AspectRatio.RATIO_16_9)
+                .setTargetResolution(resolution)
                 .build()
                 .apply {
-                    setSurfaceProvider(previewView.surfaceProvider)
+                    surfaceProvider = previewView.surfaceProvider
                 }
 
+            // ===== ANALYSIS =====
             val analysis = ImageAnalysis.Builder()
-                .setTargetAspectRatio(AspectRatio.RATIO_16_9)
+                .setTargetResolution(resolution)
                 .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                 .build()
 
             analysis.setAnalyzer(executor) { image ->
+
                 if (!isConfigReady || uiState.blockCapture) {
                     image.close()
                     return@setAnalyzer
@@ -129,10 +131,17 @@ fun HomeScreen(
                 try {
                     val bitmap = processor.imageProxyToBitmap(image)
                     bitmap?.let {
-                        val finalBitmap = processor.cropAndResize(it)
-                        val jpeg = processor.bitmapToJpeg(finalBitmap)
+                        val rotation = image.imageInfo.rotationDegrees
+                        val rotated = when (rotation) {
+                            90 -> processor.rotateBitmap(it, 90)
+                            180 -> processor.rotateBitmap(it, 180)
+                            270 -> processor.rotateBitmap(it, 270)
+                            else -> it
+                        }
+                        val jpeg = processor.bitmapToJpeg(rotated)
                         viewModel.checkFrame(jpeg)
                     }
+
                 } catch (e: Exception) {
                     e.printStackTrace()
                 } finally {
@@ -149,13 +158,15 @@ fun HomeScreen(
             )
         }
 
-        cameraProviderFuture.addListener(listener, ContextCompat.getMainExecutor(context))
+        cameraProviderFuture.addListener(
+            listener,
+            ContextCompat.getMainExecutor(context)
+        )
 
         onDispose {
             executor.shutdown()
         }
     }
-
 
     LaunchedEffect(Unit) {
         deviceStatus = PreferenceManager.getDeviceStatus(context)
@@ -164,18 +175,14 @@ fun HomeScreen(
         isInitialized = true
     }
 
-
     LaunchedEffect(currentStep, isInitialized) {
         if (!isInitialized) return@LaunchedEffect
 
         if (currentStep == ConfigStep.REGISTER_DEVICE && !hasRegistered) {
             hasRegistered = true
-
-            viewModel.registerDevice(
-                onResult = {
-                    deviceStatus = PreferenceManager.getDeviceStatus(context)
-                }
-            )
+            viewModel.registerDevice {
+                deviceStatus = PreferenceManager.getDeviceStatus(context)
+            }
         }
     }
 
@@ -184,10 +191,13 @@ fun HomeScreen(
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
+
         Column(modifier = Modifier.fillMaxSize()) {
+
             val guidance = uiState.dataFrame?.guidance ?: ""
             val isDetected =
-                uiState.dataFrame?.durianDetected == true && uiState.dataFrame?.ready == true
+                uiState.dataFrame?.durianDetected == true &&
+                        uiState.dataFrame?.ready == true
 
             AppText(
                 modifier = Modifier
@@ -206,14 +216,10 @@ fun HomeScreen(
             )
         }
 
-        if (uiState.isLoading) {
-            LoadingOverlay()
-        }
+        if (uiState.isLoading) LoadingOverlay()
 
         if (uiState.blockCapture) {
-            ConfirmDialog(
-                onConfirm = { viewModel.unblockCapture() }
-            )
+            ConfirmDialog(onConfirm = { viewModel.unblockCapture() })
         }
 
         if (uiState.disconnect) {

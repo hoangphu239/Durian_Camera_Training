@@ -1,5 +1,6 @@
 package com.netsservices.dct.presentation.home.components
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Build
 import android.os.VibrationEffect
@@ -29,6 +30,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 
+@SuppressLint("UnusedBoxWithConstraintsScope")
 @Composable
 fun ScanCameraView(
     modifier: Modifier = Modifier,

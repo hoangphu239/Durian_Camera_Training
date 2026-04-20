@@ -2,8 +2,6 @@ package com.netsservices.dct.presentation.common
 
 object Constants {
     const val BASE_URL = "https://api.duriancare.com/"
-    const val IMAGE_WIDTH = 1920
-    const val IMAGE_HEIGHT = 1080
     const val INVALID_TOKEN = "Invalid token"
     const val ULTRA_WIDE = "ULTRA_WIDE"
     const val WIDE = "WIDE"
