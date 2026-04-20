@@ -30,6 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
@@ -48,6 +49,7 @@ import com.netsservices.dct.presentation.config.components.ScanMode
 import com.netsservices.dct.presentation.helper.camera.FrameProcessor
 import com.netsservices.dct.presentation.home.components.ScanCameraView
 import java.util.concurrent.Executors
+
 
 @RequiresApi(Build.VERSION_CODES.P)
 @Composable
@@ -73,9 +75,7 @@ fun HomeScreen(
     var isInitialized by remember { mutableStateOf(false) }
 
     val isConfigReady by remember {
-        derivedStateOf {
-            scanMode != null && durianType != null
-        }
+        derivedStateOf { scanMode != null && durianType != null }
     }
 
     val currentStep by remember {
@@ -95,12 +95,11 @@ fun HomeScreen(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT
             )
-            scaleType = PreviewView.ScaleType.FILL_CENTER
+            scaleType = PreviewView.ScaleType.FIT_CENTER
         }
     }
 
     var hasRegistered by remember { mutableStateOf(false) }
-
 
     DisposableEffect(lifecycleOwner) {
         val cameraProviderFuture = ProcessCameraProvider.getInstance(context)
@@ -108,19 +107,22 @@ fun HomeScreen(
         val listener = Runnable {
             val provider = cameraProviderFuture.get()
 
+            // ===== PREVIEW =====
             val preview = Preview.Builder()
                 .setTargetAspectRatio(AspectRatio.RATIO_16_9)
                 .build()
                 .apply {
-                    setSurfaceProvider(previewView.surfaceProvider)
+                    surfaceProvider = previewView.surfaceProvider
                 }
 
+            // ===== ANALYSIS =====
             val analysis = ImageAnalysis.Builder()
                 .setTargetAspectRatio(AspectRatio.RATIO_16_9)
                 .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                 .build()
 
             analysis.setAnalyzer(executor) { image ->
+
                 if (!isConfigReady || uiState.blockCapture) {
                     image.close()
                     return@setAnalyzer
@@ -128,11 +130,34 @@ fun HomeScreen(
 
                 try {
                     val bitmap = processor.imageProxyToBitmap(image)
+
                     bitmap?.let {
-                        val finalBitmap = processor.cropAndResize(it)
-                        val jpeg = processor.bitmapToJpeg(finalBitmap)
-                        viewModel.checkFrame(jpeg)
+
+                        val rotation = image.imageInfo.rotationDegrees
+
+                        val rotated = when (rotation) {
+                            90 -> processor.rotateBitmap(it, 90)
+                            180 -> processor.rotateBitmap(it, 180)
+                            270 -> processor.rotateBitmap(it, 270)
+                            else -> it
+                        }
+
+                        viewModel.imageSize = IntSize(
+                            rotated.width,
+                            rotated.height
+                        )
+
+                        val centers = processor.detectLaserCenters(rotated)
+                        viewModel.updateLaserPoints(centers)
+                        val jpeg = processor.bitmapToJpeg(rotated)
+
+                        if (PreferenceManager.getScanMode(context) == ScanMode.COLLECTION) {
+                            viewModel.checkFrame(jpeg)
+                        } else {
+                            viewModel.updateLatestFrame(jpeg)
+                        }
                     }
+
                 } catch (e: Exception) {
                     e.printStackTrace()
                 } finally {
@@ -149,13 +174,15 @@ fun HomeScreen(
             )
         }
 
-        cameraProviderFuture.addListener(listener, ContextCompat.getMainExecutor(context))
+        cameraProviderFuture.addListener(
+            listener,
+            ContextCompat.getMainExecutor(context)
+        )
 
         onDispose {
             executor.shutdown()
         }
     }
-
 
     LaunchedEffect(Unit) {
         deviceStatus = PreferenceManager.getDeviceStatus(context)
@@ -164,18 +191,14 @@ fun HomeScreen(
         isInitialized = true
     }
 
-
     LaunchedEffect(currentStep, isInitialized) {
         if (!isInitialized) return@LaunchedEffect
 
         if (currentStep == ConfigStep.REGISTER_DEVICE && !hasRegistered) {
             hasRegistered = true
-
-            viewModel.registerDevice(
-                onResult = {
-                    deviceStatus = PreferenceManager.getDeviceStatus(context)
-                }
-            )
+            viewModel.registerDevice {
+                deviceStatus = PreferenceManager.getDeviceStatus(context)
+            }
         }
     }
 
@@ -184,10 +207,13 @@ fun HomeScreen(
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
+
         Column(modifier = Modifier.fillMaxSize()) {
+
             val guidance = uiState.dataFrame?.guidance ?: ""
             val isDetected =
-                uiState.dataFrame?.durianDetected == true && uiState.dataFrame?.ready == true
+                uiState.dataFrame?.durianDetected == true &&
+                        uiState.dataFrame?.ready == true
 
             AppText(
                 modifier = Modifier
@@ -202,18 +228,20 @@ fun HomeScreen(
             ScanCameraView(
                 modifier = Modifier.weight(1f),
                 previewView = previewView,
+                laserPoints = viewModel.laserPoints,
+                imageSize = viewModel.imageSize,
+                mode = PreferenceManager.getScanMode(context)!!,
                 isDetected = isDetected,
+                onMatch = {
+                    viewModel.onLaserMatched()
+                }
             )
         }
 
-        if (uiState.isLoading) {
-            LoadingOverlay()
-        }
+        if (uiState.isLoading) LoadingOverlay()
 
         if (uiState.blockCapture) {
-            ConfirmDialog(
-                onConfirm = { viewModel.unblockCapture() }
-            )
+            ConfirmDialog(onConfirm = { viewModel.unblockCapture() })
         }
 
         if (uiState.disconnect) {

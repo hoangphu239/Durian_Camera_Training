@@ -3,6 +3,11 @@ package com.netsservices.dct.presentation.home
 import android.content.Context
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.unit.IntSize
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.netsservices.dct.data.remote.ApiErrorCode
@@ -25,7 +30,9 @@ import com.netsservices.dct.presentation.common.PurposeType
 import com.netsservices.dct.presentation.common.toRequestBody
 import com.netsservices.dct.presentation.config.components.ScanMode
 import com.netsservices.dct.presentation.helper.camera.CameraManager
+import com.netsservices.dct.presentation.helper.camera.FrameProcessor
 import com.netsservices.dct.presentation.helper.connection.NetworkService
+import com.netsservices.dct.presentation.utils.Utils
 import com.netsservices.dct.presentation.utils.Utils.getDeviceID
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -79,6 +86,9 @@ class HomeViewModel @Inject constructor(
     private var imageBody: RequestBody? = null
     private var gps: Pair<Double, Double>? = null
     private var isUnauthorized = false
+    private var latestFrame: ByteArray? = null
+    var laserPoints by mutableStateOf<List<Offset>>(emptyList())
+    var imageSize by mutableStateOf(IntSize(0, 0))
 
 
     fun registerDevice(onResult: () -> Unit) {
@@ -143,6 +153,19 @@ class HomeViewModel @Inject constructor(
                         }
                     }
                 )
+        }
+    }
+
+    fun updateLatestFrame(frame: ByteArray) {
+        latestFrame = frame
+    }
+
+    fun onLaserMatched() {
+        if (isFlowRunning) return
+        if (uiState.value.blockCapture) return
+
+        latestFrame?.let {
+            checkFrame(it)
         }
     }
 
@@ -290,6 +313,17 @@ class HomeViewModel @Inject constructor(
     }
 
     fun getDeviceId(): String = PreferenceManager.getDeviceId(context)
+
+    fun updateLaserPoints(points: List<FrameProcessor.LaserPoint>) {
+        if (points.size != 3) {
+            laserPoints = emptyList()
+            return
+        }
+
+        laserPoints = points.map {
+            Offset(it.x, it.y)
+        }
+    }
 
     fun clearData() {
         _uiState.update {

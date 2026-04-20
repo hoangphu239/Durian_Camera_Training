@@ -150,6 +150,7 @@ class MainActivity : ComponentActivity() {
         observeAppEvents()
     }
 
+    @RequiresApi(Build.VERSION_CODES.P)
     private fun observeAppEvents() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -167,6 +168,7 @@ class MainActivity : ComponentActivity() {
                             } else if (currentRoute != Screen.Login.route) {
                                 if(event.message == Constants.INVALID_TOKEN) {
                                     snackBarHostState.showSnackbar(getString(R.string.session_has_expired))
+                                    viewModel.clearData()
                                 } else {
                                     snackBarHostState.showSnackbar(event.message)
                                 }

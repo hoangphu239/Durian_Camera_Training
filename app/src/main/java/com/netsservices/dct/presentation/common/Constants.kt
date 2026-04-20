@@ -10,8 +10,13 @@ object Constants {
     const val TELE = "TELE"
     const val UNKNOWN = "UNKNOWN"
     const val BACK = "BACK"
-    const val LANG_ID = "en"
-    const val PREFIX = "ui.dct"
+
+    const val TRIANGLE_SIZE_RATIO = 0.3f
+    const val TOLERANCE_RATIO = 0.4f
+    const val CIRCLE_RADIUS_RATIO = 0.1f
+    const val STROKE_WIDTH = 4f
+    const val LASER_POINT_RADIUS = 12f
+    val VIBRATION_PATTERN = longArrayOf(0, 150, 200, 150)
 }
 
 enum class PurposeType {

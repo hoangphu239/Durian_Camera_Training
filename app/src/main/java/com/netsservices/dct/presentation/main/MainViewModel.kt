@@ -12,6 +12,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.netsservices.dct.data.remote.handle
 import com.netsservices.dct.data.remote.response.LanguageResponse
+import com.netsservices.dct.data.remote.utils.PreferenceManager
 import com.netsservices.dct.domain.model.Country
 import com.netsservices.dct.domain.repository.Repository
 import com.netsservices.dct.presentation.helper.location.LocationManager
@@ -66,5 +67,9 @@ class MainViewModel @Inject constructor(
                 }
             )
         }
+    }
+
+    fun clearData() {
+        PreferenceManager.clearData(context)
     }
 }
