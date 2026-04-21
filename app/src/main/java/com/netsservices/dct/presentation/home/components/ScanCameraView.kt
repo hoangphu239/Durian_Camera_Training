@@ -27,12 +27,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.viewinterop.AndroidView
-import com.netsservices.dct.domain.model.Triangle
 import com.netsservices.dct.presentation.common.Constants
 import com.netsservices.dct.presentation.common.Constants.VIBRATION_PATTERN
 import com.netsservices.dct.presentation.config.components.ScanMode
-import kotlin.math.min
-import kotlin.math.sqrt
+import com.netsservices.dct.presentation.utils.Utils
 
 @SuppressLint("UnusedBoxWithConstraintsScope")
 @Composable
@@ -74,7 +72,7 @@ fun ScanCameraView(
 
         val mappedPoints = remember(laserPoints, imageSize, width, height) {
             laserPoints.map {
-                mapToPreview(
+                Utils.mapPreviewToBitmap(
                     it,
                     imageSize.width.toFloat(),
                     imageSize.height.toFloat(),
@@ -85,7 +83,7 @@ fun ScanCameraView(
         }
 
         val triangle = remember(width, height) {
-            createTriangle(width, height)
+            Utils.createTriangle(width, height)
         }
 
         val tolerance = triangle.side * Constants.TOLERANCE_RATIO
@@ -108,8 +106,7 @@ fun ScanCameraView(
             FingerprintOverlay(
                 color = color,
                 radius = radius,
-                targets = triangle.targets,
-                laserPoints = mappedPoints
+                targets = triangle.targets
             )
         }
 
@@ -134,48 +131,6 @@ fun ScanCameraView(
             lastDetected = isDetected
         }
     }
-}
-
-fun mapToPreview(
-    p: Offset,
-    imageWidth: Float,
-    imageHeight: Float,
-    viewWidth: Float,
-    viewHeight: Float
-): Offset {
-
-    val scale = min(
-        viewWidth / imageWidth,
-        viewHeight / imageHeight
-    )
-
-    val scaledWidth = imageWidth * scale
-    val scaledHeight = imageHeight * scale
-
-    val offsetX = (viewWidth - scaledWidth) / 2f
-    val offsetY = (viewHeight - scaledHeight) / 2f
-
-    return Offset(
-        x = p.x * scale + offsetX,
-        y = p.y * scale + offsetY
-    )
-}
-
-private fun createTriangle(width: Float, height: Float): Triangle {
-    val centerX = width / 2f
-    val centerY = height / 2f
-
-    val side = width * Constants.TRIANGLE_SIZE_RATIO
-    val h = (sqrt(3.0) / 2 * side).toFloat()
-
-    val top = Offset(centerX, centerY - h / 2)
-    val left = Offset(centerX - side / 2, centerY + h / 2)
-    val right = Offset(centerX + side / 2, centerY + h / 2)
-
-    return Triangle(
-        targets = listOf(top, left, right),
-        side = side
-    )
 }
 
 private fun matchFingerprint(

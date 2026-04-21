@@ -2,8 +2,6 @@ package com.netsservices.dct.presentation.common
 
 object Constants {
     const val BASE_URL = "https://api.duriancare.com/"
-    const val IMAGE_WIDTH = 1920
-    const val IMAGE_HEIGHT = 1080
     const val INVALID_TOKEN = "Invalid token"
     const val ULTRA_WIDE = "ULTRA_WIDE"
     const val WIDE = "WIDE"
@@ -11,12 +9,31 @@ object Constants {
     const val UNKNOWN = "UNKNOWN"
     const val BACK = "BACK"
 
-    const val TRIANGLE_SIZE_RATIO = 0.3f
+    const val TRIANGLE_SIZE_RATIO = 0.4f // chiều dài cạnh tam giác
     const val TOLERANCE_RATIO = 0.4f
     const val CIRCLE_RADIUS_RATIO = 0.1f
     const val STROKE_WIDTH = 4f
-    const val LASER_POINT_RADIUS = 12f
     val VIBRATION_PATTERN = longArrayOf(0, 150, 200, 150)
+    const val REQUIRED_STABLE_FRAMES = 5
+
+    const val MAX_LUMA = 70f
+    // Ngưỡng độ sáng (luminance)
+    // ↓ giảm xuống → chỉ nhận màu rất tối (đen hơn)
+    // ↑ tăng lên → chấp nhận màu sáng hơn (nhạt hơn)
+
+    const val MIN_RGB_SUM = 75
+    // loại bỏ đen tuyệt đối (shadow sâu)
+    // ↓ giảm → cho phép đen hơn
+    // ↑ tăng → loại bỏ vùng quá đen
+
+    const val DENSITY_RADIUS = 5    // bán kính vùng kiểm tra cụm pixel
+
+    const val MIN_DARK_DENSITY = 0.45f
+    // tỉ lệ pixel "nâu đen" cần đạt
+    // ↓ giảm → dễ detect hơn (nhưng dễ nhiễu)
+    // ↑ tăng → khó hơn (nhưng chính xác hơn)
+
+    const val MIN_DARK_PIXEL_COUNT = 20
 }
 
 enum class PurposeType {

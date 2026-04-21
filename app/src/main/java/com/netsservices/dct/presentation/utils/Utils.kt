@@ -9,8 +9,13 @@ import android.os.Build
 import android.provider.MediaStore
 import android.provider.Settings
 import android.widget.Toast
+import androidx.compose.ui.geometry.Offset
 import com.netsservices.dct.BuildConfig
+import com.netsservices.dct.domain.model.Triangle
+import com.netsservices.dct.presentation.common.Constants
 import java.util.Locale
+import kotlin.math.min
+import kotlin.math.sqrt
 
 object Utils {
 
@@ -103,5 +108,39 @@ object Utils {
 
     fun showToast(context: Context, message: String) {
         Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+    }
+
+    fun mapPreviewToBitmap(
+        point: Offset,
+        previewWidth: Float,
+        previewHeight: Float,
+        imageWidth: Float,
+        imageHeight: Float
+    ): Offset {
+
+        val scaleX = imageWidth / previewWidth
+        val scaleY = imageHeight / previewHeight
+
+        return Offset(
+            x = point.x * scaleX,
+            y = point.y * scaleY
+        )
+    }
+
+    fun createTriangle(width: Float, height: Float): Triangle {
+        val centerX = width / 2f
+        val centerY = height / 2f
+
+        val side = width * Constants.TRIANGLE_SIZE_RATIO
+        val h = (sqrt(3.0) / 2 * side).toFloat()
+
+        val top = Offset(centerX, centerY - h / 2)
+        val left = Offset(centerX - side / 2, centerY + h / 2)
+        val right = Offset(centerX + side / 2, centerY + h / 2)
+
+        return Triangle(
+            targets = listOf(top, left, right),
+            side = side
+        )
     }
 }

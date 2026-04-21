@@ -13,8 +13,7 @@ import com.netsservices.dct.presentation.common.Constants
 fun FingerprintOverlay(
     color: Color,
     radius: Float,
-    targets: List<Offset>,
-    laserPoints: List<Offset>
+    targets: List<Offset>
 ) {
     Canvas(modifier = Modifier.fillMaxSize()) {
 
@@ -24,14 +23,6 @@ fun FingerprintOverlay(
                 radius = radius,
                 center = it,
                 style = Stroke(Constants.STROKE_WIDTH)
-            )
-        }
-
-        laserPoints.forEach { point ->
-            drawCircle(
-                color = Color.Blue,
-                radius = Constants.LASER_POINT_RADIUS,
-                center = point
             )
         }
     }

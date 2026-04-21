@@ -27,6 +27,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.font.FontWeight
@@ -39,6 +40,7 @@ import com.netsservices.dct.data.remote.response.DurianItem
 import com.netsservices.dct.data.remote.utils.PreferenceManager
 import com.netsservices.dct.presentation.common.ConfigStep
 import com.netsservices.dct.presentation.common.ConfirmDialog
+import com.netsservices.dct.presentation.common.Constants
 import com.netsservices.dct.presentation.common.DeviceStatus
 import com.netsservices.dct.presentation.common.LoadingOverlay
 import com.netsservices.dct.presentation.common.NoInternetView
@@ -48,6 +50,7 @@ import com.netsservices.dct.presentation.config.components.ModeSelectionDialog
 import com.netsservices.dct.presentation.config.components.ScanMode
 import com.netsservices.dct.presentation.helper.camera.FrameProcessor
 import com.netsservices.dct.presentation.home.components.ScanCameraView
+import com.netsservices.dct.presentation.utils.Utils
 import java.util.concurrent.Executors
 
 
@@ -130,16 +133,13 @@ fun HomeScreen(
 
                 try {
                     val bitmap = processor.imageProxyToBitmap(image)
-
-                    bitmap?.let {
-
+                    bitmap?.let { original ->
                         val rotation = image.imageInfo.rotationDegrees
-
                         val rotated = when (rotation) {
-                            90 -> processor.rotateBitmap(it, 90)
-                            180 -> processor.rotateBitmap(it, 180)
-                            270 -> processor.rotateBitmap(it, 270)
-                            else -> it
+                            90 -> processor.rotateBitmap(original, 90)
+                            180 -> processor.rotateBitmap(original, 180)
+                            270 -> processor.rotateBitmap(original, 270)
+                            else -> original
                         }
 
                         viewModel.imageSize = IntSize(
@@ -147,15 +147,52 @@ fun HomeScreen(
                             rotated.height
                         )
 
-                        val centers = processor.detectLaserCenters(rotated)
-                        viewModel.updateLaserPoints(centers)
-                        val jpeg = processor.bitmapToJpeg(rotated)
+                        val mode = PreferenceManager.getScanMode(context)
 
-                        if (PreferenceManager.getScanMode(context) == ScanMode.COLLECTION) {
+                        if (mode == ScanMode.COLLECTION) {
+                            viewModel.updateLaserPoints(emptyList())
+                            val jpeg = processor.bitmapToJpeg(rotated)
                             viewModel.checkFrame(jpeg)
-                        } else {
-                            viewModel.updateLatestFrame(jpeg)
+                            return@setAnalyzer
                         }
+
+                        val previewWidth = previewView.width.toFloat()
+                        val previewHeight = previewView.height.toFloat()
+                        if (previewWidth == 0f || previewHeight == 0f) {
+                            image.close()
+                            return@setAnalyzer
+                        }
+
+                        val triangle = Utils.createTriangle(
+                            previewWidth,
+                            previewHeight
+                        )
+
+                        val bitmapTargets = triangle.targets.map { previewPoint ->
+                            Utils.mapPreviewToBitmap(
+                                point = previewPoint,
+                                previewWidth = previewWidth,
+                                previewHeight = previewHeight,
+                                imageWidth = rotated.width.toFloat(),
+                                imageHeight = rotated.height.toFloat()
+                            )
+                        }
+
+                        val scaleX = rotated.width.toFloat() / previewWidth
+                        val radiusInBitmap =
+                            (triangle.side * Constants.CIRCLE_RADIUS_RATIO) * scaleX
+
+                        val centers = processor.detectLaserCentersWithROI(
+                            bitmap = rotated,
+                            targets = bitmapTargets,
+                            radius = radiusInBitmap
+                        )
+
+                        viewModel.updateLaserPoints(
+                            centers.map { Offset(it.x, it.y) }
+                        )
+                        val jpeg = processor.bitmapToJpeg(rotated)
+                        viewModel.updateLatestFrame(jpeg)
                     }
 
                 } catch (e: Exception) {

@@ -24,6 +24,7 @@ import com.netsservices.dct.domain.model.Meta
 import com.netsservices.dct.domain.model.toRegisterDeviceRequest
 import com.netsservices.dct.domain.repository.Repository
 import com.netsservices.dct.presentation.common.ConfigStep
+import com.netsservices.dct.presentation.common.Constants
 import com.netsservices.dct.presentation.common.DeviceName
 import com.netsservices.dct.presentation.common.DeviceStatus
 import com.netsservices.dct.presentation.common.PurposeType
@@ -32,7 +33,6 @@ import com.netsservices.dct.presentation.config.components.ScanMode
 import com.netsservices.dct.presentation.helper.camera.CameraManager
 import com.netsservices.dct.presentation.helper.camera.FrameProcessor
 import com.netsservices.dct.presentation.helper.connection.NetworkService
-import com.netsservices.dct.presentation.utils.Utils
 import com.netsservices.dct.presentation.utils.Utils.getDeviceID
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -89,7 +89,9 @@ class HomeViewModel @Inject constructor(
     private var latestFrame: ByteArray? = null
     var laserPoints by mutableStateOf<List<Offset>>(emptyList())
     var imageSize by mutableStateOf(IntSize(0, 0))
-
+    private var lastStablePoints: List<Offset> = emptyList()
+    private var lastUpdateTime = 0L
+    private var stableCount = 0
 
     fun registerDevice(onResult: () -> Unit) {
         val deviceId = getDeviceID(context)
@@ -314,14 +316,29 @@ class HomeViewModel @Inject constructor(
 
     fun getDeviceId(): String = PreferenceManager.getDeviceId(context)
 
-    fun updateLaserPoints(points: List<FrameProcessor.LaserPoint>) {
-        if (points.size != 3) {
-            laserPoints = emptyList()
+    fun updateLaserPoints(newPoints: List<Offset>) {
+        val now = System.currentTimeMillis()
+
+        if (newPoints.size == 3) {
+            stableCount++
+            if (stableCount >= Constants.REQUIRED_STABLE_FRAMES) {
+                lastStablePoints = newPoints
+                lastUpdateTime = now
+                laserPoints = newPoints
+            }
             return
         }
 
-        laserPoints = points.map {
-            Offset(it.x, it.y)
+        stableCount = 0
+        val holdDuration = 300L
+
+        laserPoints = if (
+            lastStablePoints.isNotEmpty() &&
+            now - lastUpdateTime < holdDuration
+        ) {
+            lastStablePoints
+        } else {
+            emptyList()
         }
     }
 
