@@ -8,10 +8,12 @@ object Constants {
     const val TELE = "TELE"
     const val UNKNOWN = "UNKNOWN"
     const val BACK = "BACK"
-    const val TRIANGLE_SIZE_RATIO = 0.35f // chiều dài cạnh tam giác
+    const val CAMERA_TARGET_WIDTH = 1080
+    const val CAMERA_TARGET_HEIGHT = 1920
+    const val TRIANGLE_SIZE_RATIO = 0.4f // chiều dài cạnh tam giác
 
-    const val TOLERANCE_RATIO = 0.4f
-    const val CIRCLE_RADIUS_RATIO = 0.1f
+    const val TOLERANCE_RATIO = 0.45f
+    const val CIRCLE_RADIUS_RATIO = 0.12f
     const val STROKE_WIDTH = 4f
     val VIBRATION_PATTERN = longArrayOf(0, 150, 200, 150)
     const val REQUIRED_STABLE_FRAMES = 3

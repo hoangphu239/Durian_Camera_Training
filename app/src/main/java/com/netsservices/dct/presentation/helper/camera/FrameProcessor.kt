@@ -73,7 +73,7 @@ class FrameProcessor {
             result.add(p)
         }
 
-        return if (isTriangleValid(result)) result else emptyList()
+        return result
     }
 
 
@@ -93,11 +93,11 @@ class FrameProcessor {
         var bestScore = 0f
         var bestPoint: LaserPoint? = null
 
-        for (dy in -r..r) {
+        for (dy in -r..r step 2) {
             val y = cy + dy
             if (y !in 0..<height) continue
 
-            for (dx in -r..r) {
+            for (dx in -r..r step 2) {
                 val x = cx + dx
                 if (x !in 0..<width) continue
 

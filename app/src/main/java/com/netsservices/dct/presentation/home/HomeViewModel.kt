@@ -262,13 +262,14 @@ class HomeViewModel @Inject constructor(
         val contract = if (PreferenceManager.getScanMode(context) == ScanMode.FINGERPRINT) {
             PreferenceManager.getActiveContract(context)
         } else null
+        val isFingerprint = PreferenceManager.getScanMode(context) == ScanMode.FINGERPRINT
 
         val request = CreateSessionRequest(
             purpose = getPurpose(),
             durianTypeId = durianId,
-            plantationId = contract?.plantationId,
-            orchardId = contract?.orchardId,
-            siteId = contract?.siteId,
+            plantationId = if (isFingerprint) contract?.plantationId else null,
+            orchardId = if (isFingerprint) contract?.orchardId else null,
+            siteId = if (isFingerprint) contract?.siteId else null,
             mainFileId = fileId,
             latitude = gps?.first ?: 0.0,
             longitude = gps?.second ?: 0.0,
@@ -290,7 +291,7 @@ class HomeViewModel @Inject constructor(
 
     fun shouldSendFrame(): Boolean {
         val now = System.currentTimeMillis()
-        return !isFlowRunning && (now - lastSentTime >= 200)
+        return !isFlowRunning && (now - lastSentTime >= 100)
     }
 
     private fun getPurpose(): String {
@@ -357,7 +358,7 @@ class HomeViewModel @Inject constructor(
         }
 
         stableCount = 0
-        val holdDuration = 300L
+        val holdDuration = 150L
 
         laserPoints = if (
             lastStablePoints.isNotEmpty() &&

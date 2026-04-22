@@ -23,12 +23,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.netsservices.dct.R
-import com.netsservices.dct.data.remote.response.Site
 import com.netsservices.dct.presentation.components.AppText
+
 
 @Composable
 fun LocationSection(
-    selectedSite: Site?,
+    selectedSite: String,
     onOpenLocation: () -> Unit
 ) {
     Row(
@@ -44,7 +44,7 @@ fun LocationSection(
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Text(
-            text = stringResource(R.string.site_title),
+            text = stringResource(R.string.location),
             style = MaterialTheme.typography.titleMedium
         )
 
@@ -54,14 +54,12 @@ fun LocationSection(
             },
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            selectedSite?.let {
-                AppText(
-                    modifier = Modifier.padding(end = 5.dp),
-                    text = it.name,
-                    color = R.color.gray,
-                    fontSize = 14.sp,
-                )
-            }
+            AppText(
+                modifier = Modifier.padding(end = 5.dp),
+                text = selectedSite,
+                color = R.color.gray,
+                fontSize = 14.sp,
+            )
 
             Icon(
                 Icons.Default.ArrowForwardIos,

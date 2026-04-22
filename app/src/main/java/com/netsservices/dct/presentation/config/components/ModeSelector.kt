@@ -3,6 +3,7 @@ package com.netsservices.dct.presentation.config.components
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -32,7 +33,7 @@ import com.netsservices.dct.presentation.config.ConfigViewModel
 @Composable
 fun ModeSelector(
     viewModel: ConfigViewModel,
-    currentMode: ScanMode,
+    currentMode: ScanMode?,
     onSelected: (ScanMode) -> Unit,
     itemPadding: Dp = 12.dp,
     textSize: TextUnit = 14.sp
@@ -92,6 +93,11 @@ fun ModeItem(
         modifier = modifier
             .clip(RoundedCornerShape(10.dp))
             .background(if (selected) Color.White else Color.Transparent)
+            .border(
+                width = if (selected) 0.4.dp else 0.dp,
+                color = if (selected) Color.Gray.copy(alpha = 0.3f) else Color.Transparent,
+                shape = RoundedCornerShape(10.dp)
+            )
             .clickable { onClick() }
             .padding(vertical = padding),
         contentAlignment = Alignment.Center

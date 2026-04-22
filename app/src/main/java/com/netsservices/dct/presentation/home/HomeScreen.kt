@@ -1,6 +1,7 @@
 package com.netsservices.dct.presentation.home
 
 import android.os.Build
+import android.util.Size
 import android.view.ViewGroup
 import androidx.annotation.RequiresApi
 import androidx.camera.core.AspectRatio
@@ -41,6 +42,7 @@ import com.netsservices.dct.presentation.config.ConfigViewModel
 import com.netsservices.dct.presentation.config.components.ModeSelectionDialog
 import com.netsservices.dct.presentation.config.components.ScanMode
 import com.netsservices.dct.presentation.helper.camera.FrameProcessor
+import com.netsservices.dct.presentation.helper.camera.GyroStabilityDetector
 import com.netsservices.dct.presentation.home.components.DurianOverlay
 import com.netsservices.dct.presentation.home.components.PreviewImageDialog
 import com.netsservices.dct.presentation.home.components.ScanOverlayLayer
@@ -92,33 +94,36 @@ fun HomeScreen(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT
             )
-            scaleType = PreviewView.ScaleType.FIT_CENTER
+            scaleType = PreviewView.ScaleType.FILL_CENTER
         }
     }
 
     var hasRegistered by remember { mutableStateOf(false) }
+    val gyroDetector = remember { GyroStabilityDetector(context) }
+
 
     DisposableEffect(lifecycleOwner) {
         val cameraProviderFuture = ProcessCameraProvider.getInstance(context)
 
         val listener = Runnable {
             val provider = cameraProviderFuture.get()
+            val resolution = Size(Constants.CAMERA_TARGET_WIDTH, Constants.CAMERA_TARGET_HEIGHT)
 
             val preview = Preview.Builder()
-                .setTargetAspectRatio(AspectRatio.RATIO_16_9)
+                .setTargetResolution(resolution)
                 .build()
                 .apply {
                     surfaceProvider = previewView.surfaceProvider
                 }
 
             val analysis = ImageAnalysis.Builder()
-                .setTargetAspectRatio(AspectRatio.RATIO_16_9)
+                .setTargetResolution(resolution)
                 .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                 .build()
 
             analysis.setAnalyzer(executor) { image ->
 
-                if (!isConfigReady || uiState.blockCapture) {
+                if (!isConfigReady || uiState.blockCapture || !gyroDetector.isStable) {
                     image.close()
                     return@setAnalyzer
                 }
@@ -252,6 +257,15 @@ fun HomeScreen(
     LaunchedEffect(gps) {
         gps?.let { viewModel.updateGPS(it) }
     }
+
+    DisposableEffect(Unit) {
+        gyroDetector.start()
+
+        onDispose {
+            gyroDetector.stop()
+        }
+    }
+
 
     Box(modifier = Modifier.fillMaxSize()) {
         val guidance = uiState.dataFrame?.guidance ?: ""

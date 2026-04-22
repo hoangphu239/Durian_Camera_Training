@@ -90,7 +90,7 @@ class MainActivity : ComponentActivity() {
             val currentRoute = navBackStackEntry?.destination?.route
             val showTopBar = currentRoute == Screen.Home.route ||
                         currentRoute == Screen.Config.route ||
-                        currentRoute == Screen.Location.route ||
+                        currentRoute == Screen.Site.route ||
                         currentRoute == Screen.DurianVariety.route
             val startDestination = if (isLoggedIn) Routes.MAIN_GRAPH else Routes.AUTH_GRAPH
             val topBarTitle = remember { mutableStateOf("") }
@@ -103,7 +103,7 @@ class MainActivity : ComponentActivity() {
                                 title = topBarTitle.value.ifEmpty { stringResource(R.string.app_name) },
                                 navigationIcon = if (
                                     currentRoute == Screen.Config.route ||
-                                    currentRoute == Screen.Location.route ||
+                                    currentRoute == Screen.Site.route ||
                                     currentRoute == Screen.DurianVariety.route
                                 ) {
                                     {

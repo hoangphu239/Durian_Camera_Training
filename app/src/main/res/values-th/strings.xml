@@ -31,10 +31,10 @@
     <string name="select_durian_variety">เลือกสายพันธุ์ทุเรียน</string>
     <string name="fingerprint">ลายนิ้วมือ</string>
     <string name="collection">การเก็บข้อมูล</string>
-    <string name="site">ไซต์: %1$s</string>
+    <string name="site">ไซต์:</string>
     <string name="site_title">ไซต์</string>
-    <string name="orchard">สวน: %1$s</string>
-    <string name="plantation">แปลงปลูก: %1$s</string>
+    <string name="orchard">สวน:</string>
+    <string name="plantation">แปลงปลูก:</string>
     <string name="configuration_required">จำเป็นต้องตั้งค่า</string>
     <string name="select_site_and_durian_type">กรุณาเลือกไซต์และสายพันธุ์ก่อนใช้กล้อง</string>
     <string name="accept">ยอมรับ</string>
@@ -74,4 +74,5 @@
     <string name="durian_within_the_frame">ตรวจสอบให้แน่ใจว่าทุเรียนทั้งลูกอยู่ในเฟรมภาพ</string>
     <string name="position_the_durian_inside_the_frame">วางทุเรียนไว้ภายในกรอบ</string>
     <string name="keep_steady_and_ensure_good_lighting">ตั้งท่าให้มั่นคงและตรวจสอบให้แน่ใจว่ามีแสงสว่างเพียงพอ</string>
+    <string name="location">ที่ตั้ง</string>
 </resources>

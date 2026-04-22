@@ -24,6 +24,7 @@ import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.netsservices.dct.R
@@ -98,7 +99,8 @@ fun DurianOverlay(
                 Text(
                     text,
                     color = Color.LightGray,
-                    fontSize = 14.sp
+                    fontSize = 14.sp,
+                    textAlign = TextAlign.Center
                 )
             }
         }

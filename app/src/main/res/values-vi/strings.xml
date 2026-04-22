@@ -31,10 +31,10 @@
     <string name="select_durian_variety">Chọn loại sầu riêng</string>
     <string name="fingerprint">Dấu vân tay</string>
     <string name="collection">Thu thập</string>
-    <string name="site">Khu vực: %1$s</string>
+    <string name="site">Khu vực:</string>
     <string name="site_title">Khu vực</string>
-    <string name="orchard">Vườn: %1$s</string>
-    <string name="plantation">Trang trại: %1$s</string>
+    <string name="orchard">Vườn:</string>
+    <string name="plantation">Trang trại:</string>
     <string name="configuration_required">Cần cấu hình</string>
     <string name="select_site_and_durian_type">Vui lòng chọn khu vực và loại sầu riêng trước khi dùng camera</string>
     <string name="accept">Đồng ý</string>
@@ -74,4 +74,5 @@
     <string name="durian_within_the_frame">Đảm bảo toàn bộ quả sầu riêng nằm trong khung hình</string>
     <string name="position_the_durian_inside_the_frame">Đặt quả sầu riêng vào trong khung</string>
     <string name="keep_steady_and_ensure_good_lighting">Giữ camera ổn định và đảm bảo ánh sáng tốt</string>
+    <string name="location">Vị trí</string>
 </resources>

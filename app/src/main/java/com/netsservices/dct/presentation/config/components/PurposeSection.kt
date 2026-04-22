@@ -27,7 +27,7 @@ import com.netsservices.dct.presentation.config.ConfigViewModel
 @Composable
 fun PurposeSection(
     viewModel: ConfigViewModel,
-    currentMode: ScanMode
+    currentMode: ScanMode?
 ) {
     Row(
         modifier = Modifier

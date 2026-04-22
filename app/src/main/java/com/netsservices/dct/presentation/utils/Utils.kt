@@ -154,7 +154,7 @@ object Utils {
         val imageHeight = bitmap.height.toFloat()
 
         val ovalWidthPreview = previewWidth * 0.8f
-        val ovalHeightPreview = previewHeight * 0.6f
+        val ovalHeightPreview = previewHeight * 0.65f
 
         val leftPreview = (previewWidth - ovalWidthPreview) / 2
         val topPreview = (previewHeight - ovalHeightPreview) / 2

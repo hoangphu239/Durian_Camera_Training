@@ -8,7 +8,6 @@ import com.netsservices.dct.R
 import com.netsservices.dct.data.remote.handle
 import com.netsservices.dct.data.remote.response.ContractItem
 import com.netsservices.dct.data.remote.response.DurianItem
-import com.netsservices.dct.data.remote.response.Site
 import com.netsservices.dct.data.remote.utils.PreferenceManager
 import com.netsservices.dct.domain.repository.Repository
 import com.netsservices.dct.presentation.common.ContractStatus
@@ -45,19 +44,19 @@ class ConfigViewModel @Inject constructor(
     val currentMode: StateFlow<ScanMode?> = _currentMode
     private val _currentVariety = MutableStateFlow<DurianItem?>(null)
     val currentVariety: StateFlow<DurianItem?> = _currentVariety
-    private val _currentSite = MutableStateFlow<Site?>(null)
-    val currentSite: StateFlow<Site?> = _currentSite
+    private val _activeContract = MutableStateFlow<ContractItem?>(null)
+    val activeContract: StateFlow<ContractItem?> = _activeContract
     private val _selectLanguage = MutableStateFlow("en")
     val selectLanguage = _selectLanguage.asStateFlow()
 
     init {
         observeLanguage()
+        _currentMode.value = PreferenceManager.getScanMode(context)
     }
 
     fun loadData() {
-        _currentMode.value = PreferenceManager.getScanMode(context)
         _currentVariety.value = PreferenceManager.getDurianVariety(context)
-//        _currentSite.value = PreferenceManager.getSite(context)
+        _activeContract.value = PreferenceManager.getActiveContract(context)
     }
 
     fun verifyContract(context: Context, search: String, onSuccess: () -> Unit) {
@@ -70,6 +69,7 @@ class ConfigViewModel @Inject constructor(
                     if(result!=null) {
                         _uiState.update { it.copy(verifiedContract = true) }
                         saveContract(result)
+                        _activeContract.value = getContract(context)
                         onSuccess()
                     } else {
                         _uiState.update { it.copy(verifiedContract = false) }

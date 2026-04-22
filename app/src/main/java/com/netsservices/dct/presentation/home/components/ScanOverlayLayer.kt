@@ -49,7 +49,7 @@ fun ScanOverlayLayer(
 ) {
     val laserPoints = viewModel.laserPoints
     val imageSize = viewModel.imageSize
-    val mode = PreferenceManager.getScanMode(context)!!
+    val mode = PreferenceManager.getScanMode(context)
 
     var lastMatched by remember { mutableStateOf(false) }
     var lastDetected by remember { mutableStateOf(false) }

@@ -20,6 +20,7 @@ import com.netsservices.dct.presentation.home.HomeScreen
 import com.netsservices.dct.presentation.home.HomeViewModel
 import com.netsservices.dct.presentation.login.LoginScreen
 import com.netsservices.dct.presentation.register.RegisterScreen
+import com.netsservices.dct.presentation.location.LocationScreen
 import com.netsservices.dct.presentation.variety.DurianVarietyScreen
 
 
@@ -100,7 +101,7 @@ fun MainNavHost(
                     configViewModel = configViewModel,
                     gps = mainViewModel.gps,
                     navigateLocation = {
-                        navController.navigate(Screen.Location.route)
+                        navController.navigate(Screen.Site.route)
                     },
                     navigateVariety = {
                         navController.navigate(Screen.DurianVariety.route)
@@ -117,7 +118,7 @@ fun MainNavHost(
                     activity = activity,
                     languages = mainViewModel.languages,
                     openLocation = {
-                        navController.navigate(Screen.Location.route)
+                        navController.navigate(Screen.Site.route)
                     },
                     openDurianVariety = {
                         navController.navigate(Screen.DurianVariety.route)
@@ -128,15 +129,20 @@ fun MainNavHost(
                 )
             }
 
-//            composable(Screen.Location.route) { backStackEntry ->
-//                val title = stringResource(R.string.site_title)
-//                LaunchedEffect(backStackEntry) {
-//                    onTopBarTitleChange(title)
-//                }
-//                mainViewModel.gps?.let {
-//                    LocationScreen(countryName = mainViewModel.countryInfo.name)
-//                }
-//            }
+            composable(Screen.Site.route) { backStackEntry ->
+                val parentEntry = remember(backStackEntry) {
+                    navController.getBackStackEntry(Routes.MAIN_GRAPH)
+                }
+                val configViewModel: ConfigViewModel = hiltViewModel(parentEntry)
+
+                val title = stringResource(R.string.location)
+                LaunchedEffect(backStackEntry) {
+                    onTopBarTitleChange(title)
+                }
+                mainViewModel.gps?.let {
+                    LocationScreen(viewModel = configViewModel)
+                }
+            }
 
             composable(Screen.DurianVariety.route) { backStackEntry ->
                 val title = stringResource(R.string.durian_variety)
@@ -167,7 +173,7 @@ sealed class Screen(val route: String) {
     data object Login : Screen(route = Routes.LOGIN_SCREEN)
     data object Home : Screen(route = Routes.HOME_SCREEN)
     data object Config : Screen(route = Routes.CONFIG_SCREEN)
-    data object Location : Screen(route = Routes.LOCATION_SCREEN)
+    data object Site : Screen(route = Routes.SITE_SCREEN)
     data object DurianVariety : Screen(route = Routes.DURIAN_VARIETY_SCREEN)
     data object Register : Screen(route = Routes.REGISTER_SCREEN)
     data object ChangePassword : Screen(route = Routes.CHANGE_PASSWORD_SCREEN)
@@ -180,7 +186,7 @@ object Routes {
     const val LOGIN_SCREEN = "login"
     const val HOME_SCREEN = "home"
     const val CONFIG_SCREEN = "config"
-    const val LOCATION_SCREEN = "location"
+    const val SITE_SCREEN = "site"
     const val DURIAN_VARIETY_SCREEN = "durian_variety"
     const val REGISTER_SCREEN = "register"
     const val CHANGE_PASSWORD_SCREEN = "change_password"

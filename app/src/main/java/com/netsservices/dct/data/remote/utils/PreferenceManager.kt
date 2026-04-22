@@ -82,7 +82,7 @@ object PreferenceManager {
     }
 
     fun getScanMode(context: Context): ScanMode? {
-        val value = getPrefs(context).getString(SCAN_MODE, null)
+        val value = getPrefs(context).getString(SCAN_MODE, ScanMode.COLLECTION.name)
         return value?.let { ScanMode.valueOf(it) }
     }
 
