@@ -15,14 +15,17 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun ScanLine(
     progress: Float,
-    heightPx: Int
+    topOffset: Float,
+    heightPx: Float
 ) {
+    val y = topOffset + (progress * heightPx)
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(3.dp)
+            .height(4.dp)
             .offset {
-                IntOffset(0, (progress * heightPx).toInt())
+                IntOffset(0, y.toInt())
             }
             .background(
                 brush = Brush.verticalGradient(

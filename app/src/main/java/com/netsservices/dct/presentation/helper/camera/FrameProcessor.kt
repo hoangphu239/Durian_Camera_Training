@@ -16,7 +16,6 @@ import com.netsservices.dct.presentation.common.Constants
 class FrameProcessor {
 
     data class LaserPoint(val x: Float, val y: Float)
-    private data class CandidatePoint(val x: Int, val y: Int, val score: Float)
 
     fun imageProxyToBitmap(image: ImageProxy): Bitmap? {
         val yBuffer = image.planes[0].buffer

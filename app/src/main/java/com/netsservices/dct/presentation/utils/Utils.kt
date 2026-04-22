@@ -3,6 +3,7 @@ package com.netsservices.dct.presentation.utils
 import android.annotation.SuppressLint
 import android.content.ContentValues
 import android.content.Context
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.location.Geocoder
 import android.os.Build
@@ -14,7 +15,6 @@ import com.netsservices.dct.BuildConfig
 import com.netsservices.dct.domain.model.Triangle
 import com.netsservices.dct.presentation.common.Constants
 import java.util.Locale
-import kotlin.math.min
 import kotlin.math.sqrt
 
 object Utils {
@@ -141,6 +141,43 @@ object Utils {
         return Triangle(
             targets = listOf(top, left, right),
             side = side
+        )
+    }
+
+    fun cropToOvalRegion(
+        bitmap: Bitmap,
+        previewWidth: Float,
+        previewHeight: Float
+    ): Bitmap {
+
+        val imageWidth = bitmap.width.toFloat()
+        val imageHeight = bitmap.height.toFloat()
+
+        val ovalWidthPreview = previewWidth * 0.8f
+        val ovalHeightPreview = previewHeight * 0.6f
+
+        val leftPreview = (previewWidth - ovalWidthPreview) / 2
+        val topPreview = (previewHeight - ovalHeightPreview) / 2
+
+        val scaleX = imageWidth / previewWidth
+        val scaleY = imageHeight / previewHeight
+
+        val left = (leftPreview * scaleX).toInt()
+        val top = (topPreview * scaleY).toInt()
+        val width = (ovalWidthPreview * scaleX).toInt()
+        val height = (ovalHeightPreview * scaleY).toInt()
+
+        val safeLeft = left.coerceAtLeast(0)
+        val safeTop = top.coerceAtLeast(0)
+        val safeWidth = (safeLeft + width).coerceAtMost(bitmap.width) - safeLeft
+        val safeHeight = (safeTop + height).coerceAtMost(bitmap.height) - safeTop
+
+        return Bitmap.createBitmap(
+            bitmap,
+            safeLeft,
+            safeTop,
+            safeWidth,
+            safeHeight
         )
     }
 }

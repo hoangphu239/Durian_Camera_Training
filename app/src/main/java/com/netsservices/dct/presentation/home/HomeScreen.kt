@@ -10,13 +10,7 @@ import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -30,26 +24,26 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import com.netsservices.dct.R
 import com.netsservices.dct.data.remote.response.DurianItem
 import com.netsservices.dct.data.remote.utils.PreferenceManager
 import com.netsservices.dct.presentation.common.ConfigStep
-import com.netsservices.dct.presentation.common.ConfirmDialog
 import com.netsservices.dct.presentation.common.Constants
 import com.netsservices.dct.presentation.common.DeviceStatus
 import com.netsservices.dct.presentation.common.LoadingOverlay
 import com.netsservices.dct.presentation.common.NoInternetView
-import com.netsservices.dct.presentation.components.AppText
+import com.netsservices.dct.presentation.components.AppDialog
 import com.netsservices.dct.presentation.config.ConfigViewModel
 import com.netsservices.dct.presentation.config.components.ModeSelectionDialog
 import com.netsservices.dct.presentation.config.components.ScanMode
 import com.netsservices.dct.presentation.helper.camera.FrameProcessor
-import com.netsservices.dct.presentation.home.components.ScanCameraView
+import com.netsservices.dct.presentation.home.components.DurianOverlay
+import com.netsservices.dct.presentation.home.components.PreviewImageDialog
+import com.netsservices.dct.presentation.home.components.ScanOverlayLayer
 import com.netsservices.dct.presentation.utils.Utils
 import java.util.concurrent.Executors
 
@@ -110,7 +104,6 @@ fun HomeScreen(
         val listener = Runnable {
             val provider = cameraProviderFuture.get()
 
-            // ===== PREVIEW =====
             val preview = Preview.Builder()
                 .setTargetAspectRatio(AspectRatio.RATIO_16_9)
                 .build()
@@ -118,7 +111,6 @@ fun HomeScreen(
                     surfaceProvider = previewView.surfaceProvider
                 }
 
-            // ===== ANALYSIS =====
             val analysis = ImageAnalysis.Builder()
                 .setTargetAspectRatio(AspectRatio.RATIO_16_9)
                 .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
@@ -148,10 +140,22 @@ fun HomeScreen(
                         )
 
                         val mode = PreferenceManager.getScanMode(context)
-
                         if (mode == ScanMode.COLLECTION) {
                             viewModel.updateLaserPoints(emptyList())
-                            val jpeg = processor.bitmapToJpeg(rotated)
+                            val previewWidth = previewView.width.toFloat()
+                            val previewHeight = previewView.height.toFloat()
+
+                            if (previewWidth == 0f || previewHeight == 0f) {
+                                image.close()
+                                return@setAnalyzer
+                            }
+
+                            val cropped = Utils.cropToOvalRegion(
+                                bitmap = rotated,
+                                previewWidth = previewWidth,
+                                previewHeight = previewHeight
+                            )
+                            val jpeg = processor.bitmapToJpeg(cropped)
                             viewModel.checkFrame(jpeg)
                             return@setAnalyzer
                         }
@@ -162,6 +166,12 @@ fun HomeScreen(
                             image.close()
                             return@setAnalyzer
                         }
+
+                        val cropped = Utils.cropToOvalRegion(
+                            bitmap = rotated,
+                            previewWidth = previewWidth,
+                            previewHeight = previewHeight
+                        )
 
                         val triangle = Utils.createTriangle(
                             previewWidth,
@@ -191,7 +201,7 @@ fun HomeScreen(
                         viewModel.updateLaserPoints(
                             centers.map { Offset(it.x, it.y) }
                         )
-                        val jpeg = processor.bitmapToJpeg(rotated)
+                        val jpeg = processor.bitmapToJpeg(cropped)
                         viewModel.updateLatestFrame(jpeg)
                     }
 
@@ -244,41 +254,37 @@ fun HomeScreen(
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
+        val guidance = uiState.dataFrame?.guidance ?: ""
+        val isDetected =
+            uiState.dataFrame?.durianDetected == true &&
+                    uiState.dataFrame?.ready == true
 
-        Column(modifier = Modifier.fillMaxSize()) {
-
-            val guidance = uiState.dataFrame?.guidance ?: ""
-            val isDetected =
-                uiState.dataFrame?.durianDetected == true &&
-                        uiState.dataFrame?.ready == true
-
-            AppText(
-                modifier = Modifier
-                    .wrapContentHeight()
-                    .padding(start = 10.dp, bottom = 30.dp),
-                text = guidance,
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Medium,
-                color = R.color.red
-            )
-
-            ScanCameraView(
-                modifier = Modifier.weight(1f),
-                previewView = previewView,
-                laserPoints = viewModel.laserPoints,
-                imageSize = viewModel.imageSize,
-                mode = PreferenceManager.getScanMode(context)!!,
-                isDetected = isDetected,
-                onMatch = {
-                    viewModel.onLaserMatched()
+        AndroidView(
+            modifier = Modifier.fillMaxSize(),
+            factory = {
+                previewView.apply {
+                    scaleType = PreviewView.ScaleType.FIT_CENTER
                 }
-            )
-        }
+            }
+        )
+
+        DurianOverlay(guidance = guidance)
+
+        ScanOverlayLayer(
+            viewModel = viewModel,
+            context = context,
+            isDetected = isDetected
+        )
 
         if (uiState.isLoading) LoadingOverlay()
 
         if (uiState.blockCapture) {
-            ConfirmDialog(onConfirm = { viewModel.unblockCapture() })
+            AppDialog(
+                title = stringResource(R.string.confirm),
+                message = stringResource(R.string.would_you_like_to_create_a_new_session),
+                confirmText = stringResource(R.string.accept),
+                onConfirm = { viewModel.unblockCapture() }
+            )
         }
 
         if (uiState.disconnect) {
@@ -302,19 +308,19 @@ fun HomeScreen(
             }
 
             ConfigStep.DURIAN_TYPE -> {
-                AlertDialog(
-                    onDismissRequest = {},
-                    title = { Text("Configuration required") },
-                    text = { Text("Select durian type") },
-                    confirmButton = {
-                        TextButton(onClick = navigateVariety) {
-                            Text("OK")
-                        }
-                    }
+                AppDialog(
+                    title = stringResource(R.string.configuration_required),
+                    message = stringResource(R.string.select_durian_type),
+                    confirmText = stringResource(R.string.accept),
+                    onConfirm = { navigateVariety() }
                 )
             }
 
             else -> Unit
         }
+    }
+
+    if (uiState.showPreviewDialog && uiState.previewImage != null) {
+        PreviewImageDialog(viewModel, uiState.previewImage!!)
     }
 }

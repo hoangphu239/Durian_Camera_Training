@@ -5,13 +5,13 @@ import android.content.Context
 import android.os.Build
 import android.os.VibrationEffect
 import android.os.Vibrator
-import androidx.camera.view.PreviewView
+import androidx.annotation.RequiresApi
 import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
@@ -23,51 +23,60 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.viewinterop.AndroidView
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.Size
+import com.netsservices.dct.data.remote.utils.PreferenceManager
 import com.netsservices.dct.presentation.common.Constants
 import com.netsservices.dct.presentation.common.Constants.VIBRATION_PATTERN
 import com.netsservices.dct.presentation.config.components.ScanMode
+import com.netsservices.dct.presentation.home.HomeViewModel
 import com.netsservices.dct.presentation.utils.Utils
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Outline
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.LayoutDirection
 
+@RequiresApi(Build.VERSION_CODES.P)
 @SuppressLint("UnusedBoxWithConstraintsScope")
 @Composable
-fun ScanCameraView(
-    modifier: Modifier = Modifier,
-    previewView: PreviewView,
-    laserPoints: List<Offset>,
-    imageSize: IntSize,
-    mode: ScanMode,
-    isDetected: Boolean,
-    onMatch: () -> Unit
+fun ScanOverlayLayer(
+    viewModel: HomeViewModel,
+    context: Context,
+    isDetected: Boolean
 ) {
-    val context = LocalContext.current
+    val laserPoints = viewModel.laserPoints
+    val imageSize = viewModel.imageSize
+    val mode = PreferenceManager.getScanMode(context)!!
+
     var lastMatched by remember { mutableStateOf(false) }
     var lastDetected by remember { mutableStateOf(false) }
+
     val infiniteTransition = rememberInfiniteTransition(label = "scan_line")
     val offsetY by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 1f,
+        0f, 1f,
         animationSpec = infiniteRepeatable(
-            animation = tween(1500, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart
+            tween(2000, easing = LinearEasing)
         ),
         label = "scan_line_anim"
     )
 
-    BoxWithConstraints(modifier = modifier) {
+    BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+
         val width = constraints.maxWidth.toFloat()
         val height = constraints.maxHeight.toFloat()
 
-        AndroidView(
-            modifier = Modifier.fillMaxSize(),
-            factory = {
-                previewView.apply {
-                    scaleType = PreviewView.ScaleType.FIT_CENTER
-                }
-            }
+        val ovalWidth = width * 0.8f
+        val ovalHeight = height * 0.6f
+
+        val left = (width - ovalWidth) / 2
+        val top = (height - ovalHeight) / 2
+
+        val ovalRect = Rect(
+            offset = Offset(left, top),
+            size = Size(ovalWidth, ovalHeight)
         )
 
         val mappedPoints = remember(laserPoints, imageSize, width, height) {
@@ -94,9 +103,9 @@ fun ScanCameraView(
                 mode == ScanMode.FINGERPRINT &&
                         mappedPoints.size == 3 &&
                         matchFingerprint(
-                            points = mappedPoints,
-                            targets = triangle.targets,
-                            tolerance = tolerance
+                            mappedPoints,
+                            triangle.targets,
+                            tolerance
                         )
             }
         }
@@ -110,20 +119,44 @@ fun ScanCameraView(
             )
         }
 
-        ScanLine(
-            progress = offsetY,
-            heightPx = constraints.maxHeight
-        )
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .graphicsLayer {
+                    shape = object : Shape {
+                        override fun createOutline(
+                            size: Size,
+                            layoutDirection: LayoutDirection,
+                            density: Density
+                        ): Outline {
+                            return Outline.Generic(
+                                Path().apply {
+                                    addOval(ovalRect)
+                                }
+                            )
+                        }
+                    }
+                    clip = true
+                }
+        ) {
+            ScanLine(
+                progress = offsetY,
+                topOffset = top,
+                heightPx = ovalHeight
+            )
+        }
 
+        // ===== MATCH =====
         LaunchedEffect(matched) {
             if (mode == ScanMode.FINGERPRINT) {
                 if (matched && !lastMatched) {
-                    onMatch()
+                    viewModel.onLaserMatched()
                 }
                 lastMatched = matched
             }
         }
 
+        // ===== VIBRATE =====
         LaunchedEffect(isDetected) {
             if (isDetected && !lastDetected) {
                 vibrate(context)
@@ -132,6 +165,7 @@ fun ScanCameraView(
         }
     }
 }
+
 
 private fun matchFingerprint(
     points: List<Offset>,

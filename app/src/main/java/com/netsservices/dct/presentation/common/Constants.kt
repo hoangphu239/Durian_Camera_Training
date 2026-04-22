@@ -8,13 +8,13 @@ object Constants {
     const val TELE = "TELE"
     const val UNKNOWN = "UNKNOWN"
     const val BACK = "BACK"
+    const val TRIANGLE_SIZE_RATIO = 0.35f // chiều dài cạnh tam giác
 
-    const val TRIANGLE_SIZE_RATIO = 0.4f // chiều dài cạnh tam giác
     const val TOLERANCE_RATIO = 0.4f
     const val CIRCLE_RADIUS_RATIO = 0.1f
     const val STROKE_WIDTH = 4f
     val VIBRATION_PATTERN = longArrayOf(0, 150, 200, 150)
-    const val REQUIRED_STABLE_FRAMES = 5
+    const val REQUIRED_STABLE_FRAMES = 3
 
     const val MAX_LUMA = 70f
     // Ngưỡng độ sáng (luminance)
@@ -32,8 +32,6 @@ object Constants {
     // tỉ lệ pixel "nâu đen" cần đạt
     // ↓ giảm → dễ detect hơn (nhưng dễ nhiễu)
     // ↑ tăng → khó hơn (nhưng chính xác hơn)
-
-    const val MIN_DARK_PIXEL_COUNT = 20
 }
 
 enum class PurposeType {
@@ -72,3 +70,11 @@ enum class ContractStatus(val value: String) {
     EXPIRED("Expired"),
     CANCELLED("Cancelled"),
 }
+
+enum class GuidanceState {
+    TOO_FAR,
+    TOO_CLOSE,
+    GOOD,
+    NOT_FOUND
+}
+

@@ -69,4 +69,9 @@
     <string name="processing">Processing…</string>
     <string name="send">Send</string>
     <string name="forgot_your_password">Forgot your password?</string>
+    <string name="cancel">Cancel</string>
+    <string name="preview_image">Preview image</string>
+    <string name="durian_within_the_frame">Make sure the entire durian is within the frame</string>
+    <string name="position_the_durian_inside_the_frame">Position the durian inside the frame</string>
+    <string name="keep_steady_and_ensure_good_lighting">Keep steady and ensure good lighting</string>
 </resources>

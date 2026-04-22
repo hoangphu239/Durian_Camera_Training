@@ -69,4 +69,9 @@
     <string name="processing">กำลังดำเนินการ…</string>
     <string name="send">ส่ง</string>
     <string name="forgot_your_password">ลืมรหัสผ่านของคุณ?</string>
+    <string name="cancel">ยกเลิก</string>
+    <string name="preview_image">ภาพตัวอย่าง</string>
+    <string name="durian_within_the_frame">ตรวจสอบให้แน่ใจว่าทุเรียนทั้งลูกอยู่ในเฟรมภาพ</string>
+    <string name="position_the_durian_inside_the_frame">วางทุเรียนไว้ภายในกรอบ</string>
+    <string name="keep_steady_and_ensure_good_lighting">ตั้งท่าให้มั่นคงและตรวจสอบให้แน่ใจว่ามีแสงสว่างเพียงพอ</string>
 </resources>

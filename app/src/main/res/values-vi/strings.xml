@@ -69,4 +69,9 @@
     <string name="processing">Đang xử lý…</string>
     <string name="send">Gửi</string>
     <string name="forgot_your_password">Bạn quên mật khẩu?</string>
+    <string name="cancel">Huỷ</string>
+    <string name="preview_image">Xem trước ảnh</string>
+    <string name="durian_within_the_frame">Đảm bảo toàn bộ quả sầu riêng nằm trong khung hình</string>
+    <string name="position_the_durian_inside_the_frame">Đặt quả sầu riêng vào trong khung</string>
+    <string name="keep_steady_and_ensure_good_lighting">Giữ camera ổn định và đảm bảo ánh sáng tốt</string>
 </resources>

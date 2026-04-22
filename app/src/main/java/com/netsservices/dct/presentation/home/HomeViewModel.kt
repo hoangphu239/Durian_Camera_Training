@@ -31,7 +31,6 @@ import com.netsservices.dct.presentation.common.PurposeType
 import com.netsservices.dct.presentation.common.toRequestBody
 import com.netsservices.dct.presentation.config.components.ScanMode
 import com.netsservices.dct.presentation.helper.camera.CameraManager
-import com.netsservices.dct.presentation.helper.camera.FrameProcessor
 import com.netsservices.dct.presentation.helper.connection.NetworkService
 import com.netsservices.dct.presentation.utils.Utils.getDeviceID
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -75,7 +74,9 @@ class HomeViewModel @Inject constructor(
         val blockCapture: Boolean = false,
         val disconnect: Boolean = false,
         val enableActivation: Boolean = true,
-        val message: String = ""
+        val message: String = "",
+        val previewImage: ByteArray? = null,
+        val showPreviewDialog: Boolean = false
     )
 
     private val _uiState = MutableStateFlow(UiState())
@@ -196,8 +197,12 @@ class HomeViewModel @Inject constructor(
                         onSuccess = { data ->
                             _uiState.update { state -> state.copy(dataFrame = data) }
                             if (data.ready && data.durianDetected) {
-                                imageBody = raw.toRequestBody()
-                                initFile(raw.size)
+                                _uiState.update {
+                                    it.copy(
+                                        previewImage = raw,
+                                        showPreviewDialog = true
+                                    )
+                                }
                             } else {
                                 isFlowRunning = false
                             }
@@ -315,6 +320,28 @@ class HomeViewModel @Inject constructor(
     }
 
     fun getDeviceId(): String = PreferenceManager.getDeviceId(context)
+
+    fun onPreviewAccept() {
+        val raw = _uiState.value.previewImage ?: return
+
+        imageBody = raw.toRequestBody()
+
+        _uiState.update {
+            it.copy(showPreviewDialog = false)
+        }
+
+        initFile(raw.size)
+    }
+
+    fun onPreviewCancel() {
+        _uiState.update {
+            it.copy(
+                showPreviewDialog = false,
+                previewImage = null
+            )
+        }
+        isFlowRunning = false
+    }
 
     fun updateLaserPoints(newPoints: List<Offset>) {
         val now = System.currentTimeMillis()

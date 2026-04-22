@@ -69,4 +69,9 @@
     <string name="processing">ກຳລັງດຳເນີນການ…</string>
     <string name="send">ສົ່ງ</string>
     <string name="forgot_your_password">ລືມລະຫັດຜ່ານຂອງທ່ານ?</string>
+    <string name="cancel">ຍົກເລີກ</string>
+    <string name="preview_image">ຮູບພາບຕົວຢ່າງ</string>
+    <string name="durian_within_the_frame">ໃຫ້ແນ່ໃຈວ່າໝາກທຸລຽນທັງໝົດຢູ່ໃນກອບ</string>
+    <string name="position_the_durian_inside_the_frame">ວາງຕົ້ນທຸລຽນໄວ້ໃນກອບ</string>
+    <string name="keep_steady_and_ensure_good_lighting">ຮັກສາໃຫ້ໝັ້ນຄົງ ແລະ ຮັບປະກັນໃຫ້ມີແສງສະຫວ່າງດີ</string>
 </resources>
