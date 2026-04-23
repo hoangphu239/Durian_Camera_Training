@@ -1,4 +1,4 @@
-package com.netsservices.dct.presentation.location
+package com.netsservices.dct.presentation.contract
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -20,7 +20,7 @@ import com.netsservices.dct.R
 import com.netsservices.dct.presentation.config.ConfigViewModel
 
 @Composable
-fun LocationScreen(viewModel: ConfigViewModel) {
+fun ContractScreen(viewModel: ConfigViewModel) {
 
     val context = LocalContext.current
     val contract = viewModel.getContract(context)
@@ -30,6 +30,54 @@ fun LocationScreen(viewModel: ConfigViewModel) {
             .fillMaxSize()
             .padding(16.dp)
     ) {
+        Text(
+            buildAnnotatedString {
+                withStyle(style = SpanStyle(fontWeight = FontWeight.Medium)) {
+                    append(stringResource(R.string.contract_code))
+                }
+                withStyle(style = SpanStyle(fontWeight = FontWeight.Normal)) {
+                    append((" " + contract?.contractCode))
+                }
+            },
+            fontSize = 15.sp
+        )
+        Spacer(Modifier.height(10.dp))
+        Text(
+            buildAnnotatedString {
+                withStyle(style = SpanStyle(fontWeight = FontWeight.Medium)) {
+                    append(stringResource(R.string.name))
+                }
+                withStyle(style = SpanStyle(fontWeight = FontWeight.Normal)) {
+                    append((" " + contract?.name))
+                }
+            },
+            fontSize = 15.sp
+        )
+        Spacer(Modifier.height(10.dp))
+        Text(
+            buildAnnotatedString {
+                withStyle(style = SpanStyle(fontWeight = FontWeight.Medium)) {
+                    append(stringResource(R.string.tier))
+                }
+                withStyle(style = SpanStyle(fontWeight = FontWeight.Normal)) {
+                    append((" " + contract?.tier))
+                }
+            },
+            fontSize = 15.sp
+        )
+        Spacer(Modifier.height(10.dp))
+        Text(
+            buildAnnotatedString {
+                withStyle(style = SpanStyle(fontWeight = FontWeight.Medium)) {
+                    append(stringResource(R.string.status))
+                }
+                withStyle(style = SpanStyle(fontWeight = FontWeight.Normal)) {
+                    append((" " + contract?.status))
+                }
+            },
+            fontSize = 15.sp
+        )
+        Spacer(Modifier.height(10.dp))
         Text(
             buildAnnotatedString {
                 withStyle(style = SpanStyle(fontWeight = FontWeight.Medium)) {

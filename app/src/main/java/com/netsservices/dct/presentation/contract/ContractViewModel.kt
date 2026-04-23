@@ -1,4 +1,4 @@
-package com.netsservices.dct.presentation.location
+package com.netsservices.dct.presentation.contract
 
 import android.content.Context
 import androidx.lifecycle.ViewModel
@@ -21,7 +21,7 @@ import javax.inject.Inject
 
 
 @HiltViewModel
-class LocationViewModel @Inject constructor(
+class ContractViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
     private val repo: Repository
 ) : ViewModel() {

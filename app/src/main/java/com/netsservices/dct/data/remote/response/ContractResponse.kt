@@ -36,7 +36,8 @@ data class ContractItem(
     val cancelledAt: String?,
     val notes: String?,
     val createdAt: String,
-    val updatedAt: String
+    val updatedAt: String,
+    val name: String
 )
 
 data class UserInfo(

@@ -75,4 +75,9 @@
     <string name="position_the_durian_inside_the_frame">วางทุเรียนไว้ภายในกรอบ</string>
     <string name="keep_steady_and_ensure_good_lighting">ตั้งท่าให้มั่นคงและตรวจสอบให้แน่ใจว่ามีแสงสว่างเพียงพอ</string>
     <string name="location">ที่ตั้ง</string>
+    <string name="contract">สัญญา</string>
+    <string name="contract_code">รหัสสัญญา:</string>
+    <string name="name">"ชื่อ:"</string>
+    <string name="tier">ชั้น:</string>
+    <string name="status">สถานะ:</string>
 </resources>

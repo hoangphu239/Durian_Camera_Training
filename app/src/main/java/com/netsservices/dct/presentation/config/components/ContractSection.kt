@@ -27,9 +27,9 @@ import com.netsservices.dct.presentation.components.AppText
 
 
 @Composable
-fun LocationSection(
+fun ContractSection(
     selectedSite: String,
-    onOpenLocation: () -> Unit
+    openContract: () -> Unit
 ) {
     Row(
         modifier = Modifier
@@ -44,13 +44,13 @@ fun LocationSection(
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Text(
-            text = stringResource(R.string.location),
+            text = stringResource(R.string.contract),
             style = MaterialTheme.typography.titleMedium
         )
 
         Row(
             modifier = Modifier.clickable {
-                onOpenLocation()
+                openContract()
             },
             verticalAlignment = Alignment.CenterVertically,
         ) {
@@ -63,7 +63,7 @@ fun LocationSection(
 
             Icon(
                 Icons.Default.ArrowForwardIos,
-                contentDescription = "Location",
+                contentDescription = "Contract",
                 modifier = Modifier.size(22.dp),
                 tint = colorResource(R.color.black)
             )

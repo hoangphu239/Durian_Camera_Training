@@ -75,4 +75,9 @@
     <string name="position_the_durian_inside_the_frame">Position the durian inside the frame</string>
     <string name="keep_steady_and_ensure_good_lighting">Keep steady and ensure good lighting</string>
     <string name="location">Location</string>
+    <string name="contract">Contract</string>
+    <string name="contract_code">Contract code:</string>
+    <string name="name">"Name: "</string>
+    <string name="tier">Tier:</string>
+    <string name="status">Status:</string>
 </resources>

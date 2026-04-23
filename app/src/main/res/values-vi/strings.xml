@@ -75,4 +75,9 @@
     <string name="position_the_durian_inside_the_frame">Đặt quả sầu riêng vào trong khung</string>
     <string name="keep_steady_and_ensure_good_lighting">Giữ camera ổn định và đảm bảo ánh sáng tốt</string>
     <string name="location">Vị trí</string>
+    <string name="contract">Hợp đồng</string>
+    <string name="contract_code">Mã hợp đồng:</string>
+    <string name="name">"Tên:"</string>
+    <string name="tier">Cấp độ:</string>
+    <string name="status">Trạng thái:</string>
 </resources>

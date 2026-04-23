@@ -75,4 +75,9 @@
     <string name="position_the_durian_inside_the_frame">ວາງຕົ້ນທຸລຽນໄວ້ໃນກອບ</string>
     <string name="keep_steady_and_ensure_good_lighting">ຮັກສາໃຫ້ໝັ້ນຄົງ ແລະ ຮັບປະກັນໃຫ້ມີແສງສະຫວ່າງດີ</string>
     <string name="location">ສະຖານທີ່</string>
+    <string name="contract">ສັນຍາ</string>
+    <string name="contract_code">ລະຫັດສັນຍາ:</string>
+    <string name="name">"ຊື່:"</string>
+    <string name="tier">ຊັ້ນ:</string>
+    <string name="status">ສະຖານະ:</string>
 </resources>

@@ -20,7 +20,7 @@ import com.netsservices.dct.presentation.home.HomeScreen
 import com.netsservices.dct.presentation.home.HomeViewModel
 import com.netsservices.dct.presentation.login.LoginScreen
 import com.netsservices.dct.presentation.register.RegisterScreen
-import com.netsservices.dct.presentation.location.LocationScreen
+import com.netsservices.dct.presentation.contract.ContractScreen
 import com.netsservices.dct.presentation.variety.DurianVarietyScreen
 
 
@@ -135,12 +135,12 @@ fun MainNavHost(
                 }
                 val configViewModel: ConfigViewModel = hiltViewModel(parentEntry)
 
-                val title = stringResource(R.string.location)
+                val title = stringResource(R.string.contract)
                 LaunchedEffect(backStackEntry) {
                     onTopBarTitleChange(title)
                 }
                 mainViewModel.gps?.let {
-                    LocationScreen(viewModel = configViewModel)
+                    ContractScreen(viewModel = configViewModel)
                 }
             }
 
