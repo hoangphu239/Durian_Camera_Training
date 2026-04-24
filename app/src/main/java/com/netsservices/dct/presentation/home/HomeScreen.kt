@@ -290,7 +290,9 @@ fun HomeScreen(
             isDetected = isDetected
         )
 
-        if (uiState.isLoading) LoadingOverlay()
+        if (uiState.isLoading) {
+            LoadingOverlay()
+        }
 
         if (uiState.blockCapture) {
             AppDialog(

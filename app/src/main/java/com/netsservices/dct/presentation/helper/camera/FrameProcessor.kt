@@ -11,11 +11,10 @@ import androidx.camera.core.ImageProxy
 import androidx.compose.ui.geometry.Offset
 import java.io.ByteArrayOutputStream
 import androidx.core.graphics.get
+import com.netsservices.dct.domain.model.LaserPoint
 import com.netsservices.dct.presentation.common.Constants
 
 class FrameProcessor {
-
-    data class LaserPoint(val x: Float, val y: Float)
 
     fun imageProxyToBitmap(image: ImageProxy): Bitmap? {
         val yBuffer = image.planes[0].buffer
@@ -174,25 +173,6 @@ class FrameProcessor {
         }
 
         return if (total > 0) darkCount.toFloat() / total else 0f
-    }
-
-    private fun isTriangleValid(points: List<LaserPoint>): Boolean {
-        if (points.size != 3) return false
-
-        val d1 = distance(points[0], points[1])
-        val d2 = distance(points[1], points[2])
-        val d3 = distance(points[2], points[0])
-
-        val max = maxOf(d1, d2, d3)
-        val min = minOf(d1, d2, d3)
-
-        return max / min < 1.5f
-    }
-
-    private fun distance(a: LaserPoint, b: LaserPoint): Float {
-        val dx = a.x - b.x
-        val dy = a.y - b.y
-        return kotlin.math.sqrt(dx * dx + dy * dy)
     }
 
     private fun luminance(pixel: Int): Float {
